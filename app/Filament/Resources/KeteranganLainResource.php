@@ -55,6 +55,7 @@ class KeteranganLainResource extends Resource
                         //     ->maxLength(255),
                         // Forms\Components\TextInput::make('tanda_tangan_ketua')
                         //     ->required()
+                        //     ->readOnly()
                         //     ->maxLength(255),
                         SignaturePad::make('tanda_tangan_ketua')
                     ]),
@@ -83,10 +84,10 @@ class KeteranganLainResource extends Resource
                             Forms\Components\Select::make('status_tinggal')
                                 ->required()
                                 ->options([
-                                    'sendiri' => 'sendiri',
-                                    'bersama keluarga' => 'bersama keluarga',
-                                    'bersama saudara' => 'bersama saudara',
-                                    'kos/kontrak' => 'kos/kontrak',
+                                    'Sendiri' => 'Sendiri',
+                                    'Bersama Keluarga' => 'Bersama Keluarga',
+                                    'Bersama Saudara' => 'Bersama Saudara',
+                                    'Kos/Kontrak' => 'Kos/Kontrak',
                                 ]),
                             Forms\Components\Textarea::make('keperluan')
                                 ->required()
@@ -121,14 +122,14 @@ class KeteranganLainResource extends Resource
                 Tables\Columns\TextColumn::make('telepon_kantor')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status_tinggal'),
-                Tables\Columns\TextColumn::make('tanggal_surat')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('tanda_tangan_ketua')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('status_ttd_pastor')
                     ->label('Tanda tangan pastor')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('tanggal_surat')
+                    ->date()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

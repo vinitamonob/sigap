@@ -24,12 +24,12 @@ return new class extends Migration
             $table->text('alamat');
             $table->string('telepon_rumah')->nullable();
             $table->string('telepon_kantor')->nullable();
-            $table->enum('status_tinggal', ['sendiri', 'bersama keluarga', 'bersama saudara', 'kos/kontrak']);
+            $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak']);
             $table->text('keperluan');
             $table->date('tanggal_surat');
             $table->string('tanda_tangan_pastor')->nullable();
             $table->string('tanda_tangan_ketua');
-            $table->enum('status_ttd_pastor', ['menunggu', 'selesai'])->default('menunggu');
+            $table->enum('status_ttd_pastor', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

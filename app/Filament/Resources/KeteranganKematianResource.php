@@ -127,11 +127,11 @@ class KeteranganKematianResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tempat_no_buku_baptis')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('tanda_tangan')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_surat')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('tanda_tangan')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
