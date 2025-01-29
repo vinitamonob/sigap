@@ -16,6 +16,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 class SuratResource extends Resource
 {
     protected static ?string $model = Surat::class;
+    
+    protected static ?string $navigationGroup = 'Surat';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
