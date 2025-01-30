@@ -26,10 +26,10 @@ return new class extends Migration
             $table->string('telepon_kantor')->nullable();
             $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak']);
             $table->text('keperluan');
-            $table->date('tanggal_surat');
             $table->string('tanda_tangan_pastor')->nullable();
-            $table->string('tanda_tangan_ketua');
+            $table->string('tanda_tangan_ketua')->nullable();
             $table->enum('status_ttd_pastor', ['Menunggu', 'Selesai'])->default('Menunggu');
+            $table->date('tanggal_surat');
             $table->timestamps();
         });
     }

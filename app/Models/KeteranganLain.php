@@ -20,9 +20,9 @@ class KeteranganLain extends Model
         'telepon_kantor',
         'status_tinggal',
         'keperluan',
-        'tanggal_surat',
         'tanda_tangan_pastor',
         'tanda_tangan_ketua',
-        'status_ttd_pastor'
+        'status_ttd_pastor',
+        'tanggal_surat'
     ];
 }

@@ -51,11 +51,11 @@ class KeteranganKematianResource extends Resource
                             ->required()
                             ->default(now())
                             ->readOnly(),
-                        // Forms\Components\TextInput::make('tanda_tangan')
+                        // Forms\Components\TextInput::make('tanda_tangan_ketua')
                         //     ->required()
                         //     ->readOnly()
                         //     ->maxLength(255),
-                        SignaturePad::make('tanda_tangan')
+                        SignaturePad::make('tanda_tangan_ketua')
                     ]),
                     Fieldset::make('Data Kematian')
                         ->schema([
@@ -127,7 +127,7 @@ class KeteranganKematianResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tempat_no_buku_baptis')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan')
+                Tables\Columns\TextColumn::make('tanda_tangan_ketua')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_surat')
                     ->date()

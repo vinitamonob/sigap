@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class PendaftaranKanonikPerkawinan extends Model
+{
+    protected $fillable = [
+        'nama_ketua_istri',
+        'ketua_lingkungan_istri',
+        'wilayah_istri',
+        'paroki_istri',
+        'nama_istri',
+        'tempat_lahir_istri',
+        'tanggal_lahir_istri',
+        'alamat_sekarang_istri',
+        'alamat_setelah_menikah_istri',
+        'telepon_istri',
+        'pekerjaan_istri',
+        'pendidikan_terakhir_istri',
+        'agama_istri',
+        'tempat_baptis_istri',
+        'tanggal_baptis_istri',
+        'nama_ayah_istri',
+        'agama_ayah_istri',
+        'pekerjaan_ayah_istri',
+        'alamat_ayah_istri',
+        'nama_ibu_istri',
+        'agama_ibu_istri',
+        'pekerjaan_ibu_istri',
+        'alamat_ibu_istri',
+        'nama_ketua_suami',
+        'ketua_lingkungan_suami',
+        'wilayah_suami',
+        'paroki_suami',
+        'nama_suami',
+        'tempat_lahir_suami',
+        'tanggal_lahir_suami',
+        'alamat_sekarang_suami',
+        'alamat_setelah_menikah_suami',
+        'telepon_suami',
+        'pekerjaan_suami',
+        'pendidikan_terakhir_suami',
+        'agama_suami',
+        'tempat_baptis_suami',
+        'tanggal_baptis_suami',
+        'nama_ayah_suami',
+        'agama_ayah_suami',
+        'pekerjaan_ayah_suami',
+        'alamat_ayah_suami',
+        'nama_ibu_suami',
+        'agama_ibu_suami',
+        'pekerjaan_ibu_suami',
+        'alamat_ibu_suami',
+        'lokasi_gereja',
+        'tanggal_pernikahan',
+        'waktu_pernikahan',
+        'tanda_tangan_calon_istri',
+        'tanda_tangan_calon_suami',
+        'tanda_tangan_ketua_istri',
+        'tanda_tangan_ketua_suami',
+        'tanda_tangan_pastor',
+        'status_ttd_pastor',
+        'tanggal_daftar'
+    ];
+}

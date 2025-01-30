@@ -27,8 +27,8 @@ return new class extends Migration
             $table->string('pelayan_sakramen');
             $table->string('sakramen_yang_diberikan');
             $table->string('tempat_no_buku_baptis');
+            $table->string('tanda_tangan_ketua')->nullable();
             $table->date('tanggal_surat');
-            $table->string('tanda_tangan');
             $table->timestamps();
         });
     }

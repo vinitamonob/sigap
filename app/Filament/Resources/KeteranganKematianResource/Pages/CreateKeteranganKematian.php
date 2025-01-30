@@ -14,13 +14,13 @@ class CreateKeteranganKematian extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $image = $data['tanda_tangan'];  // your base64 encoded
+        $image = $data['tanda_tangan_ketua'];  // your base64 encoded
         $image = str_replace('data:image/png;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
         $imageName = Str::random(10).'.'.'png';
         File::put(storage_path(). '/' . $imageName, base64_decode($image));
 
-        $data['tanda_tangan'] = $imageName;
+        $data['tanda_tangan_ketua'] = $imageName;
         // dd($data);
         return $data;
     }
