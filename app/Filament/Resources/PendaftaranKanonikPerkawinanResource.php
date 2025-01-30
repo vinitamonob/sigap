@@ -48,7 +48,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     ->label('Paroki')
                                     ->maxLength(255),
                                 SignaturePad::make('tanda_tangan_ketua_istri')
-                                ->label('Tanda Tangan Ketua Lingkungan')
+                                    ->label('Tanda Tangan Ketua Lingkungan'),
                             ]),
                         Forms\Components\TextInput::make('nama_istri')
                             ->required()
@@ -104,8 +104,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                         Forms\Components\Textarea::make('alamat_ibu_istri')
                             ->required()
                             ->columnSpanFull(),
-                        Forms\Components\TextInput::make('tanda_tangan_calon_istri')
-                            ->maxLength(255),
+                        Forms\Components\FileUpload::make('tanda_tangan_calon_istri'),
                     ]),
                     Fieldset::make('Data Calon Suami')
                         ->schema([
@@ -128,7 +127,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                         ->label('Paroki')
                                         ->maxLength(255),
                                     SignaturePad::make('tanda_tangan_ketua_suami')
-                                    ->label('Tanda Tangan Ketua Lingkungan')
+                                        ->label('Tanda Tangan Ketua Lingkungan'),
                                 ]),
                             Forms\Components\TextInput::make('nama_suami')
                                 ->required()
@@ -184,8 +183,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             Forms\Components\Textarea::make('alamat_ibu_suami')
                                 ->required()
                                 ->columnSpanFull(),
-                            Forms\Components\TextInput::make('tanda_tangan_calon_suami')
-                                ->maxLength(255),
+                            Forms\Components\FileUpload::make('tanda_tangan_calon_suami'),
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
