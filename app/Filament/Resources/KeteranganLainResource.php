@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
+use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use App\Models\KeteranganLain;
 use Filament\Resources\Resource;
@@ -38,10 +39,11 @@ class KeteranganLainResource extends Resource
                             ->default(Auth::user()->name)
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('ketua_lingkungan')
+                        Forms\Components\Select::make('ketua_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
-                            ->maxLength(255),
+                            ->options(Lingkungan::all()->pluck('nama_lingkungan', 'nama_lingkungan'))
+                            ->searchable(),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->default('St. Stephanus Cilacap')
@@ -51,13 +53,6 @@ class KeteranganLainResource extends Resource
                             ->required()
                             ->default(now())
                             ->readOnly(),
-                        // Forms\Components\TextInput::make('tanda_tangan_pastor')
-                        //     ->maxLength(255),
-                        // Forms\Components\TextInput::make('tanda_tangan_ketua')
-                        //     ->required()
-                        //     ->readOnly()
-                        //     ->maxLength(255),
-                        SignaturePad::make('tanda_tangan_ketua')
                     ]),
                     Fieldset::make('Data Keperluan')
                         ->schema([

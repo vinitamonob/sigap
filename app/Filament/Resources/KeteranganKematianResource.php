@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\KeteranganKematianResource\Pages;
 use App\Filament\Resources\KeteranganKematianResource\RelationManagers;
+use App\Models\Lingkungan;
 
 class KeteranganKematianResource extends Resource
 {
@@ -38,10 +39,11 @@ class KeteranganKematianResource extends Resource
                             ->default(Auth::user()->name)
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('ketua_lingkungan')
+                        Forms\Components\Select::make('ketua_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
-                            ->maxLength(255),
+                            ->options(Lingkungan::all()->pluck('nama_lingkungan', 'nama_lingkungan'))
+                            ->searchable(),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->default('St. Stephanus Cilacap')
@@ -51,11 +53,6 @@ class KeteranganKematianResource extends Resource
                             ->required()
                             ->default(now())
                             ->readOnly(),
-                        // Forms\Components\TextInput::make('tanda_tangan_ketua')
-                        //     ->required()
-                        //     ->readOnly()
-                        //     ->maxLength(255),
-                        SignaturePad::make('tanda_tangan_ketua')
                     ]),
                     Fieldset::make('Data Kematian')
                         ->schema([

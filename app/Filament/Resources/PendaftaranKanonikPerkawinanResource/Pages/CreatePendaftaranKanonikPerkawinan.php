@@ -17,7 +17,9 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
         // Array tanda tangan yang perlu diproses
         $tandaTanganFields = [
             'tanda_tangan_ketua_istri',
-            'tanda_tangan_ketua_suami'
+            'tanda_tangan_ketua_suami',
+            'tanda_tangan_calon_istri',
+            'tanda_tangan_calon_suami'
         ];
 
         foreach ($tandaTanganFields as $field) {
@@ -33,5 +35,10 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
         }
         // dd($data);
         return $data;
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return PendaftaranKanonikPerkawinanResource::getUrl('index');
     }
 }

@@ -104,7 +104,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                         Forms\Components\Textarea::make('alamat_ibu_istri')
                             ->required()
                             ->columnSpanFull(),
-                        Forms\Components\FileUpload::make('tanda_tangan_calon_istri'),
+                        SignaturePad::make('tanda_tangan_calon_istri')
                     ]),
                     Fieldset::make('Data Calon Suami')
                         ->schema([
@@ -183,7 +183,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             Forms\Components\Textarea::make('alamat_ibu_suami')
                                 ->required()
                                 ->columnSpanFull(),
-                            Forms\Components\FileUpload::make('tanda_tangan_calon_suami'),
+                            SignaturePad::make('tanda_tangan_calon_suami')
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
@@ -239,7 +239,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('nama_ayah_istri')
-                    ->searchable(),
+                    ->searchable(), 
                 Tables\Columns\TextColumn::make('agama_ayah_istri')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('pekerjaan_ayah_istri')

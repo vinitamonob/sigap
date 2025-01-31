@@ -27,99 +27,91 @@ class PendaftaranBaptisResource extends Resource
     {
         return $form
             ->schema([
-                Fieldset::make('Label')
+                Fieldset::make('Data Pendaftar')
                     ->schema([
-                        // Forms\Components\TextInput::make('tanda_tangan_ketua')
-                        //     ->required()
-                        //     ->readOnly()
-                        //     ->maxLength(255),
-                        SignaturePad::make('tanda_tangan_ketua')
-                    ]),
-                    Fieldset::make('Data Pendaftar')
-                        ->schema([
-                            Forms\Components\TextInput::make('nama_lengkap')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('nama_baptis')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\Radio::make('jenis_kelamin')
-                                ->required()
-                                ->inline()
-                                ->inlineLabel(false)
-                                ->options([
-                                    'Pria' => 'Pria',
-                                    'Wanita' => 'Wanita'
+                        Forms\Components\TextInput::make('nama_lengkap')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('nama_baptis')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Radio::make('jenis_kelamin')
+                            ->required()
+                            ->inline()
+                            ->inlineLabel(false)
+                            ->options([
+                                'Pria' => 'Pria',
+                                'Wanita' => 'Wanita'
+                            ]),
+                        Forms\Components\TextInput::make('tempat_lahir')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\DatePicker::make('tanggal_lahir')
+                            ->required(),
+                        Forms\Components\Textarea::make('alamat_lengkap')
+                            ->required()
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('nomor_telepon')
+                            ->tel()
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Radio::make('agama_asal')
+                            ->required()
+                            ->inline()
+                            ->inlineLabel(false)
+                            ->options([
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Budha' => 'Budha',
+                                'Protestan' => 'Protestan'
+                            ]),
+                        Forms\Components\Radio::make('pendidikan_terakhir')
+                            ->required()
+                            ->inline()
+                            ->inlineLabel(false)
+                            ->options([
+                                'TK' => 'TK',
+                                'SD' => 'SD',
+                                'SMP' => 'SMP'
+                            ]),
+                            Fieldset::make('Data Keluarga')
+                                ->schema([
+                                    Forms\Components\TextInput::make('nama_ayah')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('agama_ayah')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('nama_ibu')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('agama_ibu')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('nama_keluarga_katolik_1')
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('hubungan_keluarga_katolik_1')
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('nama_keluarga_katolik_2')
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('hubungan_keluarga_katolik_2')
+                                        ->maxLength(255),
+                                    Forms\Components\Textarea::make('alamat_keluarga')
+                                        ->required()
+                                        ->columnSpanFull(),
                                 ]),
-                            Forms\Components\TextInput::make('tempat_lahir')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\DatePicker::make('tanggal_lahir')
-                                ->required(),
-                            Forms\Components\Textarea::make('alamat_lengkap')
-                                ->required()
-                                ->columnSpanFull(),
-                            Forms\Components\TextInput::make('nomor_telepon')
-                                ->tel()
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\Radio::make('agama_asal')
-                                ->required()
-                                ->inline()
-                                ->inlineLabel(false)
-                                ->options([
-                                    'Islam' => 'Islam',
-                                    'Hindu' => 'Hindu',
-                                    'Budha' => 'Budha',
-                                    'Protestan' => 'Protestan'
-                                ]),
-                            Forms\Components\Radio::make('pendidikan_terakhir')
-                                ->required()
-                                ->inline()
-                                ->inlineLabel(false)
-                                ->options([
-                                    'TK' => 'TK',
-                                    'SD' => 'SD',
-                                    'SMP' => 'SMP'
-                                ]),
-                                Fieldset::make('Data Keluarga')
-                                    ->schema([
-                                        Forms\Components\TextInput::make('nama_ayah')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('agama_ayah')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('nama_ibu')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('agama_ibu')
-                                            ->required()
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('nama_keluarga_katolik_1')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('hubungan_keluarga_katolik_1')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('nama_keluarga_katolik_2')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('hubungan_keluarga_katolik_2')
-                                            ->maxLength(255),
-                                        Forms\Components\Textarea::make('alamat_keluarga')
-                                            ->required()
-                                            ->columnSpanFull(),
-                                    ]),
-                            Forms\Components\DatePicker::make('tanggal_mulai_belajar')
-                                ->required(),
-                            Forms\Components\TextInput::make('nama_wali_baptis')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\Textarea::make('alasan_masuk_katolik')
-                                ->required()
-                                ->columnSpanFull(),
-                            Forms\Components\FileUpload::make('tanda_tangan_ortu'),
-                            // Forms\Components\DatePicker::make('tanggal_baptis')
-                            //     ->required(),
-                        ])
+                        Forms\Components\DatePicker::make('tanggal_mulai_belajar')
+                            ->required(),
+                        Forms\Components\TextInput::make('nama_wali_baptis')
+                            ->required()
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('alasan_masuk_katolik')
+                            ->required()
+                            ->columnSpanFull(),
+                        SignaturePad::make('tanda_tangan_ortu')
+                        // Forms\Components\DatePicker::make('tanggal_baptis')
+                        //     ->required(),
+                    ])
             ]);
     }
 
