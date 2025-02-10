@@ -120,48 +120,32 @@ class PendaftaranBaptisResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nama_lengkap')
+                    ->label('Nama Lengkap')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_baptis')
+                    ->label('Nama Baptis')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('jenis_kelamin'),
+                Tables\Columns\TextColumn::make('jenis_kelamin')
+                    ->label('Jenis Kelamin'),
                 Tables\Columns\TextColumn::make('tempat_lahir')
+                    ->label('Tempat Lahir')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_lahir')
+                    ->label('Tanggal Lahir')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('nomor_telepon')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_asal'),
-                Tables\Columns\TextColumn::make('pendidikan_terakhir'),
-                Tables\Columns\TextColumn::make('nama_ayah')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_ayah')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ibu')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_ibu')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_keluarga_katolik_1')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('hubungan_keluarga_katolik_1')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_keluarga_katolik_2')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('hubungan_keluarga_katolik_2')
+                    ->label('No. Telp')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_mulai_belajar')
+                    ->label('Tanggal Pembelajaran')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('nama_wali_baptis')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_ortu')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status_ttd_pastor')
-                    ->label('Tanda tangan pastor')
+                    ->label('Nama Wali Baptis')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_baptis')
+                    ->label('Tanggal Baptis')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')

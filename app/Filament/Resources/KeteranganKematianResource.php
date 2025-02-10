@@ -16,6 +16,7 @@ use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\KeteranganKematianResource\Pages;
 use App\Filament\Resources\KeteranganKematianResource\RelationManagers;
 use App\Models\Lingkungan;
+use App\Models\User;
 
 class KeteranganKematianResource extends Resource
 {
@@ -33,24 +34,29 @@ class KeteranganKematianResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('nomor_surat')
                             ->required()
+                            ->label('Nomor Surat')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('nama_ketua')
                             ->required()
+                            ->label('Nama Ketua Lingkungan')
                             ->default(Auth::user()->name)
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\Select::make('ketua_lingkungan')
+                        Forms\Components\TextInput::make('ketua_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
-                            ->options(Lingkungan::all()->pluck('nama_lingkungan', 'nama_lingkungan'))
-                            ->searchable(),
+                            ->default(Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)
+                            ->readOnly()
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
+                            ->label('Paroki')
                             ->default('St. Stephanus Cilacap')
                             ->readOnly()
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tanggal_surat')
                             ->required()
+                            ->label('Tanggal Surat')
                             ->default(now())
                             ->readOnly(),
                     ]),
@@ -58,28 +64,37 @@ class KeteranganKematianResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('nama_lengkap')
                                 ->required()
+                                ->label('Nama Lengkap')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('usia')
                                 ->required()
+                                ->label('Usia')
                                 ->numeric(),
                             Forms\Components\TextInput::make('nama_orang_tua')
                                 ->required()
+                                ->label('Nama Orang Tua')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('nama_pasangan')
                                 ->required()
+                                ->label('Nama Pasangan')
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('tanggal_kematian')
-                                ->required(),
+                                ->required()
+                                ->label('Tanggal Kematian'),
                             Forms\Components\DatePicker::make('tanggal_pemakaman')
-                                ->required(),
+                                ->required()
+                                ->label('Tanggal Pemakaman'),
                             Forms\Components\TextInput::make('tempat_pemakaman')
                                 ->required()
+                                ->label('Tempat Pemakaman')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('pelayan_sakramen')
                                 ->required()
+                                ->label('Pelayanan Sakramen')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('sakramen_yang_diberikan')
                                 ->required()
+                                ->label('Sakramen yang Diberikan')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('tempat_no_buku_baptis')
                                 ->required()
@@ -94,41 +109,26 @@ class KeteranganKematianResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ketua_lingkungan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('paroki')
+                    ->label('Nomor Surat')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lengkap')
+                    ->label('Nama Lengkap')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('usia')
+                    ->label('Usia')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('nama_orang_tua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_pasangan')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_kematian')
+                    ->label('Tanggal Kematian')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tanggal_pemakaman')
+                    ->label('Tanggal Pemakaman')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('tempat_pemakaman')
+                    ->label('Tempat Pemakaman')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('pelayan_sakramen')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('sakramen_yang_diberikan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_no_buku_baptis')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_surat')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

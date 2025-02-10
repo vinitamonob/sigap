@@ -33,24 +33,29 @@ class KeteranganLainResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('nomor_surat')
                             ->required()
+                            ->label('Nomor Surat')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('nama_ketua')
                             ->required()
+                            ->label('Nama Ketua Lingkungan')
                             ->default(Auth::user()->name)
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\Select::make('ketua_lingkungan')
+                        Forms\Components\TextInput::make('ketua_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
-                            ->options(Lingkungan::all()->pluck('nama_lingkungan', 'nama_lingkungan'))
-                            ->searchable(),
+                            ->default(Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)
+                            ->readOnly()
+                            ->maxLength(255),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
+                            ->label('Paroki')
                             ->default('St. Stephanus Cilacap')
                             ->readOnly()
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tanggal_surat')
                             ->required()
+                            ->label('Tanggal Surat')
                             ->default(now())
                             ->readOnly(),
                     ]),
@@ -58,26 +63,34 @@ class KeteranganLainResource extends Resource
                         ->schema([
                             Forms\Components\TextInput::make('nama_lengkap')
                                 ->required()
+                                ->label('Nama Lengkap')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('tempat_lahir')
                                 ->required()
+                                ->label('Tempat Lahir')
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('tanggal_lahir')
-                                ->required(),
+                                ->required()
+                                ->label('Tanggal Lahir'),
                             Forms\Components\TextInput::make('jabatan_pekerjaan')
                                 ->required()
+                                ->label('Jabatan Pekerjaan')
                                 ->maxLength(255),
                             Forms\Components\Textarea::make('alamat')
                                 ->required()
+                                ->label('Alamat')
                                 ->columnSpanFull(),
                             Forms\Components\TextInput::make('telepon_rumah')
                                 ->tel()
+                                ->label('No. Telepon Rumah')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('telepon_kantor')
                                 ->tel()
+                                ->label('No. Telepon Kantor')
                                 ->maxLength(255),
                             Forms\Components\Select::make('status_tinggal')
                                 ->required()
+                                ->label('Status Tempat Tinggal')
                                 ->options([
                                     'Sendiri' => 'Sendiri',
                                     'Bersama Keluarga' => 'Bersama Keluarga',
@@ -86,6 +99,7 @@ class KeteranganLainResource extends Resource
                                 ]),
                             Forms\Components\Textarea::make('keperluan')
                                 ->required()
+                                ->label('Perihal / Keperluan')
                                 ->columnSpanFull(),
                         ])
             ]);
@@ -96,35 +110,21 @@ class KeteranganLainResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ketua_lingkungan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('paroki')
+                    ->label('Nomor Surat')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lengkap')
+                    ->label('Nama Lengkap')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tempat_lahir')
+                    ->label('Tempat Lahir')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_lahir')
+                    ->label('Tanggal Lahir')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('jabatan_pekerjaan')
+                Tables\Columns\TextColumn::make('alamat')
+                    ->label('Alamat')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('telepon_rumah')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('telepon_kantor')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status_tinggal'),
-                Tables\Columns\TextColumn::make('tanda_tangan_ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status_ttd_pastor')
-                    ->label('Tanda tangan pastor')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_surat')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

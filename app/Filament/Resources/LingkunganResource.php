@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LingkunganResource\Pages;
 use App\Filament\Resources\LingkunganResource\RelationManagers;
 use App\Models\Lingkungan;
+use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -28,6 +29,9 @@ class LingkunganResource extends Resource
                 Forms\Components\TextInput::make('nama_lingkungan')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\Select::make('user_id')
+                    ->required()
+                    ->options(User::role('ketua_lingkungan')->get()->pluck('name', 'id')),
                 Forms\Components\TextInput::make('kode')
                     ->required()
                     ->maxLength(255),
@@ -39,8 +43,13 @@ class LingkunganResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('nama_lingkungan')
+                    ->label('Nama Lingkungan / Stasi')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Nama Ketua')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('kode')
+                    ->label('Kode')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
