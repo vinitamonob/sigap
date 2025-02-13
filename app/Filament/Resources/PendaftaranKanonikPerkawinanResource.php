@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\RelationManagers;
+use PhpParser\Node\Stmt\Label;
 
 class PendaftaranKanonikPerkawinanResource extends Resource
 {
@@ -29,32 +30,13 @@ class PendaftaranKanonikPerkawinanResource extends Resource
             ->schema([
                 Fieldset::make('Data Calon Istri')
                     ->schema([
-                        Fieldset::make('Data Lingkungan')
-                            ->schema([
-                                Forms\Components\TextInput::make('nama_ketua_istri')
-                                    ->required()
-                                    ->label('Nama Ketua Lingkungan')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('ketua_lingkungan_istri')
-                                    ->required()
-                                    ->label('Nama Lingkungan / Stasi')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('wilayah_istri')
-                                    ->required()
-                                    ->label('Wilayah')
-                                    ->maxLength(255),
-                                Forms\Components\TextInput::make('paroki_istri')
-                                    ->required()
-                                    ->label('Paroki')
-                                    ->maxLength(255),
-                                SignaturePad::make('tanda_tangan_ketua_istri')
-                                    ->label('Tanda Tangan Ketua Lingkungan'),
-                            ]),
                         Forms\Components\TextInput::make('nama_istri')
                             ->required()
+                            ->label('Nama lengkap CalonIstri')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('tempat_lahir_istri')
                             ->required()
+                            ->label('Tempat Lahir Istri')
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tanggal_lahir_istri')
                             ->required(),
@@ -80,55 +62,58 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                         Forms\Components\TextInput::make('tempat_baptis_istri')
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tanggal_baptis_istri'),
-                        Forms\Components\TextInput::make('nama_ayah_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('agama_ayah_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('pekerjaan_ayah_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('alamat_ayah_istri')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('nama_ibu_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('agama_ibu_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('pekerjaan_ibu_istri')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('alamat_ibu_istri')
-                            ->required()
-                            ->columnSpanFull(),
-                        SignaturePad::make('tanda_tangan_calon_istri')
-                    ]),
-                    Fieldset::make('Data Calon Suami')
-                        ->schema([
+                        SignaturePad::make('tanda_tangan_calon_istri'),
+                        Fieldset::make('Data Orang Tua')
+                            ->schema([
+                                Forms\Components\TextInput::make('nama_ayah_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('agama_ayah_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('pekerjaan_ayah_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\Textarea::make('alamat_ayah_istri')
+                                    ->required()
+                                    ->columnSpanFull(),
+                                Forms\Components\TextInput::make('nama_ibu_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('agama_ibu_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('pekerjaan_ibu_istri')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\Textarea::make('alamat_ibu_istri')
+                                    ->required()
+                                    ->columnSpanFull(),
+                            ]),   
                             Fieldset::make('Data Lingkungan')
                                 ->schema([
-                                    Forms\Components\TextInput::make('nama_ketua_suami')
+                                    Forms\Components\TextInput::make('nama_ketua_istri')
                                         ->required()
                                         ->label('Nama Ketua Lingkungan')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('ketua_lingkungan_suami')
+                                    Forms\Components\TextInput::make('ketua_lingkungan_istri')
                                         ->required()
                                         ->label('Nama Lingkungan / Stasi')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('wilayah_suami')
+                                    Forms\Components\TextInput::make('wilayah_istri')
                                         ->required()
                                         ->label('Wilayah')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('paroki_suami')
+                                    Forms\Components\TextInput::make('paroki_istri')
                                         ->required()
                                         ->label('Paroki')
                                         ->maxLength(255),
-                                    SignaturePad::make('tanda_tangan_ketua_suami')
+                                    SignaturePad::make('tanda_tangan_ketua_istri')
                                         ->label('Tanda Tangan Ketua Lingkungan'),
-                                ]),
+                                ])                          
+                    ]),
+                    Fieldset::make('Data Calon Suami')
+                        ->schema([
                             Forms\Components\TextInput::make('nama_suami')
                                 ->required()
                                 ->maxLength(255),
@@ -159,31 +144,55 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             Forms\Components\TextInput::make('tempat_baptis_suami')
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('tanggal_baptis_suami'),
-                            Forms\Components\TextInput::make('nama_ayah_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('agama_ayah_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('pekerjaan_ayah_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\Textarea::make('alamat_ayah_suami')
-                                ->required()
-                                ->columnSpanFull(),
-                            Forms\Components\TextInput::make('nama_ibu_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('agama_ibu_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('pekerjaan_ibu_suami')
-                                ->required()
-                                ->maxLength(255),
-                            Forms\Components\Textarea::make('alamat_ibu_suami')
-                                ->required()
-                                ->columnSpanFull(),
-                            SignaturePad::make('tanda_tangan_calon_suami')
+                            SignaturePad::make('tanda_tangan_calon_suami'),
+                            Fieldset::make('Data Orang Tua')
+                                ->schema([
+                                    Forms\Components\TextInput::make('nama_ayah_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('agama_ayah_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('pekerjaan_ayah_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\Textarea::make('alamat_ayah_suami')
+                                        ->required()
+                                        ->columnSpanFull(),
+                                    Forms\Components\TextInput::make('nama_ibu_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('agama_ibu_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\TextInput::make('pekerjaan_ibu_suami')
+                                        ->required()
+                                        ->maxLength(255),
+                                    Forms\Components\Textarea::make('alamat_ibu_suami')
+                                        ->required()
+                                        ->columnSpanFull(),
+                                ]),
+                                Fieldset::make('Data Lingkungan')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('nama_ketua_suami')
+                                            ->required()
+                                            ->label('Nama Ketua Lingkungan')
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('ketua_lingkungan_suami')
+                                            ->required()
+                                            ->label('Nama Lingkungan / Stasi')
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('wilayah_suami')
+                                            ->required()
+                                            ->label('Wilayah')
+                                            ->maxLength(255),
+                                        Forms\Components\TextInput::make('paroki_suami')
+                                            ->required()
+                                            ->label('Paroki')
+                                            ->maxLength(255),
+                                        SignaturePad::make('tanda_tangan_ketua_suami')
+                                            ->label('Tanda Tangan Ketua Lingkungan'),
+                                    ])
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
@@ -210,104 +219,47 @@ class PendaftaranKanonikPerkawinanResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('nama_ketua_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ketua_lingkungan_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('wilayah_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('paroki_istri')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama_istri')
+                    ->label('Nama Calon Istri')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tempat_lahir_istri')
+                    ->label('Tempat Lahir')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_lahir_istri')
+                    ->label('Tanggal Lahir')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('telepon_istri')
+                    ->label('No. Telp')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pendidikan_terakhir_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_baptis_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_baptis_istri')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('nama_ayah_istri')
-                    ->searchable(), 
-                Tables\Columns\TextColumn::make('agama_ayah_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_ayah_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ibu_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_ibu_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_ibu_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ketua_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('ketua_lingkungan_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('wilayah_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('paroki_suami')
+                Tables\Columns\TextColumn::make('paroki_istri')
+                    ->label('Paroki Calon Istri')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_suami')
+                    ->label('Nama Calon Suami')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tempat_lahir_suami')
+                    ->label('Tempat Lahir')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_lahir_suami')
+                    ->label('Tanggal Lahir')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('telepon_suami')
+                    ->label('No. Telp')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pendidikan_terakhir_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_baptis_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_baptis_suami')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('nama_ayah_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_ayah_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_ayah_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_ibu_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('agama_ibu_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('pekerjaan_ibu_suami')
+                Tables\Columns\TextColumn::make('paroki_suami')
+                    ->label('Paroki Calon Suami')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('lokasi_gereja')
+                    ->label('Lokasi Pemberkatan')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('tanggal_pernikahan')
+                    ->label('Tanggal Pernikahan')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('waktu_pernikahan'),
-                Tables\Columns\TextColumn::make('tanda_tangan_calon_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_calon_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_ketua_istri')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanda_tangan_ketua_suami')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('status_ttd_pastor'),
-                Tables\Columns\TextColumn::make('tanggal_daftar')
-                    ->date()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('waktu_pernikahan')
+                    ->label('Waktu Pernikahan'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
