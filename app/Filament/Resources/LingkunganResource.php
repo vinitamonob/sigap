@@ -5,7 +5,6 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\LingkunganResource\Pages;
 use App\Filament\Resources\LingkunganResource\RelationManagers;
 use App\Models\Lingkungan;
-use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -26,13 +25,26 @@ class LingkunganResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('kode')
+                    ->required()
+                    ->label('Kode Surat')
+                    ->maxLength(255),
                 Forms\Components\TextInput::make('nama_lingkungan')
                     ->required()
+                    ->label('Nama Lingkungan')
                     ->maxLength(255),
-                Forms\Components\Select::make('user_id')
+                Forms\Components\TextInput::make('user.name')
                     ->required()
-                    ->options(User::role('ketua_lingkungan')->get()->pluck('name', 'id')),
-                Forms\Components\TextInput::make('kode')
+                    ->label('Nama Ketua Lingkungan')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('user.email')
+                    ->email()
+                    ->label('Email')
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('telepon')
+                    ->tel()
+                    ->label('Nomor Telepon')
                     ->required()
                     ->maxLength(255),
             ]);
@@ -42,14 +54,19 @@ class LingkunganResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('kode')
+                    ->label('Kode Surat')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lingkungan')
-                    ->label('Nama Lingkungan / Stasi')
+                    ->label('Nama Lingkungan')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('user.name')
                     ->label('Nama Ketua')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('kode')
-                    ->label('Kode')
+                Tables\Columns\TextColumn::make('user.email')
+                    ->label('Email'),
+                Tables\Columns\TextColumn::make('telepon')
+                    ->label('No. Telp')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -65,7 +82,6 @@ class LingkunganResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -74,10 +90,19 @@ class LingkunganResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            //
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageLingkungans::route('/'),
+            'index' => Pages\ListLingkungans::route('/'),
+            'create' => Pages\CreateLingkungan::route('/create'),
+            'edit' => Pages\EditLingkungan::route('/{record}/edit'),
         ];
     }
 }

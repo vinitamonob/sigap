@@ -14,9 +14,10 @@ return new class extends Migration
     {
         Schema::create('lingkungans', function (Blueprint $table) {
             $table->id();
+            $table->string('kode');
             $table->string('nama_lingkungan');
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('kode');
+            $table->string('telepon');
             $table->timestamps();
         });
     }

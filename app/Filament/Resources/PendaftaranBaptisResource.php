@@ -159,17 +159,9 @@ class PendaftaranBaptisResource extends Resource
                 Tables\Columns\TextColumn::make('nomor_telepon')
                     ->label('No. Telp')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_mulai_belajar')
-                    ->label('Tanggal Pembelajaran')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('nama_wali_baptis')
                     ->label('Nama Wali Baptis')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_baptis')
-                    ->label('Tanggal Baptis')
-                    ->date()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

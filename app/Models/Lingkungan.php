@@ -7,13 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Lingkungan extends Model
 {
     protected $fillable = [
+        'kode',
         'nama_lingkungan',
         'user_id',
-        'kode'
+        'telepon'
     ];
 
     public function user()
     {
-        return $this->hasOne(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
 }

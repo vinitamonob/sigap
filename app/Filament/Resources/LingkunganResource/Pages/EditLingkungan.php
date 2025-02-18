@@ -4,16 +4,16 @@ namespace App\Filament\Resources\LingkunganResource\Pages;
 
 use App\Filament\Resources\LingkunganResource;
 use Filament\Actions;
-use Filament\Resources\Pages\ManageRecords;
+use Filament\Resources\Pages\EditRecord;
 
-class ManageLingkungans extends ManageRecords
+class EditLingkungan extends EditRecord
 {
     protected static string $resource = LingkunganResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\DeleteAction::make(),
         ];
     }
 }
