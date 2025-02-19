@@ -45,7 +45,7 @@ class KeteranganKematianResource extends Resource
                         Forms\Components\TextInput::make('ketua_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
-                            ->default(Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)
+                            ->default(fn () => Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)
                             ->readOnly()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('paroki')
@@ -107,6 +107,7 @@ class KeteranganKematianResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('ketua_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')

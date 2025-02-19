@@ -16,4 +16,9 @@ class EditKeteranganKematian extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return KeteranganKematianResource::getUrl('index');
+    }
 }

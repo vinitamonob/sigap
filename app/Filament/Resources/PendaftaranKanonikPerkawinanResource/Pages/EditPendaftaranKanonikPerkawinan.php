@@ -16,4 +16,9 @@ class EditPendaftaranKanonikPerkawinan extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return PendaftaranKanonikPerkawinanResource::getUrl('index');
+    }
 }

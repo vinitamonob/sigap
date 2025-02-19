@@ -108,6 +108,7 @@ class KeteranganLainResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+        ->modifyQueryUsing(fn (Builder $query) => $query->where('ketua_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')

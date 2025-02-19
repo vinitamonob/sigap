@@ -10,7 +10,6 @@ class Lingkungan extends Model
         'kode',
         'nama_lingkungan',
         'user_id',
-        'telepon'
     ];
 
     public function user()

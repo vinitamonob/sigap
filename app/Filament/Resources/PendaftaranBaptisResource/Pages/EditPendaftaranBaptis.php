@@ -16,4 +16,9 @@ class EditPendaftaranBaptis extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return PendaftaranBaptisResource::getUrl('index');
+    }
 }

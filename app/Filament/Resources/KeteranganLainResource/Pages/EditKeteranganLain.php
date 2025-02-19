@@ -16,4 +16,9 @@ class EditKeteranganLain extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return KeteranganLainResource::getUrl('index');
+    }
 }

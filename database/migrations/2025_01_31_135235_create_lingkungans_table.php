@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('kode');
             $table->string('nama_lingkungan');
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('telepon');
             $table->timestamps();
         });
     }

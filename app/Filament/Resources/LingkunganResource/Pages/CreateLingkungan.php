@@ -12,22 +12,22 @@ class CreateLingkungan extends CreateRecord
 {
     protected static string $resource = LingkunganResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        // Create user first
-        $user = User::create([
-            'name' => $data['user']['name'],
-            'email' => $data['user']['email'],
-            'password' => Hash::make($data['user']['password'] ?? '12345678'),
-        ]);
-        // Assign role 
-        $user->assignRole('ketua_lingkungan');
-        // Remove user data from $data array and set user_id
-        unset($data['user']);
-        $data['user_id'] = $user->id;
+    // protected function mutateFormDataBeforeCreate(array $data): array
+    // {
+    //     // Create user first
+    //     $user = User::create([
+    //         'name' => $data['user']['name'],
+    //         'email' => $data['user']['email'],
+    //         'password' => Hash::make($data['user']['password'] ?? '12345678'),
+    //     ]);
+    //     // Assign role 
+    //     $user->assignRole('ketua_lingkungan');
+    //     // Remove user data from $data array and set user_id
+    //     unset($data['user']);
+    //     $data['user_id'] = $user->id;
 
-        return $data;
-    }
+    //     return $data;
+    // }
 
     protected function getRedirectUrl(): string
     {

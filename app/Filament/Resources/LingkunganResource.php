@@ -42,11 +42,6 @@ class LingkunganResource extends Resource
                     ->label('Email')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('telepon')
-                    ->tel()
-                    ->label('Nomor Telepon')
-                    ->required()
-                    ->maxLength(255),
             ]);
     }
 

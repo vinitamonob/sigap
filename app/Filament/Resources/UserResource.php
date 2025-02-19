@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\UserResource\Pages;
-use App\Filament\Resources\UserResource\RelationManagers;
-use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Hash;
+use Filament\Forms\Components\Fieldset;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\UserResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\UserResource\RelationManagers;
 
 class UserResource extends Resource
 {
@@ -25,29 +27,48 @@ class UserResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('name')
-                    ->required()
-                    ->label('Nama')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('email')
-                    ->email()
-                    ->label('Email')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('password')
-                    ->password()
-                    ->label('Password')
-                    ->revealable()
-                    ->required()
-                    ->default('12345678')
-                    ->readOnly()
-                    ->maxLength(255),
-                Forms\Components\Select::make('roles')
-                    ->label('Role')
-                    ->relationship('roles', 'name')
-                    ->multiple()
-                    ->preload()
-                    ->searchable(),
+                Fieldset::make('Data User')
+                        ->schema([
+                            Forms\Components\TextInput::make('name')
+                                ->required()
+                                ->label('Nama')
+                                ->maxLength(255),
+                            Forms\Components\TextInput::make('email')
+                                ->email()
+                                ->label('Email')
+                                ->required()
+                                ->maxLength(255),
+                            Forms\Components\TextInput::make('telepon')
+                                ->tel()
+                                ->label('Nomor Telepon')
+                                ->required()
+                                ->maxLength(255),
+                            Forms\Components\TextInput::make('password')
+                                ->password()
+                                ->label('Password')
+                                ->revealable()
+                                ->default('12345678')
+                                ->maxLength(255)
+                                ->dehydrateStateUsing(fn ($state) => Hash::make($state))
+                                ->dehydrated(fn ($state) => filled($state)),
+                            Forms\Components\Select::make('roles')
+                                ->label('Role')
+                                ->relationship('roles', 'name')
+                                ->multiple()
+                                ->preload()
+                                ->searchable(),
+                        ]),
+                        Fieldset::make('Data Lingkungan')
+                            ->schema([
+                                Forms\Components\TextInput::make('kode')
+                                    ->required()
+                                    ->label('Kode Surat')
+                                    ->maxLength(255),
+                                Forms\Components\TextInput::make('nama_lingkungan')
+                                    ->required()
+                                    ->label('Nama Lingkungan')
+                                    ->maxLength(255),
+                            ])
             ]);
     }
 
@@ -60,6 +81,9 @@ class UserResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
                     ->label('Email')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('telepon')
+                    ->label('No. Telp')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
                     ->label('Role')

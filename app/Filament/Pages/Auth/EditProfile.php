@@ -20,10 +20,16 @@ class EditProfile extends BaseEditProfile
             ->schema([
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
+                $this->getTeleponFormComponent(),
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
                 SignaturePad::make('tanda_tangan')
             ]);
+    }
+
+    protected function getTeleponFormComponent()
+    {
+        return TextInput::make('telepon');
     }
 
     protected function mutateFormDataBeforeSave($data): array

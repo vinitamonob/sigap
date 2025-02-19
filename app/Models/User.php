@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'telepon',
         'tanda_tangan'
     ];
 
@@ -50,6 +51,6 @@ class User extends Authenticatable
 
     public function lingkungan()
     {
-        return $this->belongsTo(Lingkungan::class);
+        return $this->hasOne(Lingkungan::class);
     }
 }
