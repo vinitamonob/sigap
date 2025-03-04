@@ -17,6 +17,7 @@ use App\Filament\Resources\KeteranganKematianResource\Pages;
 use App\Filament\Resources\KeteranganKematianResource\RelationManagers;
 use App\Models\Lingkungan;
 use App\Models\User;
+use Carbon\Carbon;
 
 class KeteranganKematianResource extends Resource
 {
@@ -57,7 +58,7 @@ class KeteranganKematianResource extends Resource
                         Forms\Components\DatePicker::make('tanggal_surat')
                             ->required()
                             ->label('Tanggal Surat')
-                            ->default(now())
+                            ->default(Carbon::now())
                             ->readOnly(),
                     ]),
                     Fieldset::make('Data Kematian')
