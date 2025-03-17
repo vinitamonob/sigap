@@ -41,7 +41,7 @@ class KeteranganLainResource extends Resource
                             ->default(Auth::user()->name)
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('ketua_lingkungan')
+                        Forms\Components\TextInput::make('nama_lingkungan')
                             ->required()
                             ->label('Ketua Lingkungan / Stasi')
                             ->default(Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)

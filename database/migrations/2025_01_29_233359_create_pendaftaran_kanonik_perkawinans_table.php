@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('pendaftaran_kanonik_perkawinans', function (Blueprint $table) {
             $table->id();
             $table->string('nama_ketua_istri');
-            $table->string('ketua_lingkungan_istri');
+            $table->string('nama_lingkungan_istri');
             $table->string('wilayah_istri');
             $table->string('paroki_istri');
             $table->string('nama_istri');
@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('pekerjaan_ibu_istri');
             $table->text('alamat_ibu_istri');
             $table->string('nama_ketua_suami');
-            $table->string('ketua_lingkungan_suami');
+            $table->string('nama_lingkungan_suami');
             $table->string('wilayah_suami');
             $table->string('paroki_suami');
             $table->string('nama_suami');

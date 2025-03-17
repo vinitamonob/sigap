@@ -96,7 +96,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                         ->required()
                                         ->label('Nama Ketua Lingkungan')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('ketua_lingkungan_istri')
+                                    Forms\Components\TextInput::make('nama_lingkungan_istri')
                                         ->required()
                                         ->label('Nama Lingkungan / Stasi')
                                         ->maxLength(255),
@@ -178,7 +178,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                             ->required()
                                             ->label('Nama Ketua Lingkungan')
                                             ->maxLength(255),
-                                        Forms\Components\TextInput::make('ketua_lingkungan_suami')
+                                        Forms\Components\TextInput::make('nama_lingkungan_suami')
                                             ->required()
                                             ->label('Nama Lingkungan / Stasi')
                                             ->maxLength(255),

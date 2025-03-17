@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('nomor_surat');
             $table->string('nama_ketua');
-            $table->string('ketua_lingkungan');
+            $table->string('nama_lingkungan');
             $table->string('paroki');
             $table->string('nama_lengkap');
             $table->integer('usia');
