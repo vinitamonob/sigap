@@ -2,22 +2,23 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\LingkunganResource\Pages;
-use App\Filament\Resources\LingkunganResource\RelationManagers;
-use App\Models\Lingkungan;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
+use App\Models\User;
 use Filament\Tables;
+use Filament\Forms\Form;
+use App\Models\Lingkungan;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\LingkunganResource\Pages;
+use App\Filament\Resources\LingkunganResource\RelationManagers;
 
 class LingkunganResource extends Resource
 {
     protected static ?string $model = Lingkungan::class;
 
-    protected static ?string $navigationGroup = 'Data';
+    protected static ?string $navigationGroup = 'Kelola Data';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -33,15 +34,10 @@ class LingkunganResource extends Resource
                     ->required()
                     ->label('Nama Lingkungan')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('user.name')
-                    ->required()
-                    ->label('Nama Ketua Lingkungan')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('user.email')
-                    ->email()
-                    ->label('Email')
-                    ->required()
-                    ->maxLength(255),
+                Forms\Components\Select::make('user_id')
+                    ->label('Ketua Lingkungan')
+                    ->options(User::whereHas('roles', function ($query) {$query->where('name', 'ketua_lingkungan');})->whereDoesntHave('lingkungan')->pluck('name', 'id'))
+                    ->searchable(),
             ]);
     }
 
@@ -49,19 +45,15 @@ class LingkunganResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Ketua Lingkungan')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('kode')
                     ->label('Kode Surat')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lingkungan')
                     ->label('Nama Lingkungan')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Nama Ketua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.email')
-                    ->label('Email'),
-                Tables\Columns\TextColumn::make('telepon')
-                    ->label('No. Telp')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

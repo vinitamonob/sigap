@@ -20,7 +20,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
 {
     protected static ?string $model = PendaftaranKanonikPerkawinan::class;
 
-    protected static ?string $navigationGroup = 'Formulir';
+    protected static ?string $navigationGroup = 'Surat';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
