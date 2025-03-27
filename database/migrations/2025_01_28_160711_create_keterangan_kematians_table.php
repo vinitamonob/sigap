@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('keterangan_kematians', function (Blueprint $table) {
             $table->id();
-            $table->string('nomor_surat');
-            $table->string('nama_ketua');
-            $table->string('nama_lingkungan');
-            $table->string('paroki');
+            $table->string('nomor_surat')->nullable();
+            $table->string('nama_ketua')->nullable();
+            $table->string('nama_lingkungan')->nullable();
+            $table->string('paroki')->nullable();
             $table->string('nama_lengkap');
             $table->integer('usia');
             $table->string('nama_orang_tua');

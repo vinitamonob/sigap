@@ -20,16 +20,36 @@ class EditProfile extends BaseEditProfile
             ->schema([
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
+                $this->getAlamatFormComponent(),
                 $this->getTeleponFormComponent(),
+                $this->getNamaLingkunganFormComponent(),
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
                 SignaturePad::make('tanda_tangan')
+                    ->label('Tanda Tangan')
+                    ->required(false)
             ]);
+    }
+
+    protected function getAlamatFormComponent()
+    {
+        return TextInput::make('alamat')
+            ->label('Alamat')
+            ->required(false);
     }
 
     protected function getTeleponFormComponent()
     {
-        return TextInput::make('telepon');
+        return TextInput::make('telepon')
+            ->label('Telepon')
+            ->required(false);
+    }
+
+    protected function getNamaLingkunganFormComponent()
+    {
+        return TextInput::make('nama_lingkungan')
+            ->label('Nama Lingkungan')
+            ->required(false);
     }
 
     protected function mutateFormDataBeforeSave($data): array
@@ -44,8 +64,4 @@ class EditProfile extends BaseEditProfile
         // dd($data);
         return $data;
     }
-    
-    // protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
-    // protected static string $view = 'filament.pages.auth.edit-profile';
 }
