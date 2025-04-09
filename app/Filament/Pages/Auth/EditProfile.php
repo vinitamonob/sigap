@@ -2,6 +2,8 @@
 
 namespace App\Filament\Pages\Auth;
 
+use App\Models\Lingkungan;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Str;
@@ -47,8 +49,9 @@ class EditProfile extends BaseEditProfile
 
     protected function getNamaLingkunganFormComponent()
     {
-        return TextInput::make('nama_lingkungan')
+        return Select::make('nama_lingkungan')
             ->label('Nama Lingkungan')
+            ->options(Lingkungan::pluck('nama_lingkungan', 'nama_lingkungan')->toArray())
             ->required(false);
     }
 

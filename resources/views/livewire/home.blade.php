@@ -1,7 +1,3 @@
 <div>
-    <input type="text" wire:model.live="angka">
- 
-    <button wire:click="increment">+</button>
- 
-    <button wire:click="decrement">-</button>
+    <a href="{{ route('form-keterangan-kematian')}}">form kematian</a>
 </div>

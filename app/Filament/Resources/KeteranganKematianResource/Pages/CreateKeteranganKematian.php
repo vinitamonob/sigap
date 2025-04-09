@@ -16,4 +16,5 @@ class CreateKeteranganKematian extends CreateRecord
     {
         return KeteranganKematianResource::getUrl('index');
     }
+
 }
