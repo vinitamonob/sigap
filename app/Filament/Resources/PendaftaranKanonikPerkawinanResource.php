@@ -210,8 +210,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     ->required(),
                                 Forms\Components\TimePicker::make('waktu_pernikahan')
                                     ->required(),
-                            ])
-
+                                ]),
             ]);
     }
 

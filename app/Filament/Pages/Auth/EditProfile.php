@@ -36,7 +36,7 @@ class EditProfile extends BaseEditProfile
     protected function getAlamatFormComponent()
     {
         return TextInput::make('alamat')
-            ->label('Alamat')
+            ->label('Alamat Lengkap')
             ->required(false);
     }
 
@@ -50,8 +50,9 @@ class EditProfile extends BaseEditProfile
     protected function getNamaLingkunganFormComponent()
     {
         return Select::make('nama_lingkungan')
-            ->label('Nama Lingkungan')
+            ->label('Nama Lingkungan / Stasi')
             ->options(Lingkungan::pluck('nama_lingkungan', 'nama_lingkungan')->toArray())
+            ->searchable()
             ->required(false);
     }
 

@@ -13,6 +13,7 @@ use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
@@ -85,15 +86,15 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                 'Budha' => 'Budha',
                                 'Protestan' => 'Protestan'
                             ]),
-                        Radio::make('pendidikan_terakhir')
+                        Select::make('pendidikan_terakhir')
                             ->required()
                             ->label('Pendidikan Terakhir')
-                            ->inline()
-                            ->inlineLabel(false)
                             ->options([
                                 'TK' => 'TK',
                                 'SD' => 'SD',
-                                'SMP' => 'SMP'
+                                'SMP' => 'SMP',
+                                'SMA' => 'SMA',
+                                'Diploma/Sarjana' => 'Diploma/Sarjana',
                             ]),
                             DatePicker::make('tanggal_mulai_belajar')
                                 ->required()

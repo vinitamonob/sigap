@@ -37,29 +37,35 @@ class KeteranganKematianResource extends Resource
                             ->required()
                             ->label('Nomor Surat')
                             ->maxLength(255),
+                        Forms\Components\DatePicker::make('tanggal_surat')
+                            ->required()
+                            ->label('Tanggal Surat')
+                            ->default(Carbon::now())
+                            ->readOnly(),
+                        Forms\Components\Select::make('nama_lingkungan')
+                            ->required()
+                            ->label('Nama Lingkungan / Stasi')
+                            ->options(Lingkungan::pluck('nama_lingkungan', 'nama_lingkungan')->toArray())
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $lingkungan = Lingkungan::where('nama_lingkungan', $state)->first();
+                                    if ($lingkungan && $lingkungan->user) {
+                                        $set('nama_ketua', $lingkungan->user->name);
+                                        $set('user_id', $lingkungan->user_id);
+                                    }
+                                }
+                            }),
                         Forms\Components\TextInput::make('nama_ketua')
                             ->required()
                             ->label('Nama Ketua Lingkungan')
-                            ->default(Auth::user()->name)
-                            ->readOnly()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('nama_lingkungan')
-                            ->required()
-                            ->label('Ketua Lingkungan / Stasi')
-                            ->default(fn () => Lingkungan::where('user_id', Auth::id())->first()->nama_lingkungan)
-                            ->readOnly()
-                            ->maxLength(255),
+                            ->readOnly(),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
                             ->default('St. Stephanus Cilacap')
                             ->readOnly()
                             ->maxLength(255),
-                        Forms\Components\DatePicker::make('tanggal_surat')
-                            ->required()
-                            ->label('Tanggal Surat')
-                            ->default(Carbon::now())
-                            ->readOnly(),
                     ]),
                     Fieldset::make('Data Kematian')
                         ->schema([

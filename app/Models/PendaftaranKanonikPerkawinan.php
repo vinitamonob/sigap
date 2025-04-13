@@ -8,7 +8,7 @@ class PendaftaranKanonikPerkawinan extends Model
 {
     protected $fillable = [
         'nama_ketua_istri',
-        'ketua_lingkungan_istri',
+        'nama_lingkungan_istri',
         'wilayah_istri',
         'paroki_istri',
         'nama_istri',
@@ -31,7 +31,7 @@ class PendaftaranKanonikPerkawinan extends Model
         'pekerjaan_ibu_istri',
         'alamat_ibu_istri',
         'nama_ketua_suami',
-        'ketua_lingkungan_suami',
+        'nama_lingkungan_suami',
         'wilayah_suami',
         'paroki_suami',
         'nama_suami',

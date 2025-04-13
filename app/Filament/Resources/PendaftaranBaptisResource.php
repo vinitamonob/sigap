@@ -71,7 +71,7 @@ class PendaftaranBaptisResource extends Resource
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
                                 'Budha' => 'Budha',
-                                'Protestan' => 'Protestan'
+                                'Protestan' => 'Protestan',
                             ]),
                         Forms\Components\Radio::make('pendidikan_terakhir')
                             ->required()
@@ -81,7 +81,9 @@ class PendaftaranBaptisResource extends Resource
                             ->options([
                                 'TK' => 'TK',
                                 'SD' => 'SD',
-                                'SMP' => 'SMP'
+                                'SMP' => 'SMP',
+                                'SMA' => 'SMA',
+                                'Diploma/Sarjana' => 'Diploma/Sarjana',
                             ]),
                             Forms\Components\DatePicker::make('tanggal_mulai_belajar')
                                 ->required()
