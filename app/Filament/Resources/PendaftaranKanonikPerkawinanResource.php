@@ -32,166 +32,253 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('nama_istri')
                             ->required()
-                            ->label('Nama lengkap CalonIstri')
+                            ->label('Nama lengkap Calon Istri')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('tempat_lahir_istri')
                             ->required()
-                            ->label('Tempat Lahir Istri')
+                            ->label('Tempat Lahir Calon Istri')
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tanggal_lahir_istri')
-                            ->required(),
+                            ->required()
+                            ->label('Tanggal Lahir Calon Istri'),
                         Forms\Components\Textarea::make('alamat_sekarang_istri')
                             ->required()
+                            ->label('Alamat Calon Istri')
                             ->columnSpanFull(),
                         Forms\Components\Textarea::make('alamat_setelah_menikah_istri')
                             ->required()
+                            ->label('Alamat Calon Istri Setelah Menikah')
                             ->columnSpanFull(),
                         Forms\Components\TextInput::make('telepon_istri')
                             ->tel()
                             ->required()
+                            ->label('Telepon Calon Istri')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('pekerjaan_istri')
                             ->required()
+                            ->label('Pekerjaan Calon Istri')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('pendidikan_terakhir_istri')
+                        Forms\Components\Select::make('pendidikan_terakhir_istri')
                             ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('agama_istri')
+                            ->label('Pendidikan Terakhir Calon Istri')
+                            ->options([
+                                'TK' => 'TK',
+                                'SD' => 'SD',
+                                'SMP' => 'SMP',
+                                'SMA' => 'SMA',
+                                'Diploma/Sarjana' => 'Diploma/Sarjana',
+                            ]),
+                        Forms\Components\Select::make('agama_istri')
                             ->required()
-                            ->maxLength(255),
+                            ->label('Agama Calon Istri')
+                            ->options([
+                                'Katolik' => 'Katolik',
+                                'Protestan' => 'Protestan',
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Budha' => 'Budha',
+                            ]),
                         Forms\Components\TextInput::make('tempat_baptis_istri')
-                            ->maxLength(255),
-                        Forms\Components\DatePicker::make('tanggal_baptis_istri'),
-                        SignaturePad::make('tanda_tangan_calon_istri'),
+                            ->maxLength(255)
+                            ->label('Tempat Baptis Calon Istri'),
+                        Forms\Components\DatePicker::make('tanggal_baptis_istri')
+                            ->label('Tanggal Baptis Calon Istri'),
+                        SignaturePad::make('tanda_tangan_calon_istri')
+                            ->label('Tanda Tangan Calon Istri'),
+
                         Fieldset::make('Data Orang Tua')
                             ->schema([
                                 Forms\Components\TextInput::make('nama_ayah_istri')
                                     ->required()
+                                    ->label('Nama Ayah Calon Istri')
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('agama_ayah_istri')
+                                Forms\Components\Select::make('agama_ayah_istri')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->label('Agama Ayah Calon Istri')
+                                    ->options([
+                                        'Katolik' => 'Katolik',
+                                        'Protestan' => 'Protestan',
+                                        'Islam' => 'Islam',
+                                        'Hindu' => 'Hindu',
+                                        'Budha' => 'Budha',
+                                    ]),
                                 Forms\Components\TextInput::make('pekerjaan_ayah_istri')
                                     ->required()
+                                    ->label('Pekerjaan Ayah Calon Istri')
                                     ->maxLength(255),
                                 Forms\Components\Textarea::make('alamat_ayah_istri')
                                     ->required()
+                                    ->label('Alamat Ayah Calon Istri')
                                     ->columnSpanFull(),
                                 Forms\Components\TextInput::make('nama_ibu_istri')
                                     ->required()
+                                    ->label('Nama Ibu Calon Istri')
                                     ->maxLength(255),
-                                Forms\Components\TextInput::make('agama_ibu_istri')
+                                Forms\Components\Select::make('agama_ibu_istri')
                                     ->required()
-                                    ->maxLength(255),
+                                    ->label('Agama Ibu Calon Istri')
+                                    ->options([
+                                        'Katolik' => 'Katolik',
+                                        'Protestan' => 'Protestan',
+                                        'Islam' => 'Islam',
+                                        'Hindu' => 'Hindu',
+                                        'Budha' => 'Budha',
+                                    ]),
                                 Forms\Components\TextInput::make('pekerjaan_ibu_istri')
                                     ->required()
+                                    ->label('Pekerjaan Ibu Calon Istri')
                                     ->maxLength(255),
                                 Forms\Components\Textarea::make('alamat_ibu_istri')
                                     ->required()
+                                    ->label('Alamat Ibu Calon Istri')
                                     ->columnSpanFull(),
                             ]),   
                             Fieldset::make('Data Lingkungan')
                                 ->schema([
                                     Forms\Components\TextInput::make('nama_ketua_istri')
                                         ->required()
-                                        ->label('Nama Ketua Lingkungan')
+                                        ->label('Nama Ketua Lingkungan Calon Istri')
                                         ->maxLength(255),
                                     Forms\Components\TextInput::make('nama_lingkungan_istri')
                                         ->required()
-                                        ->label('Nama Lingkungan / Stasi')
+                                        ->label('Nama Lingkungan / Stasi Calon Istri')
                                         ->maxLength(255),
                                     Forms\Components\TextInput::make('wilayah_istri')
                                         ->required()
-                                        ->label('Wilayah')
+                                        ->label('Wilayah Calon Istri')
                                         ->maxLength(255),
                                     Forms\Components\TextInput::make('paroki_istri')
                                         ->required()
-                                        ->label('Paroki')
+                                        ->label('Paroki Calon Istri')
                                         ->maxLength(255),
                                     SignaturePad::make('tanda_tangan_ketua_istri')
-                                        ->label('Tanda Tangan Ketua Lingkungan'),
+                                        ->label('Tanda Tangan Ketua Lingkungan Calon Istri'),
                                 ])                          
                     ]),
                     Fieldset::make('Data Calon Suami')
                         ->schema([
                             Forms\Components\TextInput::make('nama_suami')
                                 ->required()
+                                ->label('Nama Calon Suami')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('tempat_lahir_suami')
                                 ->required()
+                                ->label('Tempat Lahir Calon Suami')
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('tanggal_lahir_suami')
-                                ->required(),
+                                ->required()
+                                ->label('Tanggal Lahir Calon Suami'),
                             Forms\Components\Textarea::make('alamat_sekarang_suami')
                                 ->required()
+                                ->label('Alamat Sekarang Calon Suami')
                                 ->columnSpanFull(),
                             Forms\Components\Textarea::make('alamat_setelah_menikah_suami')
                                 ->required()
+                                ->label('Alamat Setelah Menikah Calon Suami')
                                 ->columnSpanFull(),
                             Forms\Components\TextInput::make('telepon_suami')
                                 ->tel()
                                 ->required()
+                                ->label('Telepon Calon Suami')
                                 ->maxLength(255),
                             Forms\Components\TextInput::make('pekerjaan_suami')
                                 ->required()
+                                ->label('Pekerjaan Calon Suami')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('pendidikan_terakhir_suami')
+                            Forms\Components\Select::make('pendidikan_terakhir_suami')
                                 ->required()
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('agama_suami')
+                                ->label('Pendidikan Terakhir Calon Suami')
+                                ->options([
+                                    'TK' => 'TK',
+                                    'SD' => 'SD',
+                                    'SMP' => 'SMP',
+                                    'SMA' => 'SMA',
+                                    'Diploma/Sarjana' => 'Diploma/Sarjana',
+                                ]),
+                            Forms\Components\Select::make('agama_suami')
                                 ->required()
-                                ->maxLength(255),
+                                ->label('Agama Calon Suami')
+                                ->options([
+                                    'Katolik' => 'Katolik',
+                                    'Protestan' => 'Protestan',
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                ]),
                             Forms\Components\TextInput::make('tempat_baptis_suami')
-                                ->maxLength(255),
-                            Forms\Components\DatePicker::make('tanggal_baptis_suami'),
-                            SignaturePad::make('tanda_tangan_calon_suami'),
+                                ->maxLength(255)
+                                ->label('Tempat Baptis Calon Suami'),
+                            Forms\Components\DatePicker::make('tanggal_baptis_suami')
+                                ->label('Tanggal Baptis Calon Suami'),
+                            SignaturePad::make('tanda_tangan_calon_suami')
+                                ->label('Tanda Tangan Calon Suami'),
                             Fieldset::make('Data Orang Tua')
                                 ->schema([
                                     Forms\Components\TextInput::make('nama_ayah_suami')
                                         ->required()
+                                        ->label('Nama Ayah Calon Suami')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('agama_ayah_suami')
+                                    Forms\Components\Select::make('agama_ayah_suami')
                                         ->required()
-                                        ->maxLength(255),
+                                        ->label('Agama Ayah Calon Suami')
+                                        ->options([
+                                            'Katolik' => 'Katolik',
+                                            'Protestan' => 'Protestan',
+                                            'Islam' => 'Islam',
+                                            'Hindu' => 'Hindu',
+                                            'Budha' => 'Budha',
+                                        ]),
                                     Forms\Components\TextInput::make('pekerjaan_ayah_suami')
                                         ->required()
+                                        ->label('Pekerjaan Ayah Calon Suami')
                                         ->maxLength(255),
                                     Forms\Components\Textarea::make('alamat_ayah_suami')
                                         ->required()
+                                        ->label('Alamat Ayah Calon Suami')
                                         ->columnSpanFull(),
                                     Forms\Components\TextInput::make('nama_ibu_suami')
                                         ->required()
+                                        ->label('Nama Ibu Calon Suami')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('agama_ibu_suami')
+                                    Forms\Components\Select::make('agama_ibu_suami')
                                         ->required()
-                                        ->maxLength(255),
+                                        ->label('Agama Ibu Calon Suami')
+                                        ->options([
+                                            'Katolik' => 'Katolik',
+                                            'Protestan' => 'Protestan',
+                                            'Islam' => 'Islam',
+                                            'Hindu' => 'Hindu',
+                                            'Budha' => 'Budha',
+                                        ]),
                                     Forms\Components\TextInput::make('pekerjaan_ibu_suami')
                                         ->required()
+                                        ->label('Pekerjaan Ibu Calon Suami')
                                         ->maxLength(255),
                                     Forms\Components\Textarea::make('alamat_ibu_suami')
                                         ->required()
+                                        ->label('Alamat Ibu Calon Suami')
                                         ->columnSpanFull(),
                                 ]),
                                 Fieldset::make('Data Lingkungan')
                                     ->schema([
                                         Forms\Components\TextInput::make('nama_ketua_suami')
                                             ->required()
-                                            ->label('Nama Ketua Lingkungan')
+                                            ->label('Nama Ketua Lingkungan Calon Suami')
                                             ->maxLength(255),
                                         Forms\Components\TextInput::make('nama_lingkungan_suami')
                                             ->required()
-                                            ->label('Nama Lingkungan / Stasi')
+                                            ->label('Nama Lingkungan / Stasi Calon Suami')
                                             ->maxLength(255),
                                         Forms\Components\TextInput::make('wilayah_suami')
                                             ->required()
-                                            ->label('Wilayah')
+                                            ->label('Wilayah Calon Suami')
                                             ->maxLength(255),
                                         Forms\Components\TextInput::make('paroki_suami')
                                             ->required()
-                                            ->label('Paroki')
+                                            ->label('Paroki Calon Suami')
                                             ->maxLength(255),
                                         SignaturePad::make('tanda_tangan_ketua_suami')
-                                            ->label('Tanda Tangan Ketua Lingkungan'),
+                                            ->label('Tanda Tangan Ketua Lingkungan Calon Suami'),
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')
@@ -200,16 +287,20 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     ->schema([
                                         Forms\Components\DatePicker::make('tanggal_daftar')
                                             ->required()
+                                            ->label('Tanggal Daftar')
                                             ->default(now())
                                             ->readOnly(),
                                     ]),
                                 Forms\Components\TextInput::make('lokasi_gereja')
                                     ->required()
+                                    ->label('Lokasi Gereja')
                                     ->maxLength(255),
                                 Forms\Components\DatePicker::make('tanggal_pernikahan')
-                                    ->required(),
+                                    ->required()
+                                    ->label('Tanggal Pernikahan'),
                                 Forms\Components\TimePicker::make('waktu_pernikahan')
-                                    ->required(),
+                                    ->required()
+                                    ->label('Waktu Pernikahan'),
                                 ]),
             ]);
     }
@@ -272,7 +363,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),         
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

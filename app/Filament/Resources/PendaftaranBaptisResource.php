@@ -73,11 +73,9 @@ class PendaftaranBaptisResource extends Resource
                                 'Budha' => 'Budha',
                                 'Protestan' => 'Protestan',
                             ]),
-                        Forms\Components\Radio::make('pendidikan_terakhir')
+                        Forms\Components\Select::make('pendidikan_terakhir')
                             ->required()
                             ->label('Pendidikan Terakhir')
-                            ->inline()
-                            ->inlineLabel(false)
                             ->options([
                                 'TK' => 'TK',
                                 'SD' => 'SD',
@@ -105,18 +103,30 @@ class PendaftaranBaptisResource extends Resource
                                 ->required()
                                 ->label('Nama Ayah')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('agama_ayah')
+                            Forms\Components\Select::make('agama_ayah')
                                 ->required()
                                 ->label('Agama Ayah')
-                                ->maxLength(255),
+                                ->options([
+                                    'Katolik' => 'Katolik',
+                                    'Protestan' => 'Protestan',
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                ]),
                             Forms\Components\TextInput::make('nama_ibu')
                                 ->required()
                                 ->label('Nama Ibu')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('agama_ibu')
+                            Forms\Components\Select::make('agama_ibu')
                                 ->required()
                                 ->label('Agama Ibu')
-                                ->maxLength(255),
+                                ->options([
+                                    'Katolik' => 'Katolik',
+                                    'Protestan' => 'Protestan',
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                ]),
                             Forms\Components\TextInput::make('nama_keluarga_katolik_1')
                                 ->maxLength(255)
                                 ->label('Nama Keluarga 1'),

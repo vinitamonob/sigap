@@ -6,6 +6,7 @@ use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
@@ -13,13 +14,15 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use App\Models\PendaftaranKanonikPerkawinan;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
 class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
 {    
     use InteractsWithForms;
+
+    use HasPageShield;
     
     protected static ?string $navigationGroup = 'Form Pengajuan';
 
@@ -97,7 +100,6 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                             ->label('Tanggal Baptis Calon Istri'),
                         SignaturePad::make('tanda_tangan_calon_istri')
                             ->label('Tanda Tangan Calon Istri'),
-                        
                         Fieldset::make('Data Orang Tua')
                             ->schema([
                                 TextInput::make('nama_ayah_istri')
@@ -227,7 +229,6 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                                 ->label('Tanggal Baptis Calon Suami'),
                             SignaturePad::make('tanda_tangan_calon_suami')
                                 ->label('Tanda Tangan Calon Suami'),
-
                             Fieldset::make('Data Orang Tua')
                                 ->schema([
                                     TextInput::make('nama_ayah_suami')

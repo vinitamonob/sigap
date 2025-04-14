@@ -8,18 +8,21 @@ use Illuminate\Support\Str;
 use App\Models\PendaftaranBaptis;
 use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\File;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
 class FormPendaftaranBaptis extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    use HasPageShield;
     
     protected static ?string $navigationGroup = 'Form Pengajuan';
 
@@ -116,18 +119,30 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                 ->required()
                                 ->label('Nama Ayah')
                                 ->maxLength(255),
-                            TextInput::make('agama_ayah')
+                            Select::make('agama_ayah')
                                 ->required()
                                 ->label('Agama Ayah')
-                                ->maxLength(255),
+                                ->options([
+                                    'Katolik' => 'Katolik',
+                                    'Protestan' => 'Protestan',
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                ]),
                             TextInput::make('nama_ibu')
                                 ->required()
                                 ->label('Nama Ibu')
                                 ->maxLength(255),
-                            TextInput::make('agama_ibu')
+                            Select::make('agama_ibu')
                                 ->required()
                                 ->label('Agama Ibu')
-                                ->maxLength(255),
+                                ->options([
+                                    'Katolik' => 'Katolik',
+                                    'Protestan' => 'Protestan',
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                ]),
                             TextInput::make('nama_keluarga_katolik_1')
                                 ->maxLength(255)
                                 ->label('Nama Keluarga 1'),

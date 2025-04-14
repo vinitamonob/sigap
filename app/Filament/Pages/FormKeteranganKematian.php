@@ -2,20 +2,25 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\KeteranganKematian;
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use App\Models\Lingkungan;
 use Illuminate\Support\Carbon;
+use App\Models\KeteranganKematian;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
+use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 
 class FormKeteranganKematian extends Page implements HasForms
 {
     use InteractsWithForms;
+
+    use HasPageShield;
 
     protected static ?string $navigationGroup = 'Form Pengajuan';
 
@@ -44,6 +49,21 @@ class FormKeteranganKematian extends Page implements HasForms
                             ->default(fn () => Auth::user()->nama_lingkungan)
                             ->readOnly()
                             ->maxLength(255),
+                        TextInput::make('nama_ketua')
+                            ->required()
+                            ->label('Nama Ketua Lingkungan')
+                            ->default(function () {
+                                $user = Auth::user();
+                                // Asumsi bahwa user memiliki relasi ke lingkungan
+                                $lingkungan = Lingkungan::where('nama_lingkungan', $user->nama_lingkungan)->first();
+                                // Jika lingkungan ditemukan, ambil nama user yang terkait
+                                if ($lingkungan) {
+                                    $ketuaUser = User::find($lingkungan->user_id);
+                                    return $ketuaUser ? $ketuaUser->name : '';
+                                }
+                                return '';
+                            })
+                            ->readOnly(),
                         TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
@@ -84,14 +104,6 @@ class FormKeteranganKematian extends Page implements HasForms
                             TextInput::make('tempat_pemakaman')
                                 ->required()
                                 ->label('Tempat Pemakaman')
-                                ->maxLength(255),
-                            TextInput::make('pelayan_sakramen')
-                                ->required()
-                                ->label('Pelayanan Sakramen')
-                                ->maxLength(255),
-                            TextInput::make('sakramen_yang_diberikan')
-                                ->required()
-                                ->label('Sakramen yang Diberikan')
                                 ->maxLength(255),
                             TextInput::make('tempat_no_buku_baptis')
                                 ->required()

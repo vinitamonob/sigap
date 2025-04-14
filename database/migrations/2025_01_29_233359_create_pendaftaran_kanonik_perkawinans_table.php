@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('pendaftaran_kanonik_perkawinans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_ketua_istri');
-            $table->string('nama_lingkungan_istri');
-            $table->string('wilayah_istri');
-            $table->string('paroki_istri');
+            $table->string('nama_ketua_istri')->nullable();
+            $table->string('nama_lingkungan_istri')->nullable();
+            $table->string('wilayah_istri')->nullable();
+            $table->string('paroki_istri')->nullable();
             $table->string('nama_istri');
             $table->string('tempat_lahir_istri');
             $table->date('tanggal_lahir_istri');
@@ -36,10 +36,10 @@ return new class extends Migration
             $table->string('agama_ibu_istri');
             $table->string('pekerjaan_ibu_istri');
             $table->text('alamat_ibu_istri');
-            $table->string('nama_ketua_suami');
-            $table->string('nama_lingkungan_suami');
-            $table->string('wilayah_suami');
-            $table->string('paroki_suami');
+            $table->string('nama_ketua_suami')->nullable();
+            $table->string('nama_lingkungan_suami')->nullable();
+            $table->string('wilayah_suami')->nullable();
+            $table->string('paroki_suami')->nullable();
             $table->string('nama_suami');
             $table->string('tempat_lahir_suami');
             $table->date('tanggal_lahir_suami');
@@ -67,7 +67,7 @@ return new class extends Migration
             $table->string('tanda_tangan_ketua_istri')->nullable();
             $table->string('tanda_tangan_ketua_suami')->nullable();
             $table->string('tanda_tangan_pastor')->nullable();
-            $table->enum('status_ttd_pastor', ['Menunggu', 'Selesai'])->default('Menunggu');
+            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->date('tanggal_daftar');
             $table->timestamps();
         });

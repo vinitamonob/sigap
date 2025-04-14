@@ -38,7 +38,7 @@ return new class extends Migration
             $table->string('tanda_tangan_pastor')->nullable();
             $table->string('tanda_tangan_ketua')->nullable();
             $table->date('tanggal_baptis')->nullable();
-            $table->enum('status_ttd_pastor', ['Menunggu', 'Selesai'])->default('Menunggu');
+            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

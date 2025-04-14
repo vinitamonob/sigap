@@ -24,11 +24,12 @@ return new class extends Migration
             $table->date('tanggal_kematian');
             $table->date('tanggal_pemakaman');
             $table->string('tempat_pemakaman');
-            $table->string('pelayan_sakramen');
-            $table->string('sakramen_yang_diberikan');
+            $table->string('pelayan_sakramen')->nullable();
+            $table->string('sakramen_yang_diberikan')->nullable();
             $table->string('tempat_no_buku_baptis');
             $table->string('tanda_tangan_ketua')->nullable();
             $table->date('tanggal_surat');
+            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

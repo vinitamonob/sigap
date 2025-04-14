@@ -9,7 +9,7 @@ class KeteranganKematian extends Model
     protected $fillable = [
         'nomor_surat',
         'nama_ketua',
-        'ketua_lingkungan',
+        'nama_lingkungan',
         'paroki',
         'nama_lengkap',
         'usia',
