@@ -2,11 +2,14 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use App\Models\Lingkungan;
 use Illuminate\Support\Str;
 use App\Models\PendaftaranBaptis;
 use Filament\Forms\Components\Radio;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
@@ -43,125 +46,160 @@ class FormPendaftaranBaptis extends Page implements HasForms
     {
         return $form
             ->schema([
-                Fieldset::make('Data Pendaftar')
+                Fieldset::make('Label')
                     ->schema([
-                        TextInput::make('nama_lengkap')
+                        TextInput::make('nama_lingkungan')
                             ->required()
-                            ->label('Nama Lengkap')
+                            ->label('Nama Lingkungan / Stasi')
+                            ->default(fn () => Auth::user()->nama_lingkungan)
+                            ->readOnly()
                             ->maxLength(255),
-                        TextInput::make('nama_baptis')
+                        TextInput::make('nama_ketua')
                             ->required()
-                            ->label('Nama Baptis')
+                            ->label('Nama Ketua Lingkungan')
+                            ->default(function () {
+                                $user = Auth::user();
+                                // Asumsi bahwa user memiliki relasi ke lingkungan
+                                $lingkungan = Lingkungan::where('nama_lingkungan', $user->nama_lingkungan)->first();
+                                // Jika lingkungan ditemukan, ambil nama user yang terkait
+                                if ($lingkungan) {
+                                    $ketuaUser = User::find($lingkungan->user_id);
+                                    return $ketuaUser ? $ketuaUser->name : '';
+                                }
+                                return '';
+                            })
+                            ->readOnly(),
+                        TextInput::make('paroki')
+                            ->required()
+                            ->label('Paroki')
+                            ->default('St. Stephanus Cilacap')
+                            ->readOnly()
                             ->maxLength(255),
-                        Radio::make('jenis_kelamin')
+                        DatePicker::make('tanggal_daftar')
                             ->required()
-                            ->label('Jenis Kelamin')
-                            ->inline()
-                            ->inlineLabel(false)
-                            ->options([
-                                'Pria' => 'Pria',
-                                'Wanita' => 'Wanita'
-                            ]),
-                        TextInput::make('tempat_lahir')
-                            ->required()
-                            ->label('Tempat Lahir')
-                            ->maxLength(255),
-                        DatePicker::make('tanggal_lahir')
-                            ->required()
-                            ->label('Tanggal Lahir'),
-                        Textarea::make('alamat_lengkap')
-                            ->required()
-                            ->label('Alamat Lengkap')
-                            ->columnSpanFull(),
-                        TextInput::make('nomor_telepon')
-                            ->tel()
-                            ->required()
-                            ->label('Nomor Telepon')
-                            ->maxLength(255),
-                        Radio::make('agama_asal')
-                            ->required()
-                            ->label('Agama Asal')
-                            ->inline()
-                            ->inlineLabel(false)
-                            ->options([
-                                'Islam' => 'Islam',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
-                                'Protestan' => 'Protestan'
-                            ]),
-                        Select::make('pendidikan_terakhir')
-                            ->required()
-                            ->label('Pendidikan Terakhir')
-                            ->options([
-                                'TK' => 'TK',
-                                'SD' => 'SD',
-                                'SMP' => 'SMP',
-                                'SMA' => 'SMA',
-                                'Diploma/Sarjana' => 'Diploma/Sarjana',
-                            ]),
-                            DatePicker::make('tanggal_mulai_belajar')
-                                ->required()
-                                ->label('Tanggal Mulai Pembelajaran'),
-                            TextInput::make('nama_wali_baptis')
-                                ->required()
-                                ->label('Nama Wali Baptis')
-                                ->maxLength(255),
-                            Textarea::make('alasan_masuk_katolik')
-                                ->required()
-                                ->label('Alasan Masuk Katolik')
-                                ->columnSpanFull(),
-                            DatePicker::make('tanggal_baptis')
-                                ->required(),       
+                            ->label('Tanggal Daftar')
+                            ->default(now())
+                            ->readOnly(),
                     ]),
-                    Fieldset::make('Data Keluarga')
+                    Fieldset::make('Data Pendaftar')
                         ->schema([
-                            TextInput::make('nama_ayah')
+                            TextInput::make('nama_lengkap')
                                 ->required()
-                                ->label('Nama Ayah')
+                                ->label('Nama Lengkap')
                                 ->maxLength(255),
-                            Select::make('agama_ayah')
+                            TextInput::make('nama_baptis')
                                 ->required()
-                                ->label('Agama Ayah')
-                                ->options([
-                                    'Katolik' => 'Katolik',
-                                    'Protestan' => 'Protestan',
-                                    'Islam' => 'Islam',
-                                    'Hindu' => 'Hindu',
-                                    'Budha' => 'Budha',
-                                ]),
-                            TextInput::make('nama_ibu')
-                                ->required()
-                                ->label('Nama Ibu')
+                                ->label('Nama Baptis')
                                 ->maxLength(255),
-                            Select::make('agama_ibu')
+                            Radio::make('jenis_kelamin')
                                 ->required()
-                                ->label('Agama Ibu')
+                                ->label('Jenis Kelamin')
+                                ->inline()
+                                ->inlineLabel(false)
                                 ->options([
-                                    'Katolik' => 'Katolik',
-                                    'Protestan' => 'Protestan',
-                                    'Islam' => 'Islam',
-                                    'Hindu' => 'Hindu',
-                                    'Budha' => 'Budha',
+                                    'Pria' => 'Pria',
+                                    'Wanita' => 'Wanita'
                                 ]),
-                            TextInput::make('nama_keluarga_katolik_1')
-                                ->maxLength(255)
-                                ->label('Nama Keluarga 1'),
-                            TextInput::make('hubungan_keluarga_katolik_1')
-                                ->maxLength(255)
-                                ->label('Hubungan Keluarga 1'),
-                            TextInput::make('nama_keluarga_katolik_2')
-                                ->maxLength(255)
-                                ->label('Nama Keluarga 2'),
-                            TextInput::make('hubungan_keluarga_katolik_2')
-                                ->maxLength(255)
-                                ->label('Hubungan Keluarga 2'),
-                            Textarea::make('alamat_keluarga')
+                            TextInput::make('tempat_lahir')
+                                ->required()
+                                ->label('Tempat Lahir')
+                                ->maxLength(255),
+                            DatePicker::make('tanggal_lahir')
+                                ->required()
+                                ->label('Tanggal Lahir'),
+                            Textarea::make('alamat_lengkap')
                                 ->required()
                                 ->label('Alamat Lengkap')
                                 ->columnSpanFull(),
-                            SignaturePad::make('tanda_tangan_ortu')
-                                ->label('Tanda Tangan Orang Tua'),
+                            TextInput::make('nomor_telepon')
+                                ->tel()
+                                ->required()
+                                ->label('Nomor Telepon')
+                                ->maxLength(255),
+                            Radio::make('agama_asal')
+                                ->required()
+                                ->label('Agama Asal')
+                                ->inline()
+                                ->inlineLabel(false)
+                                ->options([
+                                    'Islam' => 'Islam',
+                                    'Hindu' => 'Hindu',
+                                    'Budha' => 'Budha',
+                                    'Protestan' => 'Protestan'
+                                ]),
+                            Select::make('pendidikan_terakhir')
+                                ->required()
+                                ->label('Pendidikan Terakhir')
+                                ->options([
+                                    'TK' => 'TK',
+                                    'SD' => 'SD',
+                                    'SMP' => 'SMP',
+                                    'SMA' => 'SMA',
+                                    'Diploma/Sarjana' => 'Diploma/Sarjana',
+                                ]),
+                                DatePicker::make('tanggal_mulai_belajar')
+                                    ->required()
+                                    ->label('Tanggal Mulai Pembelajaran'),
+                                TextInput::make('nama_wali_baptis')
+                                    ->required()
+                                    ->label('Nama Wali Baptis')
+                                    ->maxLength(255),
+                                Textarea::make('alasan_masuk_katolik')
+                                    ->required()
+                                    ->label('Alasan Masuk Katolik')
+                                    ->columnSpanFull(),
+                                DatePicker::make('tanggal_baptis')
+                                    ->required(),       
                         ]),
+                        Fieldset::make('Data Keluarga')
+                            ->schema([
+                                TextInput::make('nama_ayah')
+                                    ->required()
+                                    ->label('Nama Ayah')
+                                    ->maxLength(255),
+                                Select::make('agama_ayah')
+                                    ->required()
+                                    ->label('Agama Ayah')
+                                    ->options([
+                                        'Katolik' => 'Katolik',
+                                        'Protestan' => 'Protestan',
+                                        'Islam' => 'Islam',
+                                        'Hindu' => 'Hindu',
+                                        'Budha' => 'Budha',
+                                    ]),
+                                TextInput::make('nama_ibu')
+                                    ->required()
+                                    ->label('Nama Ibu')
+                                    ->maxLength(255),
+                                Select::make('agama_ibu')
+                                    ->required()
+                                    ->label('Agama Ibu')
+                                    ->options([
+                                        'Katolik' => 'Katolik',
+                                        'Protestan' => 'Protestan',
+                                        'Islam' => 'Islam',
+                                        'Hindu' => 'Hindu',
+                                        'Budha' => 'Budha',
+                                    ]),
+                                TextInput::make('nama_keluarga_katolik_1')
+                                    ->maxLength(255)
+                                    ->label('Nama Keluarga 1'),
+                                TextInput::make('hubungan_keluarga_katolik_1')
+                                    ->maxLength(255)
+                                    ->label('Hubungan Keluarga 1'),
+                                TextInput::make('nama_keluarga_katolik_2')
+                                    ->maxLength(255)
+                                    ->label('Nama Keluarga 2'),
+                                TextInput::make('hubungan_keluarga_katolik_2')
+                                    ->maxLength(255)
+                                    ->label('Hubungan Keluarga 2'),
+                                Textarea::make('alamat_keluarga')
+                                    ->required()
+                                    ->label('Alamat Lengkap')
+                                    ->columnSpanFull(),
+                                SignaturePad::make('tanda_tangan_ortu')
+                                    ->label('Tanda Tangan Orang Tua'),
+                            ]),
             ])
             ->statePath('data');
     }

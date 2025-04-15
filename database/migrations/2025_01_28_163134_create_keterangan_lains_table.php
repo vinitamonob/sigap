@@ -28,8 +28,8 @@ return new class extends Migration
             $table->text('keperluan');
             $table->string('tanda_tangan_pastor')->nullable();
             $table->string('tanda_tangan_ketua')->nullable();
-            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->date('tanggal_surat');
+            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

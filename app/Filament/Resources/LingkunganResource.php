@@ -45,15 +45,15 @@ class LingkunganResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Ketua Lingkungan')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('kode')
                     ->label('Kode Surat')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Nama Ketua Lingkungan')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('nama_lingkungan')
-                    ->label('Nama Lingkungan')
+                    ->label('Nama Lingkungan / Stasi')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

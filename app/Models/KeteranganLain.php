@@ -22,7 +22,7 @@ class KeteranganLain extends Model
         'keperluan',
         'tanda_tangan_pastor',
         'tanda_tangan_ketua',
-        'status_ttd_pastor',
-        'tanggal_surat'
+        'tanggal_surat',
+        'status'
     ];
 }

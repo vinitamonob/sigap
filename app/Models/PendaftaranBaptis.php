@@ -7,6 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class PendaftaranBaptis extends Model
 {
     protected $fillable = [
+        'nomor_surat',
+        'nama_ketua',
+        'nama_lingkungan',
+        'paroki',
         'nama_lengkap',
         'nama_baptis',
         'jenis_kelamin',
@@ -32,6 +36,7 @@ class PendaftaranBaptis extends Model
         'tanda_tangan_pastor',
         'tanda_tangan_ketua',
         'tanggal_baptis',
-        'status_ttd_pastor'
+        'tanggal_daftar',
+        'status'
     ];
 }

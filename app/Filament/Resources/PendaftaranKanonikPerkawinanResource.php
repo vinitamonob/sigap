@@ -6,7 +6,10 @@ use Filament\Forms;
 use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Carbon;
+use PhpParser\Node\Stmt\Label;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\PendaftaranKanonikPerkawinan;
@@ -14,7 +17,6 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\RelationManagers;
-use PhpParser\Node\Stmt\Label;
 
 class PendaftaranKanonikPerkawinanResource extends Resource
 {
@@ -308,6 +310,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('nama_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
             ->columns([
                 Tables\Columns\TextColumn::make('nama_istri')
                     ->label('Nama Calon Istri')
@@ -363,7 +366,40 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),         
+                Tables\Actions\Action::make('confirm')
+                    ->label(fn($record) => $record->nomor_surat === null ? 'Konfirmasi' : 'Diterima')
+                    ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
+                    ->icon('heroicon-o-check-circle')
+                    ->requiresConfirmation()
+                    ->disabled(fn($record) => $record->nomor_surat !== null)
+                    ->action(function (PendaftaranKanonikPerkawinan $record) {
+                        // Generate nomor surat
+                        $tahun = Carbon::now()->format('Y');
+                        $bulan = Carbon::now()->format('m');
+                        $count = PendaftaranKanonikPerkawinan::whereYear('created_at', $tahun)
+                            ->whereMonth('created_at', $bulan)
+                            ->count() + 1;
+                        
+                        $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
+                        
+                        // Dapatkan tanda tangan ketua lingkungan yang login (jika ada)
+                        $user = Auth::user();
+                        $tanda_tangan = $user->tanda_tangan ?? '';
+                        
+                        // Update record
+                        $record->update([
+                            'nomor_surat' => $nomor_surat,
+                            'pelayan_sakramen' => 'Minyak Suci',
+                            'sakramen_yang_diberikan' => 'Perminyakan',
+                            'tanda_tangan_ketua' => $tanda_tangan,
+                        ]);
+                        
+                        \Filament\Notifications\Notification::make('approval')
+                            ->title('Surat Keterangan Kematian disetujui')
+                            ->success()
+                            ->send();
+                    }),
+                    Tables\Actions\EditAction::make(),     
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

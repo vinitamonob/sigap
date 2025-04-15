@@ -3,11 +3,13 @@
 namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use App\Models\KeteranganLain;
+use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
@@ -114,7 +116,7 @@ class KeteranganLainResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        // ->modifyQueryUsing(fn (Builder $query) => $query->where('ketua_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('nama_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
@@ -145,7 +147,45 @@ class KeteranganLainResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('confirm')
+                    ->label(fn($record) => $record->nomor_surat === null ? 'Konfirmasi' : 'Diterima')
+                    ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
+                    ->icon('heroicon-o-check-circle')
+                    ->requiresConfirmation()
+                    ->disabled(fn($record) => $record->nomor_surat !== null)
+                    ->action(function (KeteranganLain $record) {
+                        // Generate nomor surat
+                        $tahun = Carbon::now()->format('Y');
+                        $bulan = Carbon::now()->format('m');
+                        $count = KeteranganLain::whereYear('created_at', $tahun)
+                            ->whereMonth('created_at', $bulan)
+                            ->count() + 1;
+                        
+                        $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
+                        
+                        // Dapatkan tanda tangan ketua lingkungan yang login (jika ada)
+                        $user = Auth::user();
+                        $tanda_tangan_ketua = $user->tanda_tangan ?? '';
+        
+                        // Dapatkan tanda tangan pastor dari database
+                        $pastor = User::whereHas('roles', function ($query) {
+                            $query->where('name', 'pastor');
+                        })->first();
+                        $tanda_tangan_pastor = $pastor ? ($pastor->tanda_tangan ?? '') : '';
+                        
+                        // Update record
+                        $record->update([
+                            'nomor_surat' => $nomor_surat,
+                            'tanda_tangan_ketua' => $tanda_tangan_ketua,
+                            'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                        ]);
+                        
+                        \Filament\Notifications\Notification::make('approval')
+                            ->title('Surat Keterangan Kematian disetujui')
+                            ->success()
+                            ->send();
+                    }),
+                    Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

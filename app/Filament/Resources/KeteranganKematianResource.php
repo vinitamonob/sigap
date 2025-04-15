@@ -115,7 +115,7 @@ class KeteranganKematianResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-        // ->modifyQueryUsing(fn (Builder $query) => $query->where(Auth::user()->lingkungan->nama_lingkungan))
+            ->modifyQueryUsing(fn (Builder $query) => $query->where('nama_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
@@ -152,10 +152,11 @@ class KeteranganKematianResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label('Konfirmasi')
-                    ->color('warning')
+                    ->label(fn($record) => $record->nomor_surat === null ? 'Konfirmasi' : 'Diterima')
+                    ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
+                    ->disabled(fn($record) => $record->nomor_surat !== null)
                     ->action(function (KeteranganKematian $record) {
                         // Generate nomor surat
                         $tahun = Carbon::now()->format('Y');

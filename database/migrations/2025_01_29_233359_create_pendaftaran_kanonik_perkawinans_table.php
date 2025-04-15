@@ -67,8 +67,8 @@ return new class extends Migration
             $table->string('tanda_tangan_ketua_istri')->nullable();
             $table->string('tanda_tangan_ketua_suami')->nullable();
             $table->string('tanda_tangan_pastor')->nullable();
-            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->date('tanggal_daftar');
+            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

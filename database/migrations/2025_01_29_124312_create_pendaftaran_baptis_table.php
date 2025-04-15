@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('pendaftaran_baptis', function (Blueprint $table) {
             $table->id();
+            $table->string('nomor_surat')->nullable();
+            $table->string('nama_ketua')->nullable();
+            $table->string('nama_lingkungan')->nullable();
+            $table->string('paroki');
             $table->string('nama_lengkap');
             $table->string('nama_baptis');
             $table->enum('jenis_kelamin', ['Pria', 'Wanita']);
@@ -21,7 +25,7 @@ return new class extends Migration
             $table->text('alamat_lengkap');
             $table->string('nomor_telepon');
             $table->enum('agama_asal', ['Islam', 'Budha', 'Hindu', 'Protestan']);
-            $table->enum('pendidikan_terakhir', ['TK', 'SD', 'SMP']);
+            $table->enum('pendidikan_terakhir', ['TK', 'SD', 'SMP', 'SMA', 'Diploma/Sarjana']);
             $table->string('nama_ayah');
             $table->string('agama_ayah');
             $table->string('nama_ibu');
@@ -38,6 +42,7 @@ return new class extends Migration
             $table->string('tanda_tangan_pastor')->nullable();
             $table->string('tanda_tangan_ketua')->nullable();
             $table->date('tanggal_baptis')->nullable();
+            $table->date('tanggal_daftar');
             $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });

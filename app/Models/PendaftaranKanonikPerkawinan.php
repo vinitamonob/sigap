@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PendaftaranKanonikPerkawinan extends Model
 {
     protected $fillable = [
+        'nomor_surat',
         'nama_ketua_istri',
         'nama_lingkungan_istri',
         'wilayah_istri',
@@ -61,7 +62,7 @@ class PendaftaranKanonikPerkawinan extends Model
         'tanda_tangan_ketua_istri',
         'tanda_tangan_ketua_suami',
         'tanda_tangan_pastor',
-        'status_ttd_pastor',
-        'tanggal_daftar'
+        'tanggal_daftar',
+        'status'
     ];
 }

@@ -22,6 +22,7 @@ class KeteranganKematian extends Model
         'sakramen_yang_diberikan',
         'tempat_no_buku_baptis',
         'tanda_tangan_ketua',
-        'tanggal_surat'
+        'tanggal_surat',
+        'status'
     ];
 }
