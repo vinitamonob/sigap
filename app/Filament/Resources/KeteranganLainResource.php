@@ -116,7 +116,17 @@ class KeteranganLainResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn (Builder $query) => $query->where('nama_lingkungan', Auth::user()->lingkungan->nama_lingkungan))
+            ->modifyQueryUsing(function (Builder $query) {
+                // $user = Auth::user();
+                $user = User::where('id', Auth::user()->id)->first();
+                // dd($user);
+                // Jika user memiliki role paroki, tampilkan semua data
+                if ($user->getRoleNames()[0] === 'paroki') {
+                    return $query;
+                }
+                // Jika bukan role paroki, filter berdasarkan lingkungan
+                return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
+            })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
@@ -148,7 +158,7 @@ class KeteranganLainResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label(fn($record) => $record->nomor_surat === null ? 'Konfirmasi' : 'Diterima')
+                    ->label(fn($record) => $record->nomor_surat === null ? 'Accept' : 'Done')
                     ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
@@ -181,7 +191,7 @@ class KeteranganLainResource extends Resource
                         ]);
                         
                         \Filament\Notifications\Notification::make('approval')
-                            ->title('Surat Keterangan Kematian disetujui')
+                            ->title('Surat Keterangan Lain diterima')
                             ->success()
                             ->send();
                     }),
