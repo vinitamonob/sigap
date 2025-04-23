@@ -116,19 +116,16 @@ class KeteranganKematianResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                // $user = Auth::user();
                 $user = User::where('id', Auth::user()->id)->first();
-                // dd($user);
-                // Jika user memiliki role paroki, tampilkan semua data
-                if ($user->getRoleNames()[0] === 'paroki') {
-                    return $query;
-                }
-                // Jika bukan role paroki, filter berdasarkan lingkungan
+                // // dd($user);
                 return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nama_lingkungan')
+                    ->label('Lingkungan / Stasi')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lengkap')
                     ->label('Nama Lengkap')
@@ -171,11 +168,18 @@ class KeteranganKematianResource extends Resource
                         // Generate nomor surat
                         $tahun = Carbon::now()->format('Y');
                         $bulan = Carbon::now()->format('m');
-                        $count = KeteranganKematian::whereYear('created_at', $tahun)
-                            ->whereMonth('created_at', $bulan)
-                            ->count() + 1;
-                        
-                        $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
+                        // Ambil kode dari user yang login
+                        $kode = Auth::user()->lingkungan->kode; // Mengasumsikan user memiliki relasi ke model lingkungan dan ada field kode
+                        // Inisialisasi count
+                        $count = 1;
+                        // Mencari nomor yang belum ada
+                        do {
+                            $nomor_surat = sprintf('%04d/KK/%s/%s/%s', $count, $kode, $bulan, $tahun);
+                            $exists = KeteranganKematian::where('nomor_surat', $nomor_surat)->exists();
+                            if ($exists) {
+                                $count++; // Jika nomor sudah ada, tingkatkan count
+                            }
+                        } while ($exists); // Setelah keluar dari loop, $nomor_surat adalah unik
                         
                         // Dapatkan tanda tangan ketua lingkungan yang login (jika ada)
                         $user = Auth::user();

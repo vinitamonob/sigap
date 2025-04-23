@@ -156,17 +156,23 @@ class PendaftaranBaptisResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                // $user = Auth::user();
                 $user = User::where('id', Auth::user()->id)->first();
                 // dd($user);
                 // Jika user memiliki role paroki, tampilkan semua data
-                if ($user->getRoleNames()[0] === 'paroki') {
-                    return $query;
+                if ($user->hasRole('paroki')) {
+                    return $query->whereNotNull('nomor_surat')
+                                ->whereNotNull('tanda_tangan_ketua');
                 }
                 // Jika bukan role paroki, filter berdasarkan lingkungan
                 return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
             })
             ->columns([
+                Tables\Columns\TextColumn::make('nomor_surat')
+                    ->label('Nomor Surat')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('nama_lingkungan')
+                    ->label('Lingkungan / Stasi')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama_lengkap')
                     ->label('Nama Lengkap')
                     ->searchable(),
@@ -202,44 +208,93 @@ class PendaftaranBaptisResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label(fn($record) => $record->nomor_surat === null ? 'Accept' : 'Done')
-                    ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
+                    ->label(function($record) {
+                        $user = User::where('id', Auth::user()->id)->first();
+                        if ($user->hasRole('ketua_lingkungan')) {
+                            return $record->nomor_surat === null ? 'Accept' : 'Done';
+                        } elseif ($user->hasRole('paroki')) {
+                            return $record->tanda_tangan_pastor === null ? 'Accept' : 'Done';
+                        }
+                        return 'Accept';
+                    })
+                    ->color(function($record) {
+                        $user = User::where('id', Auth::user()->id)->first();
+                        if ($user->hasRole('ketua_lingkungan')) {
+                            return $record->nomor_surat === null ? 'warning' : 'success';
+                        } elseif ($user->hasRole('paroki')) {
+                            return $record->tanda_tangan_pastor === null ? 'warning' : 'success';
+                        }
+                        return 'warning';
+                    })
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->disabled(fn($record) => $record->nomor_surat !== null)
+                    ->disabled(function($record) {
+                        $user = User::where('id', Auth::user()->id)->first();
+                        // Jika user adalah ketua_lingkungan
+                        if ($user->hasRole('ketua_lingkungan')) {
+                            // Disable tombol jika sudah memiliki nomor surat
+                            return $record->nomor_surat !== null;
+                        } 
+                        // Jika user adalah paroki
+                        elseif ($user->hasRole('paroki')) {
+                            // Pastikan nomor_surat sudah ada (sudah disetujui ketua_lingkungan)
+                            // dan tanda_tangan_pastor belum ada (belum disetujui paroki)
+                            return $record->nomor_surat === null || $record->tanda_tangan_pastor !== null;
+                        }
+                        
+                        return true; // Default disabled untuk peran lain
+                    })
                     ->action(function (PendaftaranBaptis $record) {
-                        // Generate nomor surat
-                        $tahun = Carbon::now()->format('Y');
-                        $bulan = Carbon::now()->format('m');
-                        $count = PendaftaranBaptis::whereYear('created_at', $tahun)
-                            ->whereMonth('created_at', $bulan)
-                            ->count() + 1;
+                        $user = User::where('id', Auth::user()->id)->first();
                         
-                        $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
-                        
-                        // Dapatkan tanda tangan ketua lingkungan yang login (jika ada)
-                        $user = Auth::user();
-                        $tanda_tangan_ketua = $user->tanda_tangan ?? '';
-        
-                        // Dapatkan tanda tangan pastor dari database
-                        $pastor = User::whereHas('roles', function ($query) {
-                            $query->where('name', 'pastor');
-                        })->first();
-                        $tanda_tangan_pastor = $pastor ? ($pastor->tanda_tangan ?? '') : '';
-                        
-                        // Update record
-                        $record->update([
-                            'nomor_surat' => $nomor_surat,
-                            'tanda_tangan_ketua' => $tanda_tangan_ketua,
-                            'tanda_tangan_pastor' => $tanda_tangan_pastor,
-                        ]);
-                        
-                        \Filament\Notifications\Notification::make('approval')
-                            ->title('Surat Pendaftaran Baptis diterima')
-                            ->success()
-                            ->send();
+                        // Jika user role ketua lingkungan 
+                        if ($user->hasRole('ketua_lingkungan')) {  
+                            // Generate nomor surat
+                            $tahun = Carbon::now()->format('Y');
+                            $bulan = Carbon::now()->format('m');
+                            // Ambil kode dari user yang login
+                            $kode = Auth::user()->lingkungan->kode; // Mengasumsikan user memiliki relasi ke model lingkungan dan ada field kode
+                            // Inisialisasi count
+                            $count = 1;
+                            // Mencari nomor yang belum ada
+                            do {
+                                $nomor_surat = sprintf('%04d/PB/%s/%s/%s', $count, $kode, $bulan, $tahun);
+                                $exists = PendaftaranBaptis::where('nomor_surat', $nomor_surat)->exists();
+                                if ($exists) {
+                                    $count++; // Jika nomor sudah ada, tingkatkan count
+                                }
+                            } while ($exists); // Setelah keluar dari loop, $nomor_surat adalah unik
+                            
+                            // Dapatkan tanda tangan ketua lingkungan
+                            $tanda_tangan_ketua = $user->tanda_tangan ?? '';
+                            
+                            // Update record dengan nomor surat dan tanda tangan ketua
+                            $record->update([
+                                'nomor_surat' => $nomor_surat,
+                                'tanda_tangan_ketua' => $tanda_tangan_ketua,
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make('approval')
+                                ->title('Surat Pendaftaran Baptis diterima')
+                                ->success()
+                                ->send();
+                        } 
+                        elseif ($user->hasRole('paroki')) {  // Jika user role paroki
+                            // Dapatkan tanda tangan pastor (user paroki)
+                            $tanda_tangan_pastor = $user->tanda_tangan ?? '';
+                            
+                            // Update record dengan tanda tangan pastor saja
+                            $record->update([
+                                'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make('approval')
+                                ->title('Surat Pendaftaran Baptis diterima')
+                                ->success()
+                                ->send();
+                        }
                     }),
-                    Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

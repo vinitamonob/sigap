@@ -312,12 +312,12 @@ class PendaftaranKanonikPerkawinanResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                // $user = Auth::user();
                 $user = User::where('id', Auth::user()->id)->first();
                 // dd($user);
                 // Jika user memiliki role paroki, tampilkan semua data
-                if ($user->getRoleNames()[0] === 'paroki') {
-                    return $query;
+                if ($user->hasRole('paroki')) {
+                    return $query->whereNotNull('nomor_surat')
+                                ->whereNotNull('tanda_tangan_ketua');
                 }
                 // Jika bukan role paroki, filter berdasarkan lingkungan
                 return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
