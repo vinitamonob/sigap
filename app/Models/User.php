@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Filament\Tables\Columns\Summarizers\Sum;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -54,5 +56,30 @@ class User extends Authenticatable
     public function lingkungan()
     {
         return $this->hasOne(Lingkungan::class);
+    }
+
+    public function keteranganKematian()
+    {
+        return $this->hasMany(KeteranganKematian::class);
+    }
+
+    public function keteranganLain()
+    {
+        return $this->hasMany(KeteranganLain::class);
+    }
+
+    public function pendaftaranBaptis()
+    {
+        return $this->hasMany(PendaftaranBaptis::class);
+    }
+
+    public function pendaftaranKanonikPerkawinan()
+    {
+        return $this->hasMany(PendaftaranKanonikPerkawinan::class);
+    }
+
+    public function surat()
+    {
+        return $this->hasMany(Surat::class);
     }
 }

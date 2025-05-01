@@ -133,15 +133,27 @@ class PendaftaranBaptisResource extends Resource
                             Forms\Components\TextInput::make('nama_keluarga_katolik_1')
                                 ->maxLength(255)
                                 ->label('Nama Keluarga 1'),
-                            Forms\Components\TextInput::make('hubungan_keluarga_katolik_1')
-                                ->maxLength(255)
-                                ->label('Hubungan Keluarga 1'),
+                            Forms\Components\Select::make('hubungan_keluarga_katolik_1')
+                                ->label('Hubungan Keluarga 1')
+                                ->options([
+                                    'Saudara Kandung' => 'Saudara Kandung',
+                                    'Pasangan' => 'Pasangan',
+                                    'Sepupu' => 'Sepupu',
+                                    'Wali' => 'Wali',
+                                    'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                ]),
                             Forms\Components\TextInput::make('nama_keluarga_katolik_2')
                                 ->maxLength(255)
                                 ->label('Nama Keluarga 2'),
-                            Forms\Components\TextInput::make('hubungan_keluarga_katolik_2')
-                                ->maxLength(255)
-                                ->label('Hubungan Keluarga 2'),
+                            Forms\Components\Select::make('hubungan_keluarga_katolik_2')
+                                ->label('Hubungan Keluarga 2')
+                                ->options([
+                                    'Saudara Kandung' => 'Saudara Kandung',
+                                    'Pasangan' => 'Pasangan',
+                                    'Sepupu' => 'Sepupu',
+                                    'Wali' => 'Wali',
+                                    'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                ]),
                             Forms\Components\Textarea::make('alamat_keluarga')
                                 ->required()
                                 ->label('Alamat Lengkap')

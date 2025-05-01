@@ -184,15 +184,27 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                 TextInput::make('nama_keluarga_katolik_1')
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 1'),
-                                TextInput::make('hubungan_keluarga_katolik_1')
-                                    ->maxLength(255)
-                                    ->label('Hubungan Keluarga 1'),
+                                Select::make('hubungan_keluarga_katolik_1')
+                                    ->label('Hubungan Keluarga 1')
+                                    ->options([
+                                        'Saudara Kandung' => 'Saudara Kandung',
+                                        'Pasangan' => 'Pasangan',
+                                        'Sepupu' => 'Sepupu',
+                                        'Wali' => 'Wali',
+                                        'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                    ]),
                                 TextInput::make('nama_keluarga_katolik_2')
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 2'),
-                                TextInput::make('hubungan_keluarga_katolik_2')
-                                    ->maxLength(255)
-                                    ->label('Hubungan Keluarga 2'),
+                                Select::make('hubungan_keluarga_katolik_2')
+                                    ->label('Hubungan Keluarga 2')
+                                    ->options([
+                                        'Saudara Kandung' => 'Saudara Kandung',
+                                        'Pasangan' => 'Pasangan',
+                                        'Sepupu' => 'Sepupu',
+                                        'Wali' => 'Wali',
+                                        'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                    ]),
                                 Textarea::make('alamat_keluarga')
                                     ->required()
                                     ->label('Alamat Lengkap')

@@ -2,12 +2,14 @@
 
 namespace App\Filament\Pages\Auth;
 
-use App\Models\Lingkungan;
-use Filament\Forms\Components\Select;
+use App\Models\User;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
+use App\Models\Lingkungan;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
@@ -18,18 +20,22 @@ class EditProfile extends BaseEditProfile
 
     public function form(Form $form): Form
     {
+        $user = User::where('id', Auth::user()->id)->first();
+
         return $form
             ->schema([
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
                 $this->getAlamatFormComponent(),
                 $this->getTeleponFormComponent(),
-                $this->getNamaLingkunganFormComponent(),
+                $this->getNamaLingkunganFormComponent()
+                    ->hidden(fn () => $user->hasRole('super_admin') || $user->hasRole('paroki')),
                 $this->getPasswordFormComponent(),
                 $this->getPasswordConfirmationFormComponent(),
                 SignaturePad::make('tanda_tangan')
                     ->label('Tanda Tangan')
                     ->required(false)
+                    ->hidden(fn () => $user->hasRole('super_admin'))
             ]);
     }
 

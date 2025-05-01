@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class KeteranganLain extends Model
 {
     protected $fillable = [
+        'user_id',
         'nomor_surat',
         'nama_ketua',
         'nama_lingkungan',
@@ -22,7 +23,11 @@ class KeteranganLain extends Model
         'keperluan',
         'tanda_tangan_pastor',
         'tanda_tangan_ketua',
-        'tanggal_surat',
-        'status'
+        'tanggal_surat'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

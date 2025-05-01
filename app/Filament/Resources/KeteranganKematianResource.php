@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\KeteranganKematianResource\Pages;
 use App\Filament\Resources\KeteranganKematianResource\RelationManagers;
+use App\Models\Surat;
+use App\Services\SuratKematianGenerate;
 
 class KeteranganKematianResource extends Resource
 {
@@ -77,7 +79,8 @@ class KeteranganKematianResource extends Resource
                             Forms\Components\TextInput::make('usia')
                                 ->required()
                                 ->label('Usia')
-                                ->numeric(),
+                                ->numeric()
+                                ->minValue(0),
                             Forms\Components\TextInput::make('nama_orang_tua')
                                 ->required()
                                 ->label('Nama Orang Tua')
@@ -117,8 +120,13 @@ class KeteranganKematianResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // // dd($user);
-                return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
+                if ($user->lingkungan && $user->lingkungan->nama_lingkungan) {
+                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                } else {
+                    // Jika user tidak memiliki lingkungan atau nama_lingkungan null,
+                    // tampilkan semua data (tidak menerapkan filter apapun)
+                    return $query;
+                }
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
@@ -191,6 +199,25 @@ class KeteranganKematianResource extends Resource
                             'pelayan_sakramen' => 'Minyak Suci',
                             'sakramen_yang_diberikan' => 'Perminyakan',
                             'tanda_tangan_ketua' => $tanda_tangan,
+                        ]);
+
+                        $templatePath = 'templates/surat_keterangan_kematian.docx';
+                        $namaSurat = $record->nama_lingkungan .'-'.$record->tanggal_surat.'-surat_keteragan_kematian.docx';
+                        $outputPath = storage_path('app/public/'.$namaSurat);
+                        $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(
+                            $templatePath,  
+                            $outputPath,
+                            $record->toArray(),
+                            'ketua'
+                        );
+
+                        Surat::create([
+                            'kode_nomor_surat' => $record->nomor_surat,
+                            'perihal_surat' => 'Keterangan Kematian',
+                            'atas_nama' => $record->nama_lengkap,
+                            'nama_lingkungan' => $record->nama_lingkungan,
+                            'status' => 'Selesai',
+                            'file_surat' => $namaSurat,
                         ]);
                         
                         \Filament\Notifications\Notification::make('approval')

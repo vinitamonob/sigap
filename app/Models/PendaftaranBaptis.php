@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PendaftaranBaptis extends Model
 {
     protected $fillable = [
+        'user_id',
         'nomor_surat',
         'nama_ketua',
         'nama_lingkungan',
@@ -37,6 +38,10 @@ class PendaftaranBaptis extends Model
         'tanda_tangan_ketua',
         'tanggal_baptis',
         'tanggal_daftar',
-        'status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

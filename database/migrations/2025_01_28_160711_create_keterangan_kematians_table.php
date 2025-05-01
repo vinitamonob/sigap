@@ -1,8 +1,9 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Models\User;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -13,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('keterangan_kematians', function (Blueprint $table) {
             $table->id();
+            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->string('nomor_surat')->nullable();
             $table->string('nama_ketua')->nullable();
             $table->string('nama_lingkungan')->nullable();
@@ -29,7 +31,6 @@ return new class extends Migration
             $table->string('tempat_no_buku_baptis');
             $table->string('tanda_tangan_ketua')->nullable();
             $table->date('tanggal_surat');
-            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

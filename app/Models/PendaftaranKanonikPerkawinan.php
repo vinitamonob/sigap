@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class PendaftaranKanonikPerkawinan extends Model
 {
     protected $fillable = [
+        'user_id',
         'nomor_surat',
         'nama_ketua_istri',
         'nama_lingkungan_istri',
@@ -63,6 +64,10 @@ class PendaftaranKanonikPerkawinan extends Model
         'tanda_tangan_ketua_suami',
         'tanda_tangan_pastor',
         'tanggal_daftar',
-        'status'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
