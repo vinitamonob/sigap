@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use App\Models\KeteranganLain;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
+use App\Services\SuratLainGenerate;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
 use Illuminate\Database\Eloquent\Builder;
@@ -239,6 +241,26 @@ class KeteranganLainResource extends Resource
                             // Update record dengan tanda tangan pastor saja
                             $record->update([
                                 'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                            ]);
+
+                            $templatePath = 'templates/surat_keterangan_lain.docx';
+                            $namaSurat = $record->nama_lingkungan .'-'.$record->tanggal_surat.'-surat_keteragan_lain.docx';
+                            $outputPath = storage_path('app/public/'.$namaSurat);
+                            $generateSurat = (new SuratLainGenerate)->generateFromTemplate(
+                                $templatePath,  
+                                $outputPath,
+                                $record->toArray(),
+                                'ketua',
+                                'paroki'
+                            );
+
+                            Surat::create([
+                                'kode_nomor_surat' => $record->nomor_surat,
+                                'perihal_surat' => 'Keterangan Lain',
+                                'atas_nama' => $record->nama_lengkap,
+                                'nama_lingkungan' => $record->nama_lingkungan,
+                                'status' => 'Selesai',
+                                'file_surat' => $namaSurat,
                             ]);
                             
                             \Filament\Notifications\Notification::make('approval')

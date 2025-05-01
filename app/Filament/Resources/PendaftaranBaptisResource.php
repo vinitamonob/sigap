@@ -5,12 +5,14 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
 use Filament\Resources\Resource;
 use App\Models\PendaftaranBaptis;
 use Illuminate\Support\Facades\Auth;
+use App\Services\SuratBaptisGenerate;
 use Filament\Forms\Components\Fieldset;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -298,6 +300,27 @@ class PendaftaranBaptisResource extends Resource
                             // Update record dengan tanda tangan pastor saja
                             $record->update([
                                 'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                            ]);
+
+                            $templatePath = 'templates/surat_pendaftaran_baptis.docx';
+                            $namaSurat = $record->nama_lingkungan .'-'.$record->tanggal_daftar.'-surat_pendaftaran_baptis.docx';
+                            $outputPath = storage_path('app/public/'.$namaSurat);
+                            $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(
+                                $templatePath,  
+                                $outputPath,
+                                $record->toArray(),
+                                'ortu',
+                                'ketua',
+                                'paroki'
+                            );
+
+                            Surat::create([
+                                'kode_nomor_surat' => $record->nomor_surat,
+                                'perihal_surat' => 'Pendaftaran Baptis',
+                                'atas_nama' => $record->nama_lengkap,
+                                'nama_lingkungan' => $record->nama_lingkungan,
+                                'status' => 'Selesai',
+                                'file_surat' => $namaSurat,
                             ]);
                             
                             \Filament\Notifications\Notification::make('approval')

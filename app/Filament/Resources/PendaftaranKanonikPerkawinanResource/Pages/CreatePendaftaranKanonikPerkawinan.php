@@ -5,12 +5,34 @@ namespace App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
 use Filament\Actions;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
+use App\Services\SuratKanonikGenerate;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource;
 
 class CreatePendaftaranKanonikPerkawinan extends CreateRecord
 {
     protected static string $resource = PendaftaranKanonikPerkawinanResource::class;
+
+    protected function handleRecordCreation(array $data): Model
+    {
+        $create = static::getModel()::create($data);
+
+        $templatePath = 'templates/surat_pendaftaran_kanonik.docx';
+        $namaSurat = $create->nama_lingkungan .'-'.$create->tanggal_daftar.'-';
+        $outputPath = storage_path('app/public/'.$namaSurat.'surat_pendaftaran_kanonik.docx');
+        $generateSurat = (new SuratKanonikGenerate)->generateFromTemplate(
+            $templatePath,  
+            $outputPath,
+            $create->toArray(),
+            'calon_istri',
+            'ketua_istri',
+            'calon_suami',
+            'ketua_suami',
+            'paroki'
+        );
+        return $create;
+    }   
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
