@@ -70,4 +70,9 @@ class PendaftaranKanonikPerkawinan extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
+    }
 }

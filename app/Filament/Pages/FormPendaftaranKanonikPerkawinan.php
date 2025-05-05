@@ -2,15 +2,19 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Surat;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
 use App\Models\PendaftaranKanonikPerkawinan;
@@ -43,6 +47,8 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
     {
         return $form
             ->schema([
+                Hidden::make('user_id')
+                    ->default(fn () => Auth::id()),
                 Fieldset::make('Data Calon Istri')
                     ->schema([
                         TextInput::make('nama_istri')
@@ -345,7 +351,25 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                 $this->data[$field] = $imageName;
             }
         }
-        // dd($this->form->getState());
-        PendaftaranKanonikPerkawinan::create($this->form->getState());
+
+        // Mendapatkan data dari form
+        $formData = $this->form->getState();
+        // Simpan data ke tabel Pendaftaran Kanonik Perkawinan
+        $pendaftaranKanonik = PendaftaranKanonikPerkawinan::create($formData);
+
+        Surat::create([
+            'user_id' => Auth::id(),
+            'kode_nomor_surat' => null,
+            'perihal_surat' => 'Pendaftaran Kanonik Perkawinan',
+            'atas_nama' => $formData['nama_lengkap'], 
+            'nama_lingkungan' => $formData['nama_lingkungan'],
+            'status' => 'Menunggu'
+        ]);
+
+        Notification::make()
+            ->title('Pengajuan berhasil dibuat')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('success')
+            ->send();
     }
 }

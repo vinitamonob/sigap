@@ -3,16 +3,19 @@
 namespace App\Filament\Pages;
 
 use App\Models\User;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use App\Models\Lingkungan;
 use App\Models\KeteranganLain;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -42,6 +45,8 @@ class FormKeteranganLain extends Page implements HasForms
     {
         return $form
             ->schema([
+                Hidden::make('user_id')
+                    ->default(fn () => Auth::id()),
                 Fieldset::make('Label')
                     ->schema([
                         TextInput::make('nama_lingkungan')
@@ -98,13 +103,9 @@ class FormKeteranganLain extends Page implements HasForms
                                 ->required()
                                 ->label('Alamat')
                                 ->columnSpanFull(),
-                            TextInput::make('telepon_rumah')
+                            TextInput::make('telepon')
                                 ->tel()
-                                ->label('No. Telepon Rumah')
-                                ->maxLength(255),
-                            TextInput::make('telepon_kantor')
-                                ->tel()
-                                ->label('No. Telepon Kantor')
+                                ->label('No. Telepon / HP')
                                 ->maxLength(255),
                             Select::make('status_tinggal')
                                 ->required()
@@ -126,6 +127,24 @@ class FormKeteranganLain extends Page implements HasForms
 
     public function create(): void
     {
-        KeteranganLain::create($this->form->getState());
+        // Mendapatkan data dari form
+        $formData = $this->form->getState();
+        // Simpan data ke tabel Keterangan Lain
+        $keteranganLain = KeteranganLain::create($formData);
+
+        Surat::create([
+            'user_id' => Auth::id(),
+            'kode_nomor_surat' => null,
+            'perihal_surat' => 'Keterangan Lain',
+            'atas_nama' => $formData['nama_lengkap'], 
+            'nama_lingkungan' => $formData['nama_lingkungan'],
+            'status' => 'Menunggu'
+        ]);
+
+        Notification::make()
+            ->title('Pengajuan berhasil dibuat')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('success')
+            ->send();
     }
 }

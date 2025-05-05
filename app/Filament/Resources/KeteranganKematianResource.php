@@ -6,21 +6,18 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use App\Models\KeteranganKematian;
 use Illuminate\Support\Facades\Auth;
-use Filament\Forms\Components\Fieldset;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Facades\Notification;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Saade\FilamentAutograph\Forms\Components\SignaturePad;
-use App\Filament\Resources\KeteranganKematianResource\Pages;
-use App\Filament\Resources\KeteranganKematianResource\RelationManagers;
-use App\Models\Surat;
 use App\Services\SuratKematianGenerate;
+use Filament\Forms\Components\Fieldset;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\KeteranganKematianResource\Pages;
 
 class KeteranganKematianResource extends Resource
 {
@@ -40,11 +37,6 @@ class KeteranganKematianResource extends Resource
                             ->required()
                             ->label('Nomor Surat')
                             ->maxLength(255),
-                        Forms\Components\DatePicker::make('tanggal_surat')
-                            ->required()
-                            ->label('Tanggal Surat')
-                            ->default(Carbon::now())
-                            ->readOnly(),
                         Forms\Components\Select::make('nama_lingkungan')
                             ->required()
                             ->label('Nama Lingkungan / Stasi')
@@ -69,6 +61,11 @@ class KeteranganKematianResource extends Resource
                             ->default('St. Stephanus Cilacap')
                             ->readOnly()
                             ->maxLength(255),
+                        Forms\Components\DatePicker::make('tanggal_surat')
+                            ->required()
+                            ->label('Tanggal Surat')
+                            ->default(now())
+                            ->readOnly(),
                     ]),
                     Fieldset::make('Data Kematian')
                         ->schema([
@@ -99,7 +96,7 @@ class KeteranganKematianResource extends Resource
                                 ->required()
                                 ->label('Tempat Pemakaman')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('pelayan_sakramen')
+                            Forms\Components\TextInput::make('pelayanan_sakramen')
                                 ->required()
                                 ->label('Pelayanan Sakramen')
                                 ->maxLength(255),
@@ -107,9 +104,13 @@ class KeteranganKematianResource extends Resource
                                 ->required()
                                 ->label('Sakramen yang Diberikan')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('tempat_no_buku_baptis')
+                            Forms\Components\TextInput::make('tempat_baptis')
                                 ->required()
-                                ->label('Tempat & No. Buku Baptis')
+                                ->label('Tempat Baptis')
+                                ->maxLength(255),
+                            Forms\Components\TextInput::make('no_buku_baptis')
+                                ->required()
+                                ->label('No. Buku Baptis')
                                 ->maxLength(255),
                         ])
             ]);
@@ -119,14 +120,17 @@ class KeteranganKematianResource extends Resource
     {
         return $table
             ->modifyQueryUsing(function (Builder $query) {
-                $user = User::where('id', Auth::user()->id)->first();
-                if ($user->lingkungan && $user->lingkungan->nama_lingkungan) {
-                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
-                } else {
-                    // Jika user tidak memiliki lingkungan atau nama_lingkungan null,
-                    // tampilkan semua data (tidak menerapkan filter apapun)
+                $user = User::where('id', Auth::user()->id)->first(); // Ambil user yang sedang login
+                // Tampilkan semua data jika user adalah super_admin
+                if ($user->hasRole('super_admin')) {
                     return $query;
                 }
+                // Jika user adalah ketua_lingkungan
+                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
+                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                }
+                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
@@ -196,8 +200,8 @@ class KeteranganKematianResource extends Resource
                         // Update record
                         $record->update([
                             'nomor_surat' => $nomor_surat,
-                            'pelayan_sakramen' => 'Minyak Suci',
-                            'sakramen_yang_diberikan' => 'Perminyakan',
+                            'pelayanan_sakramen' => 'Perminyakan',
+                            'sakramen_yang_diberikan' => 'Minyak Suci',
                             'tanda_tangan_ketua' => $tanda_tangan,
                         ]);
 
@@ -211,16 +215,21 @@ class KeteranganKematianResource extends Resource
                             'ketua'
                         );
 
-                        Surat::create([
-                            'kode_nomor_surat' => $record->nomor_surat,
-                            'perihal_surat' => 'Keterangan Kematian',
-                            'atas_nama' => $record->nama_lengkap,
-                            'nama_lingkungan' => $record->nama_lingkungan,
-                            'status' => 'Selesai',
-                            'file_surat' => $namaSurat,
-                        ]);
+                        // Update surat yang sudah ada
+                        $surat = Surat::where('atas_nama', $record->nama_lengkap)
+                                        ->where('nama_lingkungan', $record->nama_lingkungan)
+                                        ->where('status', 'Menunggu')
+                                        ->first();
+
+                        if ($surat) {
+                            $surat->update([
+                                'kode_nomor_surat' => $record->nomor_surat,
+                                'status' => 'Selesai',
+                                'file_surat' => $namaSurat,
+                            ]);
+                        }
                         
-                        \Filament\Notifications\Notification::make('approval')
+                        Notification::make()
                             ->title('Surat Keterangan Kematian diterima')
                             ->success()
                             ->send();

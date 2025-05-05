@@ -12,13 +12,13 @@ class KeteranganLain extends Model
         'nama_ketua',
         'nama_lingkungan',
         'paroki',
+        'nama_pastor',
         'nama_lengkap',
         'tempat_lahir',
         'tanggal_lahir',
         'jabatan_pekerjaan',
         'alamat',
-        'telepon_rumah',
-        'telepon_kantor',
+        'telepon',
         'status_tinggal',
         'keperluan',
         'tanda_tangan_pastor',
@@ -29,5 +29,10 @@ class KeteranganLain extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
     }
 }

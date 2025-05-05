@@ -8,16 +8,14 @@ use Filament\Tables;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Illuminate\Support\Carbon;
-use PhpParser\Node\Stmt\Label;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\PendaftaranKanonikPerkawinan;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
-use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\RelationManagers;
 
 class PendaftaranKanonikPerkawinanResource extends Resource
 {
@@ -313,14 +311,21 @@ class PendaftaranKanonikPerkawinanResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // dd($user);
+                // Tampilkan semua data jika user adalah super_admin
+                if ($user->hasRole('super_admin')) {
+                    return $query;
+                }
                 // Jika user memiliki role paroki, tampilkan semua data
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
                                 ->whereNotNull('tanda_tangan_ketua');
                 }
-                // Jika bukan role paroki, filter berdasarkan lingkungan
-                return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
+                // Jika user adalah ketua_lingkungan
+                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
+                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                }
+                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nama_istri')
@@ -403,9 +408,10 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             'pelayan_sakramen' => 'Minyak Suci',
                             'sakramen_yang_diberikan' => 'Perminyakan',
                             'tanda_tangan_ketua' => $tanda_tangan,
+                            'user_id' => Auth::id(), 
                         ]);
                         
-                        \Filament\Notifications\Notification::make('approval')
+                        Notification::make()
                             ->title('Surat Pendaftaran Kanonik & Perkawinan diterima')
                             ->success()
                             ->send();

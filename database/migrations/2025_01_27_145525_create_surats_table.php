@@ -14,12 +14,12 @@ return new class extends Migration
     {
         Schema::create('surats', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('kode_nomor_surat');
+            $table->foreignIdFor(User::class)->nullable();
+            $table->string('kode_nomor_surat')->nullable();
             $table->enum('perihal_surat', ['Keterangan Kematian', 'Keterangan Lain', 'Pendaftaran Baptis', 'Pendaftaran Kanonik Perkawinan']);
             $table->string('atas_nama');
             $table->string('nama_lingkungan');
-            $table->string('file_surat');
+            $table->string('file_surat')->nullable();
             $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });

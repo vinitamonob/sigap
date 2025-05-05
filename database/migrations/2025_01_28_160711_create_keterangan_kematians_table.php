@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Surat;
 use App\Models\User;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
@@ -14,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('keterangan_kematians', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->nullable();
+            $table->foreignIdFor(Surat::class)->constrained()->cascadeOnDelete();
             $table->string('nomor_surat')->nullable();
             $table->string('nama_ketua')->nullable();
             $table->string('nama_lingkungan')->nullable();
@@ -26,11 +28,12 @@ return new class extends Migration
             $table->date('tanggal_kematian');
             $table->date('tanggal_pemakaman');
             $table->string('tempat_pemakaman');
-            $table->string('pelayan_sakramen')->nullable();
+            $table->string('pelayanan_sakramen')->nullable();
             $table->string('sakramen_yang_diberikan')->nullable();
-            $table->string('tempat_no_buku_baptis');
+            $table->string('tempat_baptis');
+            $table->string('no_buku_baptis');
             $table->string('tanda_tangan_ketua')->nullable();
-            $table->date('tanggal_surat');
+            $table->date('tanggal_surat')->nullable();
             $table->timestamps();
         });
     }

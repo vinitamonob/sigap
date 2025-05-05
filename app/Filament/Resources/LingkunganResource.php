@@ -9,10 +9,7 @@ use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\LingkunganResource\Pages;
-use App\Filament\Resources\LingkunganResource\RelationManagers;
 
 class LingkunganResource extends Resource
 {

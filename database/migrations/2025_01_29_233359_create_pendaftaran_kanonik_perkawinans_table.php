@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Models\Surat;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
@@ -14,7 +15,8 @@ return new class extends Migration
     {
         Schema::create('pendaftaran_kanonik_perkawinans', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(User::class)->nullable();
+            $table->foreignIdFor(Surat::class)->constrained()->cascadeOnDelete();
             $table->string('nama_ketua_istri')->nullable();
             $table->string('nama_lingkungan_istri')->nullable();
             $table->string('wilayah_istri')->nullable();
@@ -69,7 +71,7 @@ return new class extends Migration
             $table->string('tanda_tangan_ketua_istri')->nullable();
             $table->string('tanda_tangan_ketua_suami')->nullable();
             $table->string('tanda_tangan_pastor')->nullable();
-            $table->date('tanggal_daftar');
+            $table->date('tanggal_daftar')->nullable();
             $table->timestamps();
         });
     }

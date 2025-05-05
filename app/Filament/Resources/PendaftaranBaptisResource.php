@@ -14,11 +14,10 @@ use App\Models\PendaftaranBaptis;
 use Illuminate\Support\Facades\Auth;
 use App\Services\SuratBaptisGenerate;
 use Filament\Forms\Components\Fieldset;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\PendaftaranBaptisResource\Pages;
-use App\Filament\Resources\PendaftaranBaptisResource\RelationManagers;
 
 class PendaftaranBaptisResource extends Resource
 {
@@ -132,29 +131,32 @@ class PendaftaranBaptisResource extends Resource
                                     'Hindu' => 'Hindu',
                                     'Budha' => 'Budha',
                                 ]),
-                            Forms\Components\TextInput::make('nama_keluarga_katolik_1')
-                                ->maxLength(255)
-                                ->label('Nama Keluarga 1'),
-                            Forms\Components\Select::make('hubungan_keluarga_katolik_1')
-                                ->label('Hubungan Keluarga 1')
-                                ->options([
-                                    'Saudara Kandung' => 'Saudara Kandung',
-                                    'Pasangan' => 'Pasangan',
-                                    'Sepupu' => 'Sepupu',
-                                    'Wali' => 'Wali',
-                                    'Kerabat Lainnya' => 'Kerabat Lainnya',
-                                ]),
-                            Forms\Components\TextInput::make('nama_keluarga_katolik_2')
-                                ->maxLength(255)
-                                ->label('Nama Keluarga 2'),
-                            Forms\Components\Select::make('hubungan_keluarga_katolik_2')
-                                ->label('Hubungan Keluarga 2')
-                                ->options([
-                                    'Saudara Kandung' => 'Saudara Kandung',
-                                    'Pasangan' => 'Pasangan',
-                                    'Sepupu' => 'Sepupu',
-                                    'Wali' => 'Wali',
-                                    'Kerabat Lainnya' => 'Kerabat Lainnya',
+                            Fieldset::make('Anggota Keluarga yang sudah Katolik')
+                                ->schema([
+                                    Forms\Components\TextInput::make('nama_keluarga_katolik_1')
+                                        ->maxLength(255)
+                                        ->label('Nama Keluarga 1'),
+                                    Forms\Components\Select::make('hubungan_keluarga_katolik_1')
+                                        ->label('Hubungan Keluarga 1')
+                                        ->options([
+                                            'Saudara Kandung' => 'Saudara Kandung',
+                                            'Pasangan' => 'Pasangan',
+                                            'Sepupu' => 'Sepupu',
+                                            'Wali' => 'Wali',
+                                            'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                        ]),
+                                    Forms\Components\TextInput::make('nama_keluarga_katolik_2')
+                                        ->maxLength(255)
+                                        ->label('Nama Keluarga 2'),
+                                    Forms\Components\Select::make('hubungan_keluarga_katolik_2')
+                                        ->label('Hubungan Keluarga 2')
+                                        ->options([
+                                            'Saudara Kandung' => 'Saudara Kandung',
+                                            'Pasangan' => 'Pasangan',
+                                            'Sepupu' => 'Sepupu',
+                                            'Wali' => 'Wali',
+                                            'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                        ]),
                                 ]),
                             Forms\Components\Textarea::make('alamat_keluarga')
                                 ->required()
@@ -171,14 +173,21 @@ class PendaftaranBaptisResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // dd($user);
+                // Tampilkan semua data jika user adalah super_admin
+                if ($user->hasRole('super_admin')) {
+                    return $query;
+                }
                 // Jika user memiliki role paroki, tampilkan semua data
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
                                 ->whereNotNull('tanda_tangan_ketua');
                 }
-                // Jika bukan role paroki, filter berdasarkan lingkungan
-                return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
+                // Jika user adalah ketua_lingkungan
+                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
+                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                }
+                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
@@ -288,18 +297,20 @@ class PendaftaranBaptisResource extends Resource
                                 'tanda_tangan_ketua' => $tanda_tangan_ketua,
                             ]);
                             
-                            \Filament\Notifications\Notification::make('approval')
+                            Notification::make()
                                 ->title('Surat Pendaftaran Baptis diterima')
                                 ->success()
                                 ->send();
                         } 
                         elseif ($user->hasRole('paroki')) {  // Jika user role paroki
-                            // Dapatkan tanda tangan pastor (user paroki)
+                            // Dapatkan tanda tangan dan nama pastor (user paroki)
                             $tanda_tangan_pastor = $user->tanda_tangan ?? '';
-                            
-                            // Update record dengan tanda tangan pastor saja
+                            $nama_pastor = $user->name ?? '';
+
+                            // Update record 
                             $record->update([
                                 'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                                'nama_pastor' => $nama_pastor,
                             ]);
 
                             $templatePath = 'templates/surat_pendaftaran_baptis.docx';
@@ -314,16 +325,21 @@ class PendaftaranBaptisResource extends Resource
                                 'paroki'
                             );
 
-                            Surat::create([
-                                'kode_nomor_surat' => $record->nomor_surat,
-                                'perihal_surat' => 'Pendaftaran Baptis',
-                                'atas_nama' => $record->nama_lengkap,
-                                'nama_lingkungan' => $record->nama_lingkungan,
-                                'status' => 'Selesai',
-                                'file_surat' => $namaSurat,
-                            ]);
+                            // Update surat yang sudah ada
+                            $surat = Surat::where('atas_nama', $record->nama_lengkap)
+                                            ->where('nama_lingkungan', $record->nama_lingkungan)
+                                            ->where('status', 'Menunggu')
+                                            ->first();
+
+                            if ($surat) {
+                                $surat->update([
+                                    'kode_nomor_surat' => $record->nomor_surat,
+                                    'status' => 'Selesai',
+                                    'file_surat' => $namaSurat,
+                                ]);
+                            }
                             
-                            \Filament\Notifications\Notification::make('approval')
+                            Notification::make()
                                 ->title('Surat Pendaftaran Baptis diterima')
                                 ->success()
                                 ->send();

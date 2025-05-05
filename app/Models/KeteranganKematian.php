@@ -19,9 +19,10 @@ class KeteranganKematian extends Model
         'tanggal_kematian',
         'tanggal_pemakaman',
         'tempat_pemakaman',
-        'pelayan_sakramen',
+        'pelayanan_sakramen',
         'sakramen_yang_diberikan',
-        'tempat_no_buku_baptis',
+        'tempat_baptis',
+        'no_buku_baptis',
         'tanda_tangan_ketua',
         'tanggal_surat'
     ];
@@ -29,5 +30,10 @@ class KeteranganKematian extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
     }
 }

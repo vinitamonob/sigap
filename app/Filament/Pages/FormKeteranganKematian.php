@@ -3,15 +3,17 @@
 namespace App\Filament\Pages;
 
 use App\Models\User;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use App\Models\Lingkungan;
-use Illuminate\Support\Carbon;
 use App\Models\KeteranganKematian;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -41,6 +43,8 @@ class FormKeteranganKematian extends Page implements HasForms
     {
         return $form
             ->schema([
+                Hidden::make('user_id')
+                    ->default(fn () => Auth::id()),
                 Fieldset::make('Label')
                     ->schema([
                         TextInput::make('nama_lingkungan')
@@ -73,7 +77,7 @@ class FormKeteranganKematian extends Page implements HasForms
                         DatePicker::make('tanggal_surat')
                             ->required()
                             ->label('Tanggal Surat')
-                            ->default(Carbon::now())
+                            ->default(now())
                             ->readOnly(),
                     ]),
                     Fieldset::make('Data Kematian')
@@ -105,9 +109,13 @@ class FormKeteranganKematian extends Page implements HasForms
                                 ->required()
                                 ->label('Tempat Pemakaman')
                                 ->maxLength(255),
-                            TextInput::make('tempat_no_buku_baptis')
+                            TextInput::make('tempat_baptis')
                                 ->required()
-                                ->label('Tempat & No. Buku Baptis')
+                                ->label('Tempat Baptis')
+                                ->maxLength(255),
+                            TextInput::make('no_buku_baptis')
+                                ->required()
+                                ->label('No. Buku Baptis')
                                 ->maxLength(255),
                         ])
             ])
@@ -116,6 +124,24 @@ class FormKeteranganKematian extends Page implements HasForms
     
     public function create(): void
     {
-        KeteranganKematian::create($this->form->getState());
+        // Mendapatkan data dari form
+        $formData = $this->form->getState();
+        // Simpan data ke tabel Keterangan Kematian
+        $keteranganKematian = KeteranganKematian::create($formData);
+
+        Surat::create([
+            'user_id' => Auth::id(),
+            'kode_nomor_surat' => null,
+            'perihal_surat' => 'Keterangan Kematian',
+            'atas_nama' => $formData['nama_lengkap'], 
+            'nama_lingkungan' => $formData['nama_lingkungan'],
+            'status' => 'Menunggu'
+        ]);
+
+        Notification::make()
+            ->title('Pengajuan berhasil dibuat')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('success')
+            ->send();
     }
 }

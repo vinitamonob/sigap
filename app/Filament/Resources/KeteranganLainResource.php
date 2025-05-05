@@ -15,11 +15,9 @@ use Filament\Resources\Resource;
 use App\Services\SuratLainGenerate;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
+use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\KeteranganLainResource\Pages;
-use Saade\FilamentAutograph\Forms\Components\SignaturePad;
-use App\Filament\Resources\KeteranganLainResource\RelationManagers;
 
 class KeteranganLainResource extends Resource
 {
@@ -39,11 +37,6 @@ class KeteranganLainResource extends Resource
                             ->required()
                             ->label('Nomor Surat')
                             ->maxLength(255),
-                        Forms\Components\DatePicker::make('tanggal_surat')
-                            ->required()
-                            ->label('Tanggal Surat')
-                            ->default(now())
-                            ->readOnly(),
                         Forms\Components\Select::make('nama_lingkungan')
                             ->required()
                             ->label('Nama Lingkungan / Stasi')
@@ -68,6 +61,11 @@ class KeteranganLainResource extends Resource
                             ->default('St. Stephanus Cilacap')
                             ->readOnly()
                             ->maxLength(255),
+                        Forms\Components\DatePicker::make('tanggal_surat')
+                            ->required()
+                            ->label('Tanggal Surat')
+                            ->default(now())
+                            ->readOnly(),
                     ]),
                     Fieldset::make('Data Keperluan')
                         ->schema([
@@ -90,13 +88,9 @@ class KeteranganLainResource extends Resource
                                 ->required()
                                 ->label('Alamat')
                                 ->columnSpanFull(),
-                            Forms\Components\TextInput::make('telepon_rumah')
+                            Forms\Components\TextInput::make('telepon')
                                 ->tel()
-                                ->label('No. Telepon Rumah')
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('telepon_kantor')
-                                ->tel()
-                                ->label('No. Telepon Kantor')
+                                ->label('No. Telepon / HP')
                                 ->maxLength(255),
                             Forms\Components\Select::make('status_tinggal')
                                 ->required()
@@ -120,14 +114,21 @@ class KeteranganLainResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // dd($user);
+                // Tampilkan semua data jika user adalah super_admin
+                if ($user->hasRole('super_admin')) {
+                    return $query;
+                }
                 // Jika user memiliki role paroki, tampilkan semua data
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
                                  ->whereNotNull('tanda_tangan_ketua');
                 }
-                // Jika bukan role paroki, filter berdasarkan lingkungan
-                return $query->where('nama_lingkungan', $user->lingkungan?->nama_lingkungan);
+                // Jika user adalah ketua_lingkungan
+                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
+                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                }
+                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
@@ -229,18 +230,20 @@ class KeteranganLainResource extends Resource
                                 'tanda_tangan_ketua' => $tanda_tangan_ketua,
                             ]);
                             
-                            \Filament\Notifications\Notification::make('approval')
+                            Notification::make()
                                 ->title('Surat Keterangan Lain diterima')
                                 ->success()
                                 ->send();
                         } 
                         elseif ($user->hasRole('paroki')) {  // Jika user role paroki
-                            // Dapatkan tanda tangan pastor (user paroki)
+                            // Dapatkan tanda tangan dan nama pastor (user paroki)
                             $tanda_tangan_pastor = $user->tanda_tangan ?? '';
-                            
-                            // Update record dengan tanda tangan pastor saja
+                            $nama_pastor = $user->name ?? '';
+
+                            // Update record 
                             $record->update([
                                 'tanda_tangan_pastor' => $tanda_tangan_pastor,
+                                'nama_pastor' => $nama_pastor,
                             ]);
 
                             $templatePath = 'templates/surat_keterangan_lain.docx';
@@ -254,16 +257,21 @@ class KeteranganLainResource extends Resource
                                 'paroki'
                             );
 
-                            Surat::create([
-                                'kode_nomor_surat' => $record->nomor_surat,
-                                'perihal_surat' => 'Keterangan Lain',
-                                'atas_nama' => $record->nama_lengkap,
-                                'nama_lingkungan' => $record->nama_lingkungan,
-                                'status' => 'Selesai',
-                                'file_surat' => $namaSurat,
-                            ]);
+                            // Update surat yang sudah ada
+                            $surat = Surat::where('atas_nama', $record->nama_lengkap)
+                                            ->where('nama_lingkungan', $record->nama_lingkungan)
+                                            ->where('status', 'Menunggu')
+                                            ->first();
+
+                            if ($surat) {
+                                $surat->update([
+                                    'kode_nomor_surat' => $record->nomor_surat,
+                                    'status' => 'Selesai',
+                                    'file_surat' => $namaSurat,
+                                ]);
+                            }
                             
-                            \Filament\Notifications\Notification::make('approval')
+                            Notification::make()
                                 ->title('Surat Keterangan Lain diterima')
                                 ->success()
                                 ->send();

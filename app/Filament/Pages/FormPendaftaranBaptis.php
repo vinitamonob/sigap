@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\User;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use Filament\Pages\Page;
 use App\Models\Lingkungan;
@@ -11,11 +12,13 @@ use App\Models\PendaftaranBaptis;
 use Filament\Forms\Components\Radio;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Concerns\InteractsWithForms;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -46,6 +49,8 @@ class FormPendaftaranBaptis extends Page implements HasForms
     {
         return $form
             ->schema([
+                Hidden::make('user_id')
+                    ->default(fn () => Auth::id()),
                 Fieldset::make('Label')
                     ->schema([
                         TextInput::make('nama_lingkungan')
@@ -181,29 +186,32 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                         'Hindu' => 'Hindu',
                                         'Budha' => 'Budha',
                                     ]),
-                                TextInput::make('nama_keluarga_katolik_1')
-                                    ->maxLength(255)
-                                    ->label('Nama Keluarga 1'),
-                                Select::make('hubungan_keluarga_katolik_1')
-                                    ->label('Hubungan Keluarga 1')
-                                    ->options([
-                                        'Saudara Kandung' => 'Saudara Kandung',
-                                        'Pasangan' => 'Pasangan',
-                                        'Sepupu' => 'Sepupu',
-                                        'Wali' => 'Wali',
-                                        'Kerabat Lainnya' => 'Kerabat Lainnya',
-                                    ]),
-                                TextInput::make('nama_keluarga_katolik_2')
-                                    ->maxLength(255)
-                                    ->label('Nama Keluarga 2'),
-                                Select::make('hubungan_keluarga_katolik_2')
-                                    ->label('Hubungan Keluarga 2')
-                                    ->options([
-                                        'Saudara Kandung' => 'Saudara Kandung',
-                                        'Pasangan' => 'Pasangan',
-                                        'Sepupu' => 'Sepupu',
-                                        'Wali' => 'Wali',
-                                        'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                Fieldset::make('Anggota Keluarga yang sudah Katolik')
+                                    ->schema([
+                                        TextInput::make('nama_keluarga_katolik_1')
+                                            ->maxLength(255)
+                                            ->label('Nama Keluarga 1'),
+                                        Select::make('hubungan_keluarga_katolik_1')
+                                            ->label('Hubungan Keluarga 1')
+                                            ->options([
+                                                'Saudara Kandung' => 'Saudara Kandung',
+                                                'Pasangan' => 'Pasangan',
+                                                'Sepupu' => 'Sepupu',
+                                                'Wali' => 'Wali',
+                                                'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                            ]),
+                                        TextInput::make('nama_keluarga_katolik_2')
+                                            ->maxLength(255)
+                                            ->label('Nama Keluarga 2'),
+                                        Select::make('hubungan_keluarga_katolik_2')
+                                            ->label('Hubungan Keluarga 2')
+                                            ->options([
+                                                'Saudara Kandung' => 'Saudara Kandung',
+                                                'Pasangan' => 'Pasangan',
+                                                'Sepupu' => 'Sepupu',
+                                                'Wali' => 'Wali',
+                                                'Kerabat Lainnya' => 'Kerabat Lainnya',
+                                            ]),
                                     ]),
                                 Textarea::make('alamat_keluarga')
                                     ->required()
@@ -225,7 +233,25 @@ class FormPendaftaranBaptis extends Page implements HasForms
         File::put(storage_path(). '/' . $imageName, base64_decode($image));
 
         $this->data['tanda_tangan_ortu'] = $imageName;
-        // dd($this->form->getState());
-        PendaftaranBaptis::create($this->form->getState());
+
+        // Mendapatkan data dari form
+        $formData = $this->form->getState();
+        // Simpan data ke tabel Pendaftaran Baptis
+        $pendaftaranBaptis = PendaftaranBaptis::create($formData);
+
+        Surat::create([
+            'user_id' => Auth::id(),
+            'kode_nomor_surat' => null,
+            'perihal_surat' => 'Pendaftaran Baptis',
+            'atas_nama' => $formData['nama_lengkap'], 
+            'nama_lingkungan' => $formData['nama_lingkungan'],
+            'status' => 'Menunggu'
+        ]);
+
+        Notification::make()
+            ->title('Pengajuan berhasil dibuat')
+            ->icon('heroicon-o-document-text')
+            ->iconColor('success')
+            ->send();
     }
 }
