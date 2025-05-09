@@ -23,8 +23,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
-        'tanda_tangan'
+        'password'
     ];
 
     /**
@@ -55,9 +54,9 @@ class User extends Authenticatable
         return $this->hasOne(KetuaLingkungan::class);
     }
 
-    public function umat()
+    public function userDetail()
     {
-        return $this->hasMany(Umat::class);
+        return $this->hasMany(UserDetail::class);
     }
 
     public function keteranganKematian()

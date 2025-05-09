@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('umats', function (Blueprint $table) {
+        Schema::create('user_details', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('lingkungan_id')->constrained('lingkungans')->cascadeOnDelete();
@@ -25,6 +25,7 @@ return new class extends Migration
             $table->enum('jenis_kelamin', ['Pria', 'Wanita'])->nullable();
             $table->text('alamat')->nullable();
             $table->string('telepon')->nullable();
+            $table->string('tanda_tangan')->nullable();
             $table->timestamps();
         });
     }

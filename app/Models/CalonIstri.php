@@ -10,15 +10,15 @@ class CalonIstri extends Model
     use HasFactory;
     
     protected $fillable = [
-        'umat_id',
+        'user_detail_id',
         'alamat_stlh_menikah',
         'pekerjaan',
         'pendidikan_terakhir',
         'agama'
     ];
 
-    public function umat()
+    public function userDetail()
     {
-        return $this->belongsTo(Umat::class);
+        return $this->belongsTo(UserDetail::class);
     }
 }

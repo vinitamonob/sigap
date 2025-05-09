@@ -10,8 +10,8 @@ class KeteranganKematian extends Model
     use HasFactory;
     
     protected $fillable = [
-        'user_id',
-        'umat_id',
+        'surat_id',
+        'user_detail_id',
         'nomor_surat',
         'nama_lengkap',
         'usia',
@@ -26,13 +26,13 @@ class KeteranganKematian extends Model
         'tgl_surat',
     ];
 
-    public function user()
+    public function surat()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Surat::class);
     }
     
-    public function umat()
+    public function userDetail()
     {
-        return $this->belongsTo(Umat::class);
+        return $this->belongsTo(UserDetail::class);
     }
 }

@@ -10,9 +10,8 @@ class PendaftaranKanonikPerkawinan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'surat_id',
-        'umat_id',
+        'user_detail_id',
         'calon_suami_id',
         'calon_istri_id',
         'nomor_surat',
@@ -27,19 +26,14 @@ class PendaftaranKanonikPerkawinan extends Model
         'ttd_pastor',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function surat()
     {
         return $this->belongsTo(Surat::class);
     }
 
-    public function umat()
+    public function userDetail()
     {
-        return $this->belongsTo(Umat::class);
+        return $this->belongsTo(UserDetail::class);
     }
 
     public function calonSuami()

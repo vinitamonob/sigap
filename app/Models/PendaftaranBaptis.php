@@ -10,9 +10,8 @@ class PendaftaranBaptis extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'surat_id',
-        'umat_id',
+        'user_detail_id',
         'nomor_surat',
         'agama_asal',
         'pendidikan_terakhir',
@@ -31,18 +30,13 @@ class PendaftaranBaptis extends Model
         'tgl_surat',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
-
     public function surat()
     {
         return $this->belongsTo(Surat::class);
     }
     
-    public function umat()
+    public function userDetail()
     {
-        return $this->belongsTo(Umat::class);
+        return $this->belongsTo(UserDetail::class);
     }
 }

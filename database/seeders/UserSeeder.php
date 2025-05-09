@@ -28,7 +28,6 @@ class UserSeeder extends Seeder
             'email' => 'superadmin@example.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
-            'tanda_tangan' => null,
             'remember_token' => Str::random(10),
         ])->assignRole('super_admin');
 
@@ -38,7 +37,6 @@ class UserSeeder extends Seeder
             'email' => 'paroki@example.com',
             'email_verified_at' => now(),
             'password' => Hash::make('12345678'),
-            'tanda_tangan' => null,
             'remember_token' => Str::random(10),
         ])->assignRole('paroki');
 
@@ -51,7 +49,6 @@ class UserSeeder extends Seeder
                 'email' => strtolower(str_replace(' ', '.', $nama)) . '@example.com',
                 'email_verified_at' => now(),
                 'password' => Hash::make('12345678'),
-                'tanda_tangan' => null,
                 'remember_token' => Str::random(10),
             ])->assignRole('ketua_lingkungan');
         }
@@ -65,7 +62,6 @@ class UserSeeder extends Seeder
                 'email' => $email,
                 'email_verified_at' => now(),
                 'password' => Hash::make('12345678'),
-                'tanda_tangan' => null,
                 'remember_token' => Str::random(10),
             ])->assignRole('umat');
         }

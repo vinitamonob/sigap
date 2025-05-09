@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('keterangan_kematians', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
-            $table->foreignId('umat_id')->constrained('umats')->cascadeOnDelete();
+            $table->foreignId('surat_id')->nullable()->constrained('surats')->nullOnDelete();
+            $table->foreignId('user_detail_id')->nullable()->constrained('user_details')->nullOnDelete();
             $table->string('nomor_surat')->nullable();
             $table->string('nama_lengkap');
             $table->integer('usia')->nullable();

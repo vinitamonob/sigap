@@ -21,8 +21,8 @@ class Lingkungan extends Model
         return $this->hasOne(KetuaLingkungan::class);
     }
 
-    public function umat()
+    public function userDetail()
     {
-        return $this->hasMany(Umat::class);
+        return $this->hasMany(UserDetail::class);
     }
 }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('calon_istris', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('umat_id')->constrained('umats')->cascadeOnDelete();
+            $table->foreignId('user_detail_id')->nullable()->constrained('user_details')->nullOnDelete();
             $table->text('alamat_stlh_menikah')->nullable();
             $table->string('pekerjaan')->nullable();
             $table->string('pendidikan_terakhir')->nullable();

@@ -10,7 +10,7 @@ class Surat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
+        'user_detail_id',
         'kode_nomor_surat',
         'nama_lingkungan',
         'perihal',
@@ -19,9 +19,9 @@ class Surat extends Model
         'status',
     ];
 
-    public function user()
+    public function userDetail()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(UserDetail::class);
     }
 
     public function keteranganKematian()
