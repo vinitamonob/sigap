@@ -24,9 +24,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'alamat',
-        'telepon',
-        'nama_lingkungan',
         'tanda_tangan'
     ];
 
@@ -53,9 +50,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function lingkungan()
+    public function ketuaLingkungan()
     {
-        return $this->hasOne(Lingkungan::class);
+        return $this->hasOne(KetuaLingkungan::class);
+    }
+
+    public function umat()
+    {
+        return $this->hasMany(Umat::class);
     }
 
     public function keteranganKematian()

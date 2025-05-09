@@ -5,23 +5,38 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Surat extends Model
+class Umat extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'user_id',
-        'kode_nomor_surat',
-        'nama_lingkungan',
-        'perihal',
-        'atas_nama',
-        'file_surat',
-        'status',
+        'lingkungan_id',
+        'keluarga_id',
+        'nama_baptis',
+        'tempat_baptis',
+        'tgl_baptis',
+        'no_baptis',
+        'tempat_lahir',
+        'tgl_lahir',
+        'jenis_kelamin',
+        'alamat',
+        'telepon',
     ];
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function lingkungan()
+    {
+        return $this->belongsTo(Lingkungan::class);
+    }
+
+    public function keluarga()
+    {
+        return $this->belongsTo(Keluarga::class);
     }
 
     public function keteranganKematian()

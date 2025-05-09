@@ -5,21 +5,22 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Lingkungan extends Model
+class Keluarga extends Model
 {
     use HasFactory;
     
     protected $fillable = [
-        'nama_lingkungan',
-        'kode',
-        'wilayah',
-        'paroki',
+        'nama_ayah',
+        'agama_ayah',
+        'pekerjaan_ayah',
+        'alamat_ayah',
+        'nama_ibu',
+        'agama_ibu',
+        'pekerjaan_ibu',
+        'alamat_ibu',
+        'ttd_ayah',
+        'ttd_ibu',
     ];
-
-    public function ketuaLingkungan()
-    {
-        return $this->hasOne(KetuaLingkungan::class);
-    }
 
     public function umat()
     {

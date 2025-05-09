@@ -3,41 +3,32 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PendaftaranBaptis extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'user_id',
+        'surat_id',
+        'umat_id',
         'nomor_surat',
-        'nama_ketua',
-        'nama_lingkungan',
-        'paroki',
-        'nama_lengkap',
-        'nama_baptis',
-        'jenis_kelamin',
-        'tempat_lahir',
-        'tanggal_lahir',
-        'alamat_lengkap',
-        'nomor_telepon',
         'agama_asal',
         'pendidikan_terakhir',
-        'nama_ayah',
-        'agama_ayah',
-        'nama_ibu',
-        'agama_ibu',
-        'nama_keluarga_katolik_1',
-        'hubungan_keluarga_katolik_1',
-        'nama_keluarga_katolik_2',
-        'hubungan_keluarga_katolik_2',
-        'alamat_keluarga',
-        'tanggal_mulai_belajar',
-        'nama_wali_baptis',
-        'alasan_masuk_katolik',
-        'tanda_tangan_ortu',
-        'tanda_tangan_pastor',
-        'tanda_tangan_ketua',
-        'tanggal_baptis',
-        'tanggal_daftar',
+        'nama_keluarga1',
+        'hub_keluarga1',
+        'nama_keluarga2',
+        'hub_keluarga2',
+        'tgl_belajar',
+        'tgl_baptis',
+        'wali_baptis',
+        'alasan_masuk',
+        'nama_pastor',
+        'ttd_ortu',
+        'ttd_ketua',
+        'ttd_pastor',
+        'tgl_surat',
     ];
 
     public function user()
@@ -48,5 +39,10 @@ class PendaftaranBaptis extends Model
     public function surat()
     {
         return $this->belongsTo(Surat::class);
+    }
+    
+    public function umat()
+    {
+        return $this->belongsTo(Umat::class);
     }
 }

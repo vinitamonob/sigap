@@ -15,24 +15,17 @@ return new class extends Migration
     {
         Schema::create('keterangan_lains', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->nullable();
-            $table->foreignIdFor(Surat::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('surat_id')->constrained('surats')->cascadeOnDelete();
+            $table->foreignId('umat_id')->constrained('umats')->cascadeOnDelete();
             $table->string('nomor_surat')->nullable();
-            $table->string('nama_ketua')->nullable();
-            $table->string('nama_lingkungan')->nullable();
-            $table->string('paroki');
             $table->string('nama_pastor')->nullable();
-            $table->string('nama_lengkap');
-            $table->string('tempat_lahir');
-            $table->date('tanggal_lahir');
-            $table->string('jabatan_pekerjaan');
-            $table->text('alamat');
-            $table->string('telepon')->nullable();
-            $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak']);
-            $table->text('keperluan');
-            $table->string('tanda_tangan_pastor')->nullable();
-            $table->string('tanda_tangan_ketua')->nullable();
-            $table->date('tanggal_surat')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak'])->nullable();
+            $table->text('keperluan')->nullable();
+            $table->string('ttd_ketua')->nullable();
+            $table->string('ttd_pastor')->nullable();
+            $table->date('tgl_surat')->nullable();
             $table->timestamps();
         });
     }

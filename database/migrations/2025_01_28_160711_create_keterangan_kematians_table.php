@@ -15,25 +15,20 @@ return new class extends Migration
     {
         Schema::create('keterangan_kematians', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(User::class)->nullable();
-            $table->foreignIdFor(Surat::class)->constrained()->cascadeOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('umat_id')->constrained('umats')->cascadeOnDelete();
             $table->string('nomor_surat')->nullable();
-            $table->string('nama_ketua')->nullable();
-            $table->string('nama_lingkungan')->nullable();
-            $table->string('paroki')->nullable();
             $table->string('nama_lengkap');
-            $table->integer('usia');
-            $table->string('nama_orang_tua');
-            $table->string('nama_pasangan'); // Nama Suami/Isteri
-            $table->date('tanggal_kematian');
-            $table->date('tanggal_pemakaman');
-            $table->string('tempat_pemakaman');
+            $table->integer('usia')->nullable();
+            $table->string('nama_ortu')->nullable();
+            $table->string('nama_pasangan')->nullable();
+            $table->date('tgl_kematian')->nullable();
+            $table->date('tgl_pemakaman')->nullable();
+            $table->string('tempat_pemakaman')->nullable();
             $table->string('pelayanan_sakramen')->nullable();
-            $table->string('sakramen_yang_diberikan')->nullable();
-            $table->string('tempat_baptis');
-            $table->string('no_buku_baptis');
-            $table->string('tanda_tangan_ketua')->nullable();
-            $table->date('tanggal_surat')->nullable();
+            $table->string('sakramen')->nullable();
+            $table->string('ttd_ketua')->nullable();
+            $table->date('tgl_surat')->nullable();
             $table->timestamps();
         });
     }
