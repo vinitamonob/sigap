@@ -11,13 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('calon_suamis', function (Blueprint $table) {
+        Schema::create('calon_pasangans', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_detail_id')->nullable()->constrained('user_details')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
+            $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete();
+            $table->foreignId('keluarga_id')->nullable()->constrained('keluargas')->nullOnDelete();
+            // Data pribadi
             $table->text('alamat_stlh_menikah')->nullable();
             $table->string('pekerjaan')->nullable();
             $table->string('pendidikan_terakhir')->nullable();
             $table->string('agama')->nullable();
+            // Status sebagai calon suami/istri
+            $table->enum('jenis_kelamin', ['Pria', 'Wanita']);
             $table->timestamps();
         });
     }

@@ -132,7 +132,7 @@ class FormKeteranganKematian extends Page implements HasForms
         Surat::create([
             'user_id' => Auth::id(),
             'kode_nomor_surat' => null,
-            'perihal_surat' => 'Keterangan Kematian',
+            'perihal' => 'Keterangan Kematian',
             'atas_nama' => $formData['nama_lengkap'], 
             'nama_lingkungan' => $formData['nama_lingkungan'],
             'status' => 'Menunggu'

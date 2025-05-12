@@ -23,7 +23,12 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password'
+        'password',
+        'tempat_lahir',
+        'tgl_lahir',
+        'jenis_kelamin',
+        'telepon',
+        'tanda_tangan',
     ];
 
     /**
@@ -46,41 +51,32 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'tgl_lahir' => 'date',
         ];
+    }
+
+    public function detailUser()
+    {
+        return $this->hasOne(DetailUser::class);
     }
 
     public function ketuaLingkungan()
     {
         return $this->hasOne(KetuaLingkungan::class);
     }
-
-    public function userDetail()
-    {
-        return $this->hasMany(UserDetail::class);
-    }
-
-    public function keteranganKematian()
-    {
-        return $this->hasMany(KeteranganKematian::class);
-    }
-
-    public function keteranganLain()
-    {
-        return $this->hasMany(KeteranganLain::class);
-    }
-
-    public function pendaftaranBaptis()
-    {
-        return $this->hasMany(PendaftaranBaptis::class);
-    }
-
-    public function pendaftaranKanonikPerkawinan()
-    {
-        return $this->hasMany(PendaftaranKanonikPerkawinan::class);
-    }
-
-    public function surat()
+    
+    public function surats()
     {
         return $this->hasMany(Surat::class);
+    }
+
+    public function calonPasangan()
+    {
+        return $this->hasOne(CalonPasangan::class);
+    }
+
+    public function keluarga()
+    {
+        return $this->hasOne(Keluarga::class);
     }
 }

@@ -2,14 +2,10 @@
 
 namespace App\Filament\Resources\KeteranganKematianResource\Pages;
 
-use Filament\Actions;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
+use App\Models\Surat;
+use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\Resources\KeteranganKematianResource;
-use App\Models\KeteranganKematian;
-use App\Services\SuratKematianGenerate;
-use Illuminate\Database\Eloquent\Model;
 
 class CreateKeteranganKematian extends CreateRecord
 {
@@ -17,23 +13,26 @@ class CreateKeteranganKematian extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $create = static::getModel()::create($data);
-
-        $templatePath = 'templates/surat_keterangan_kematian.docx';
-        $namaSurat = $create->nama_lingkungan .'-'.$create->tanggal_surat.'-';
-        $outputPath = storage_path('app/public/'.$namaSurat.'surat_keteragan_kematian.docx');
-        $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(
-            $templatePath,  
-            $outputPath,
-            $create->toArray(),
-            'ketua'
-        );
-        return $create;
+        $record = static::getModel()::create($data);
+        
+        // Buat Surat terkait
+        $surat = Surat::create([
+            'user_id' => $data['user_id'] ?? null,
+            'lingkungan_id' => $data['lingkungan_id'],
+            'jenis_surat' => 'keterangan_kematian',
+            'perihal' => 'Keterangan Kematian',
+            'tgl_surat' => $data['tgl_surat'] ?? now(),
+            'status' => 'menunggu'
+        ]);
+        
+        // Update KeteranganKematian dengan ID surat
+        $record->update(['surat_id' => $surat->id]);
+        
+        return $record;
     }   
 
     protected function getRedirectUrl(): string
     {
         return KeteranganKematianResource::getUrl('index');
     }
-
 }

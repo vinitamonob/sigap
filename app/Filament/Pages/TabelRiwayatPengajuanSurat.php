@@ -48,7 +48,7 @@ class TabelRiwayatPengajuanSurat extends Page implements HasTable
                 TextColumn::make('kode_nomor_surat')
                     ->label('Kode Surat')
                     ->searchable(),
-                TextColumn::make('perihal_surat')
+                TextColumn::make('perihal')
                     ->label('Nama Surat')
                     ->searchable(),
                 TextColumn::make('atas_nama')

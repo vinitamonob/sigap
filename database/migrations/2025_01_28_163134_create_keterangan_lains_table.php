@@ -15,16 +15,21 @@ return new class extends Migration
     {
         Schema::create('keterangan_lains', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('surat_id')->nullable()->constrained('surats')->nullOnDelete();
-            $table->foreignId('user_detail_id')->nullable()->constrained('user_details')->nullOnDelete();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete(); // Langsung ke users
+            $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
+            $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete();           
+            // Data surat
             $table->string('nomor_surat')->nullable();
             $table->string('nama_pastor')->nullable();
-            $table->string('pekerjaan')->nullable();
+            $table->string('ttd_pastor')->nullable();            
+            // Data yang bisa diambil dari relasi tapi mungkin perlu override
+            $table->string('pekerjaan')->nullable();      
+            // Data spesifik
             $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak'])->nullable();
             $table->text('keperluan')->nullable();
-            $table->string('ttd_ketua')->nullable();
-            $table->string('ttd_pastor')->nullable();
+            // Data administrasi
             $table->date('tgl_surat')->nullable();
+            $table->string('ttd_ketua')->nullable(); // Bisa dari ketua_lingkungan->user->tanda_tangan
             $table->timestamps();
         });
     }

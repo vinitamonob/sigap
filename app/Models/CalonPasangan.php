@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class KeteranganLain extends Model
+class CalonPasangan extends Model
 {
     use HasFactory;
     
@@ -13,18 +13,12 @@ class KeteranganLain extends Model
         'user_id',
         'lingkungan_id',
         'ketua_lingkungan_id',
-        'nomor_surat',
-        'nama_pastor',
-        'ttd_pastor',
+        'keluarga_id',
+        'alamat_stlh_menikah',
         'pekerjaan',
-        'status_tinggal',
-        'keperluan',
-        'tgl_surat',
-        'ttd_ketua',
-    ];
-
-    protected $casts = [
-        'tgl_surat' => 'date',
+        'pendidikan_terakhir',
+        'agama',
+        'jenis_kelamin',
     ];
 
     public function user()
@@ -40,5 +34,20 @@ class KeteranganLain extends Model
     public function ketuaLingkungan()
     {
         return $this->belongsTo(KetuaLingkungan::class);
+    }
+
+    public function keluarga()
+    {
+        return $this->belongsTo(Keluarga::class);
+    }
+
+    public function sebagaiSuami()
+    {
+        return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_suami_id');
+    }
+
+    public function sebagaiIstri()
+    {
+        return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_istri_id');
     }
 }

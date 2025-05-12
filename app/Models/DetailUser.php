@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class UserDetail extends Model
+class DetailUser extends Model
 {
     use HasFactory;
 
@@ -17,12 +17,11 @@ class UserDetail extends Model
         'tempat_baptis',
         'tgl_baptis',
         'no_baptis',
-        'tempat_lahir',
-        'tgl_lahir',
-        'jenis_kelamin',
         'alamat',
-        'telepon',
-        'tanda_tangan'
+    ];
+
+    protected $casts = [
+        'tgl_baptis' => 'date',
     ];
 
     public function user()
@@ -38,25 +37,5 @@ class UserDetail extends Model
     public function keluarga()
     {
         return $this->belongsTo(Keluarga::class);
-    }
-
-    public function keteranganKematian()
-    {
-        return $this->hasMany(KeteranganKematian::class);
-    }
-
-    public function keteranganLain()
-    {
-        return $this->hasMany(KeteranganLain::class);
-    }
-
-    public function pendaftaranBaptis()
-    {
-        return $this->hasMany(PendaftaranBaptis::class);
-    }
-
-    public function pendaftaranKanonik()
-    {
-        return $this->hasMany(PendaftaranKanonikPerkawinan::class);
     }
 }

@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('lingkungan_id')->constrained('lingkungans')->cascadeOnDelete();
-            $table->string('periode')->nullable();
+            $table->date('mulai_jabatan')->nullable();
+            $table->date('akhir_jabatan')->nullable();
+            $table->boolean('aktif')->default(true);
             $table->timestamps();
         });
     }

@@ -16,13 +16,23 @@ class Lingkungan extends Model
         'paroki',
     ];
 
-    public function ketuaLingkungan()
+    public function ketuaLingkungans()
     {
-        return $this->hasOne(KetuaLingkungan::class);
+        return $this->hasMany(KetuaLingkungan::class);
     }
 
-    public function userDetail()
+    public function detailUsers()
     {
-        return $this->hasMany(UserDetail::class);
+        return $this->hasMany(DetailUser::class);
+    }
+
+    public function surats()
+    {
+        return $this->hasMany(Surat::class);
+    }
+
+        public function calonPasangans()
+    {
+        return $this->hasMany(CalonPasangan::class);
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -9,11 +10,12 @@ use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use App\Models\KeteranganLain;
-use Illuminate\Support\Carbon;
+use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
-use App\Services\SuratLainGenerate;
 use Illuminate\Support\Facades\Auth;
+use App\Services\SuratLainGenerate;
 use Filament\Forms\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
@@ -33,79 +35,116 @@ class KeteranganLainResource extends Resource
             ->schema([
                 Fieldset::make('Label')
                     ->schema([
-                        Forms\Components\TextInput::make('nomor_surat')
-                            ->required()
-                            ->label('Nomor Surat')
-                            ->maxLength(255),
-                        Forms\Components\Select::make('nama_lingkungan')
+                        Forms\Components\Hidden::make('nomor_surat'),
+                        Forms\Components\Select::make('lingkungan_id')
                             ->required()
                             ->label('Nama Lingkungan / Stasi')
-                            ->options(Lingkungan::pluck('nama_lingkungan', 'nama_lingkungan')->toArray())
+                            ->options(function () {
+                                return Lingkungan::pluck('nama_lingkungan', 'id')->toArray();
+                            })
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
-                                    $lingkungan = Lingkungan::where('nama_lingkungan', $state)->first();
-                                    if ($lingkungan && $lingkungan->user) {
-                                        $set('nama_ketua', $lingkungan->user->name);
-                                        $set('user_id', $lingkungan->user_id);
+                                    $lingkungan = Lingkungan::find($state);
+                                    $ketuaLingkungan = KetuaLingkungan::where('lingkungan_id', $state)
+                                        ->where('aktif', true)
+                                        ->first();
+                                    
+                                    if ($lingkungan) {
+                                        $set('nama_lingkungan', $lingkungan->nama_lingkungan);
+                                        $set('paroki', $lingkungan->paroki ?? 'St. Stephanus Cilacap');
+                                    }
+                                    
+                                    if ($ketuaLingkungan) {
+                                        $set('ketua_lingkungan_id', $ketuaLingkungan->id);
                                     }
                                 }
                             }),
-                        Forms\Components\TextInput::make('nama_ketua')
-                            ->required()
-                            ->label('Nama Ketua Lingkungan')
-                            ->readOnly(),
+                        Forms\Components\Hidden::make('ketua_lingkungan_id'),
+                        Forms\Components\Hidden::make('nama_lingkungan'),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
-                            ->default('St. Stephanus Cilacap')
-                            ->readOnly()
-                            ->maxLength(255),
-                        Forms\Components\DatePicker::make('tanggal_surat')
+                            ->readOnly(), 
+                        Forms\Components\DatePicker::make('tgl_surat')
                             ->required()
                             ->label('Tanggal Surat')
-                            ->default(now())
-                            ->readOnly(),
+                            ->default(now()),
                     ]),
-                    Fieldset::make('Data Keperluan')
-                        ->schema([
-                            Forms\Components\TextInput::make('nama_lengkap')
-                                ->required()
-                                ->label('Nama Lengkap')
-                                ->maxLength(255),
-                            Forms\Components\TextInput::make('tempat_lahir')
-                                ->required()
-                                ->label('Tempat Lahir')
-                                ->maxLength(255),
-                            Forms\Components\DatePicker::make('tanggal_lahir')
-                                ->required()
-                                ->label('Tanggal Lahir'),
-                            Forms\Components\TextInput::make('jabatan_pekerjaan')
-                                ->required()
-                                ->label('Jabatan Pekerjaan')
-                                ->maxLength(255),
-                            Forms\Components\Textarea::make('alamat')
-                                ->required()
-                                ->label('Alamat')
-                                ->columnSpanFull(),
-                            Forms\Components\TextInput::make('telepon')
-                                ->tel()
-                                ->label('No. Telepon / HP')
-                                ->maxLength(255),
-                            Forms\Components\Select::make('status_tinggal')
-                                ->required()
-                                ->label('Status Tempat Tinggal')
-                                ->options([
-                                    'Sendiri' => 'Sendiri',
-                                    'Bersama Keluarga' => 'Bersama Keluarga',
-                                    'Bersama Saudara' => 'Bersama Saudara',
-                                    'Kos/Kontrak' => 'Kos/Kontrak',
-                                ]),
-                            Forms\Components\Textarea::make('keperluan')
-                                ->required()
-                                ->label('Perihal / Keperluan')
-                                ->columnSpanFull(),
-                        ])
+                Fieldset::make('Data Pemohon')
+                    ->schema([
+                        Forms\Components\Select::make('user_id')
+                            ->label('Pilih Umat (Opsional)')
+                            ->options(function () {
+                                return User::with('detailUser')->get()
+                                    ->mapWithKeys(function ($user) {
+                                        return [$user->id => $user->name . ($user->detailUser ? ' ('.$user->detailUser->nama_baptis.')' : '')];
+                                    });
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $user = User::find($state);
+                                    if ($user) {
+                                        $set('nama_lengkap', $user->name);
+                                        $set('tempat_lahir', $user->tempat_lahir);
+                                        $set('tgl_lahir', $user->tgl_lahir);
+                                        $set('telepon', $user->telepon);
+                                        
+                                        if ($user->detailUser) {
+                                            $set('alamat', $user->detailUser->alamat);
+                                        }
+                                    }
+                                }
+                            }),
+                        Forms\Components\TextInput::make('nama_lengkap')
+                            ->required()
+                            ->label('Nama Lengkap')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('akun_email')
+                            ->required()
+                            ->label('Akun Email')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('tempat_lahir')
+                            ->required()
+                            ->label('Tempat Lahir')
+                            ->maxLength(255),
+                        Forms\Components\DatePicker::make('tgl_lahir')
+                            ->required()
+                            ->label('Tanggal Lahir'),
+                        Forms\Components\TextInput::make('pekerjaan')
+                            ->required()
+                            ->label('Pekerjaan')
+                            ->maxLength(255),
+                        Forms\Components\Textarea::make('alamat')
+                            ->required()
+                            ->label('Alamat')
+                            ->columnSpanFull(),
+                        Forms\Components\TextInput::make('telepon')
+                            ->tel()
+                            ->required()
+                            ->label('No. Telepon/HP')
+                            ->maxLength(255),
+                    ]),
+                Fieldset::make('Data Surat')
+                    ->schema([
+                        Forms\Components\Select::make('status_tinggal')
+                            ->required()
+                            ->label('Status Tempat Tinggal')
+                            ->options([
+                                'Sendiri' => 'Sendiri',
+                                'Bersama Keluarga' => 'Bersama Keluarga',
+                                'Bersama Saudara' => 'Bersama Saudara',
+                                'Kos/Kontrak' => 'Kos/Kontrak',
+                            ]),
+                        Forms\Components\Textarea::make('keperluan')
+                            ->required()
+                            ->label('Keperluan')
+                            ->columnSpanFull(),
+                        Forms\Components\Hidden::make('nama_pastor'),
+                        Forms\Components\Hidden::make('ttd_pastor'),
+                    ])
             ]);
     }
 
@@ -114,42 +153,45 @@ class KeteranganLainResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // Tampilkan semua data jika user adalah super_admin
+                
                 if ($user->hasRole('super_admin')) {
                     return $query;
                 }
-                // Jika user memiliki role paroki, tampilkan semua data
+                
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
-                                 ->whereNotNull('tanda_tangan_ketua');
+                                ->whereNotNull('ttd_ketua');
                 }
-                // Jika user adalah ketua_lingkungan
-                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
-                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                
+                if ($user->hasRole('ketua_lingkungan')) {
+                    $ketuaLingkungan = KetuaLingkungan::where('user_id', $user->id)
+                        ->where('aktif', true)
+                        ->first();
+                    
+                    if ($ketuaLingkungan) {
+                        return $query->where('lingkungan_id', $ketuaLingkungan->lingkungan_id);
+                    }
                 }
-                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                
                 return $query;
             })
             ->columns([
                 Tables\Columns\TextColumn::make('nomor_surat')
                     ->label('Nomor Surat')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('nama_lingkungan')
-                    ->label('Lingkungan / Stasi')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nama_lengkap')
-                    ->label('Nama Lengkap')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_lahir')
-                    ->label('Tempat Lahir')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_lahir')
-                    ->label('Tanggal Lahir')
+                Tables\Columns\TextColumn::make('tgl_surat')
+                    ->label('Tanggal Surat')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('alamat')
-                    ->label('Alamat')
+                Tables\Columns\TextColumn::make('lingkungan.nama_lingkungan')
+                    ->label('Lingkungan')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->label('Nama Pemohon')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('keperluan')
+                    ->label('Keperluan')
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -164,120 +206,127 @@ class KeteranganLainResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label(function($record) {
-                        $user = User::where('id', Auth::user()->id)->first();
-                        if ($user->hasRole('ketua_lingkungan')) {
-                            return $record->nomor_surat === null ? 'Accept' : 'Done';
-                        } elseif ($user->hasRole('paroki')) {
-                            return $record->tanda_tangan_pastor === null ? 'Accept' : 'Done';
-                        }
-                        return 'Accept';
+                    ->label(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'Accept',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'Accept',
+                        default => 'Done'
                     })
-                    ->color(function($record) {
-                        $user = User::where('id', Auth::user()->id)->first();
-                        if ($user->hasRole('ketua_lingkungan')) {
-                            return $record->nomor_surat === null ? 'warning' : 'success';
-                        } elseif ($user->hasRole('paroki')) {
-                            return $record->tanda_tangan_pastor === null ? 'warning' : 'success';
-                        }
-                        return 'warning';
+                    ->color(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'warning',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'warning',
+                        default => 'success'
                     })
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->disabled(function($record) {
-                        $user = User::where('id', Auth::user()->id)->first();
-                        // Jika user adalah ketua_lingkungan
-                        if ($user->hasRole('ketua_lingkungan')) {
-                            // Disable tombol jika sudah memiliki nomor surat
-                            return $record->nomor_surat !== null;
-                        } 
-                        // Jika user adalah paroki
-                        elseif ($user->hasRole('paroki')) {
-                            // Pastikan nomor_surat sudah ada (sudah disetujui ketua_lingkungan)
-                            // dan tanda_tangan_pastor belum ada (belum disetujui paroki)
-                            return $record->nomor_surat === null || $record->tanda_tangan_pastor !== null;
-                        }
-                        
-                        return true; // Default disabled untuk peran lain
+                    ->disabled(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') => $record->nomor_surat !== null,
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') => $record->nomor_surat === null || $record->ttd_pastor !== null,
+                        default => true
                     })
+                    ->visible(fn() => !User::where('id', Auth::user()->id)->first()->hasRole('super_admin'))
                     ->action(function (KeteranganLain $record) {
                         $user = User::where('id', Auth::user()->id)->first();
                         
-                        // Jika user role ketua lingkungan 
-                        if ($user->hasRole('ketua_lingkungan')) {  
+                        if ($user->hasRole('ketua_lingkungan')) {
+                            $ketuaLingkungan = KetuaLingkungan::where('user_id', $user->id)
+                                ->where('aktif', true)
+                                ->first();
+                            
+                            if (!$ketuaLingkungan) {
+                                Notification::make()
+                                    ->title('Error: Anda bukan ketua lingkungan aktif')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            
+                            $lingkungan = $ketuaLingkungan->lingkungan;
+                            
                             // Generate nomor surat
                             $tahun = Carbon::now()->format('Y');
                             $bulan = Carbon::now()->format('m');
-                            // Ambil kode dari user yang login
-                            $kode = Auth::user()->lingkungan->kode; // Mengasumsikan user memiliki relasi ke model lingkungan dan ada field kode
-                            // Inisialisasi count
+                            $kode = $lingkungan->kode ?? 'XX';
+                            
                             $count = 1;
-                            // Mencari nomor yang belum ada
                             do {
                                 $nomor_surat = sprintf('%04d/KL/%s/%s/%s', $count, $kode, $bulan, $tahun);
                                 $exists = KeteranganLain::where('nomor_surat', $nomor_surat)->exists();
-                                if ($exists) {
-                                    $count++; // Jika nomor sudah ada, tingkatkan count
-                                }
-                            } while ($exists); // Setelah keluar dari loop, $nomor_surat adalah unik
+                                $count = $exists ? $count + 1 : $count;
+                            } while ($exists);
                             
-                            // Dapatkan tanda tangan ketua lingkungan
-                            $tanda_tangan_ketua = $user->tanda_tangan ?? '';
-                            
-                            // Update record dengan nomor surat dan tanda tangan ketua
                             $record->update([
                                 'nomor_surat' => $nomor_surat,
-                                'tanda_tangan_ketua' => $tanda_tangan_ketua,
+                                'ttd_ketua' => $user->tanda_tangan,
+                                'nama_ketua' => $user->name,
                             ]);
                             
-                            Notification::make()
-                                ->title('Surat Keterangan Lain diterima')
-                                ->success()
-                                ->send();
-                        } 
-                        elseif ($user->hasRole('paroki')) {  // Jika user role paroki
-                            // Dapatkan tanda tangan dan nama pastor (user paroki)
-                            $tanda_tangan_pastor = $user->tanda_tangan ?? '';
-                            $nama_pastor = $user->name ?? '';
-
-                            // Update record 
-                            $record->update([
-                                'tanda_tangan_pastor' => $tanda_tangan_pastor,
-                                'nama_pastor' => $nama_pastor,
-                            ]);
-
-                            $templatePath = 'templates/surat_keterangan_lain.docx';
-                            $namaSurat = $record->nama_lingkungan .'-'.$record->tanggal_surat.'-surat_keteragan_lain.docx';
-                            $outputPath = storage_path('app/public/'.$namaSurat);
-                            $generateSurat = (new SuratLainGenerate)->generateFromTemplate(
-                                $templatePath,  
-                                $outputPath,
-                                $record->toArray(),
-                                'ketua',
-                                'paroki'
-                            );
-
-                            // Update surat yang sudah ada
-                            $surat = Surat::where('atas_nama', $record->nama_lengkap)
-                                            ->where('nama_lingkungan', $record->nama_lingkungan)
-                                            ->where('status', 'Menunggu')
-                                            ->first();
-
-                            if ($surat) {
-                                $surat->update([
-                                    'kode_nomor_surat' => $record->nomor_surat,
-                                    'status' => 'Selesai',
-                                    'file_surat' => $namaSurat,
+                            // Update surat terkait
+                            if ($record->surat) {
+                                $record->surat->update([
+                                    'nomor_surat' => $nomor_surat,
+                                    'status' => 'menunggu_paroki',
                                 ]);
                             }
                             
                             Notification::make()
-                                ->title('Surat Keterangan Lain diterima')
+                                ->title('Surat telah disetujui Ketua Lingkungan')
+                                ->success()
+                                ->send();
+                        } 
+                        elseif ($user->hasRole('paroki')) {
+                            $record->update([
+                                'ttd_pastor' => $user->tanda_tangan,
+                                'nama_pastor' => $user->name,
+                            ]);
+                            
+                            // Generate file surat
+                            $namaLingkungan = $record->lingkungan ? Str::slug($record->lingkungan->nama_lingkungan) : '';
+                            $namaSurat = "surat-keterangan-{$namaLingkungan}-{$record->id}.docx";
+                            $outputPath = storage_path("app/public/surat/{$namaSurat}");
+                            $templatePath = base_path('templates/surat_keterangan_lain.docx');
+
+                            // Data untuk template
+                            $data = [
+                                'nomor_surat' => $record->nomor_surat,
+                                'nama_lengkap' => $record->nama_lengkap,
+                                'tempat_lahir' => $record->tempat_lahir,
+                                'tgl_lahir' => $record->tgl_lahir?->format('d-m-Y'),
+                                'pekerjaan' => $record->pekerjaan,
+                                'alamat' => $record->alamat,
+                                'telepon' => $record->telepon,
+                                'status_tinggal' => $record->status_tinggal,
+                                'keperluan' => $record->keperluan,
+                                'nama_lingkungan' => $record->lingkungan->nama_lingkungan ?? '',
+                                'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+                                'nama_ketua' => $record->nama_ketua,
+                                'nama_pastor' => $user->name,
+                                'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                            ];
+                            
+                            $generateSurat = (new SuratLainGenerate)->generateFromTemplate(
+                                $templatePath,  
+                                $outputPath,
+                                $data,
+                                'ketua',
+                                'paroki'
+                            );
+                            
+                            // Update surat terkait
+                            if ($record->surat) {
+                                $record->surat->update([
+                                    'status' => 'selesai',
+                                    'file_surat' => "surat/{$namaSurat}",
+                                ]);
+                            }
+                            
+                            Notification::make()
+                                ->title('Surat telah disetujui Pastor')
                                 ->success()
                                 ->send();
                         }
                     }),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

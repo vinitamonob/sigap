@@ -10,9 +10,12 @@ class PendaftaranBaptis extends Model
     use HasFactory;
 
     protected $fillable = [
-        'surat_id',
-        'user_detail_id',
+        'user_id',
+        'lingkungan_id',
+        'ketua_lingkungan_id',
+        'keluarga_id',
         'nomor_surat',
+        'tgl_surat',
         'agama_asal',
         'pendidikan_terakhir',
         'nama_keluarga1',
@@ -24,19 +27,34 @@ class PendaftaranBaptis extends Model
         'wali_baptis',
         'alasan_masuk',
         'nama_pastor',
-        'ttd_ortu',
-        'ttd_ketua',
         'ttd_pastor',
-        'tgl_surat',
+        'ttd_ketua',
+        'ttd_ortu',
     ];
 
-    public function surat()
+    protected $casts = [
+        'tgl_surat' => 'date',
+        'tgl_belajar' => 'date',
+        'tgl_baptis' => 'date',
+    ];
+
+    public function user()
     {
-        return $this->belongsTo(Surat::class);
+        return $this->belongsTo(User::class);
     }
-    
-    public function userDetail()
+
+    public function lingkungan()
     {
-        return $this->belongsTo(UserDetail::class);
+        return $this->belongsTo(Lingkungan::class);
+    }
+
+    public function ketuaLingkungan()
+    {
+        return $this->belongsTo(KetuaLingkungan::class);
+    }
+
+    public function keluarga()
+    {
+        return $this->belongsTo(Keluarga::class);
     }
 }

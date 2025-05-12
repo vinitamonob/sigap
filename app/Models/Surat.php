@@ -10,37 +10,27 @@ class Surat extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_detail_id',
-        'kode_nomor_surat',
-        'nama_lingkungan',
+        'user_id',
+        'lingkungan_id',
+        'jenis_surat',
+        'nomor_surat',
         'perihal',
-        'atas_nama',
-        'file_surat',
+        'tgl_surat',
         'status',
+        'file_surat',
     ];
 
-    public function userDetail()
+    protected $casts = [
+        'tgl_surat' => 'date',
+    ];
+
+    public function user()
     {
-        return $this->belongsTo(UserDetail::class);
+        return $this->belongsTo(User::class);
     }
 
-    public function keteranganKematian()
+    public function lingkungan()
     {
-        return $this->hasMany(KeteranganKematian::class);
-    }
-
-    public function keteranganLain()
-    {
-        return $this->hasMany(KeteranganLain::class);
-    }
-
-    public function pendaftaranBaptis()
-    {
-        return $this->hasMany(PendaftaranBaptis::class);
-    }
-
-    public function pendaftaranKanonik()
-    {
-        return $this->hasMany(PendaftaranKanonikPerkawinan::class);
+        return $this->belongsTo(Lingkungan::class);
     }
 }

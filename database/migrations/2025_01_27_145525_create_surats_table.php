@@ -14,13 +14,23 @@ return new class extends Migration
     {
         Schema::create('surats', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_detail_id')->nullable()->constrained('user_details')->nullOnDelete();
-            $table->string('kode_nomor_surat')->nullable();
-            $table->string('nama_lingkungan')->nullable();
+            $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
+            // Jenis surat dan relasinya
+            $table->enum('jenis_surat', [
+                'keterangan_kematian',
+                'keterangan_lain',
+                'pendaftaran_baptis',
+                'pendaftaran_perkawinan',
+                'lainnya'
+            ]);
+            // Data administrasi surat
+            $table->string('nomor_surat')->nullable();
             $table->string('perihal');
-            $table->string('atas_nama');
+            $table->date('tgl_surat')->nullable();
+            // Status dan tracking
+            $table->enum('status', ['menunggu', 'selesai'])->default('menunggu');
             $table->string('file_surat')->nullable();
-            $table->enum('status', ['Menunggu', 'Selesai'])->default('Menunggu');
             $table->timestamps();
         });
     }

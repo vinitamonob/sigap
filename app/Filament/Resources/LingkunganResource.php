@@ -2,14 +2,13 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use App\Models\User;
-use Filament\Tables;
-use Filament\Forms\Form;
-use App\Models\Lingkungan;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
 use App\Filament\Resources\LingkunganResource\Pages;
+use App\Models\Lingkungan;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
 
 class LingkunganResource extends Resource
 {
@@ -23,18 +22,21 @@ class LingkunganResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('kode')
-                    ->required()
-                    ->label('Kode Surat')
-                    ->maxLength(255),
                 Forms\Components\TextInput::make('nama_lingkungan')
                     ->required()
-                    ->label('Nama Lingkungan')
+                    ->label('Nama Lingkungan / Stasi')
                     ->maxLength(255),
-                Forms\Components\Select::make('user_id')
-                    ->label('Ketua Lingkungan')
-                    ->options(User::whereHas('roles', function ($query) {$query->where('name', 'ketua_lingkungan');})->whereDoesntHave('lingkungan')->pluck('name', 'id'))
-                    ->searchable(),
+                Forms\Components\TextInput::make('kode')
+                    ->label('Kode Lingkungan')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('wilayah')
+                    ->label('Wilayah')
+                    ->maxLength(255),
+                Forms\Components\TextInput::make('paroki')
+                    ->label('Paroki')
+                    ->default('St. Stephanus Cilacap')
+                    ->readOnly()
+                    ->maxLength(255),
             ]);
     }
 
@@ -42,16 +44,18 @@ class LingkunganResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('kode')
-                    ->label('Kode Surat')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('user.name')
-                    ->label('Nama Ketua Lingkungan')
-                    ->numeric()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('nama_lingkungan')
-                    ->label('Nama Lingkungan / Stasi')
-                    ->searchable(),
+                    ->searchable()
+                    ->label('Lingkungan / Stasi'),
+                Tables\Columns\TextColumn::make('kode')
+                    ->searchable()
+                    ->label('Kode Lingkungan'),
+                Tables\Columns\TextColumn::make('wilayah')
+                    ->searchable()
+                    ->label('Wilayah'),
+                Tables\Columns\TextColumn::make('paroki')
+                    ->searchable()
+                    ->label('Paroki'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

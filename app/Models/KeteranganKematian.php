@@ -10,11 +10,14 @@ class KeteranganKematian extends Model
     use HasFactory;
     
     protected $fillable = [
-        'surat_id',
-        'user_detail_id',
+        'user_id',
+        'lingkungan_id',
+        'ketua_lingkungan_id',
         'nomor_surat',
         'nama_lengkap',
         'usia',
+        'tempat_baptis',
+        'no_baptis',
         'nama_ortu',
         'nama_pasangan',
         'tgl_kematian',
@@ -22,17 +25,28 @@ class KeteranganKematian extends Model
         'tempat_pemakaman',
         'pelayanan_sakramen',
         'sakramen',
-        'ttd_ketua',
         'tgl_surat',
+        'ttd_ketua',
     ];
 
-    public function surat()
+    protected $casts = [
+        'tgl_kematian' => 'date',
+        'tgl_pemakaman' => 'date',
+        'tgl_surat' => 'date',
+    ];
+
+    public function user()
     {
-        return $this->belongsTo(Surat::class);
+        return $this->belongsTo(User::class);
     }
-    
-    public function userDetail()
+
+    public function lingkungan()
     {
-        return $this->belongsTo(UserDetail::class);
+        return $this->belongsTo(Lingkungan::class);
+    }
+
+    public function ketuaLingkungan()
+    {
+        return $this->belongsTo(KetuaLingkungan::class);
     }
 }

@@ -17,6 +17,11 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('tempat_lahir')->nullable();
+            $table->date('tgl_lahir')->nullable();
+            $table->enum('jenis_kelamin', ['Pria', 'Wanita'])->nullable();
+            $table->string('telepon')->nullable();
+            $table->string('tanda_tangan')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

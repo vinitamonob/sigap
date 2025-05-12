@@ -313,7 +313,7 @@ class PendaftaranBaptisResource extends Resource
                                 'nama_pastor' => $nama_pastor,
                             ]);
 
-                            $templatePath = 'templates/surat_pendaftaran_baptis.docx';
+                            $templatePath = base_path('templates/surat_pendaftaran_baptis.docx');
                             $namaSurat = $record->nama_lingkungan .'-'.$record->tanggal_daftar.'-surat_pendaftaran_baptis.docx';
                             $outputPath = storage_path('app/public/'.$namaSurat);
                             $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(

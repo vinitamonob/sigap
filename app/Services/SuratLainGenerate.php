@@ -12,7 +12,7 @@ class SuratLainGenerate
      */
     public function __construct()
     {
-        
+        //
     }
 
     public function generateFromTemplate($templatePath, $outputPath, array $data, $tandaTangan1, $tandaTangan2)

@@ -15,7 +15,7 @@ class SuratKematianGenerate
         //
     }
 
-    public function generateFromTemplate($templatePath, $outputPath, array $data, $tandaTangan)
+    public function generateFromTemplate($templatePath, $outputPath, array $data, $tandaTangan1)
     {
         try {
             // Load template

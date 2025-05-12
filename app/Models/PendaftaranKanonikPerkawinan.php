@@ -10,39 +10,44 @@ class PendaftaranKanonikPerkawinan extends Model
     use HasFactory;
 
     protected $fillable = [
-        'surat_id',
-        'user_detail_id',
         'calon_suami_id',
         'calon_istri_id',
+        'lingkungan_suami_id',
+        'lingkungan_istri_id',
         'nomor_surat',
         'lokasi_gereja',
         'tgl_pernikahan',
         'waktu_pernikahan',
         'nama_pastor',
-        'ttd_istri',
-        'ttd_ketua_istri',
-        'ttd_suami',
-        'ttd_ketua_suami',
+        'tgl_surat',
         'ttd_pastor',
+        'ttd_ketua_suami',
+        'ttd_ketua_istri',
     ];
 
-    public function surat()
-    {
-        return $this->belongsTo(Surat::class);
-    }
-
-    public function userDetail()
-    {
-        return $this->belongsTo(UserDetail::class);
-    }
+    protected $casts = [
+        'tgl_pernikahan' => 'date',
+        'waktu_pernikahan' => 'datetime',
+        'tgl_surat' => 'date',
+    ];
 
     public function calonSuami()
     {
-        return $this->belongsTo(CalonSuami::class);
+        return $this->belongsTo(CalonPasangan::class, 'calon_suami_id');
     }
-    
+
     public function calonIstri()
     {
-        return $this->belongsTo(CalonIstri::class);
+        return $this->belongsTo(CalonPasangan::class, 'calon_istri_id');
+    }
+
+    public function lingkunganSuami()
+    {
+        return $this->belongsTo(Lingkungan::class, 'lingkungan_suami_id');
+    }
+
+    public function lingkunganIstri()
+    {
+        return $this->belongsTo(Lingkungan::class, 'lingkungan_istri_id');
     }
 }

@@ -22,8 +22,18 @@ class Keluarga extends Model
         'ttd_ibu',
     ];
 
-    public function userDetail()
+    public function detailUsers()
     {
-        return $this->hasMany(UserDetail::class);
+        return $this->hasMany(DetailUser::class);
+    }
+
+    public function calonPasangans()
+    {
+        return $this->hasMany(CalonPasangan::class);
+    }
+
+    public function pendaftaranBaptis()
+    {
+        return $this->hasMany(PendaftaranBaptis::class);
     }
 }
