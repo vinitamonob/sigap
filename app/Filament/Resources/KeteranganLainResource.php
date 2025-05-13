@@ -33,14 +33,14 @@ class KeteranganLainResource extends Resource
     {
         return $form
             ->schema([
-                Fieldset::make('Label')
+                Fieldset::make('Data Administrasi')
                     ->schema([
                         Forms\Components\Hidden::make('nomor_surat'),
                         Forms\Components\Select::make('lingkungan_id')
                             ->required()
                             ->label('Nama Lingkungan / Stasi')
                             ->options(function () {
-                                return Lingkungan::pluck('nama_lingkungan', 'id')->toArray();
+                                return Lingkungan::pluck('nama_lingkungan', 'id');
                             })
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -62,6 +62,7 @@ class KeteranganLainResource extends Resource
                             }),
                         Forms\Components\Hidden::make('ketua_lingkungan_id'),
                         Forms\Components\Hidden::make('nama_lingkungan'),
+                        Forms\Components\Hidden::make('nomor_surat'),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
@@ -69,16 +70,14 @@ class KeteranganLainResource extends Resource
                         Forms\Components\DatePicker::make('tgl_surat')
                             ->required()
                             ->label('Tanggal Surat')
-                            ->default(now()),
-                    ]),
-                Fieldset::make('Data Pemohon')
-                    ->schema([
+                            ->default(now())
+                            ->readOnly(),
                         Forms\Components\Select::make('user_id')
                             ->label('Pilih Umat (Opsional)')
                             ->options(function () {
                                 return User::with('detailUser')->get()
                                     ->mapWithKeys(function ($user) {
-                                        return [$user->id => $user->name . ($user->detailUser ? ' ('.$user->detailUser->nama_baptis.')' : '')];
+                                        return [$user->id => $user->name];
                                     });
                             })
                             ->searchable()
@@ -88,6 +87,7 @@ class KeteranganLainResource extends Resource
                                     $user = User::find($state);
                                     if ($user) {
                                         $set('nama_lengkap', $user->name);
+                                        $set('akun_email', $user->email);
                                         $set('tempat_lahir', $user->tempat_lahir);
                                         $set('tgl_lahir', $user->tgl_lahir);
                                         $set('telepon', $user->telepon);
@@ -98,6 +98,9 @@ class KeteranganLainResource extends Resource
                                     }
                                 }
                             }),
+                    ]),
+                Fieldset::make('Data Pemohon')
+                    ->schema([
                         Forms\Components\TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
@@ -126,9 +129,6 @@ class KeteranganLainResource extends Resource
                             ->required()
                             ->label('No. Telepon/HP')
                             ->maxLength(255),
-                    ]),
-                Fieldset::make('Data Surat')
-                    ->schema([
                         Forms\Components\Select::make('status_tinggal')
                             ->required()
                             ->label('Status Tempat Tinggal')
@@ -144,7 +144,7 @@ class KeteranganLainResource extends Resource
                             ->columnSpanFull(),
                         Forms\Components\Hidden::make('nama_pastor'),
                         Forms\Components\Hidden::make('ttd_pastor'),
-                    ])
+                    ]),
             ]);
     }
 

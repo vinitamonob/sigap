@@ -2,17 +2,23 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
+use App\Models\Lingkungan;
 use Filament\Tables\Table;
-use Illuminate\Support\Carbon;
+use App\Models\Keluarga;
+use Illuminate\Support\Str;
+use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\CalonPasangan;
 use App\Models\PendaftaranKanonikPerkawinan;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
@@ -31,6 +37,71 @@ class PendaftaranKanonikPerkawinanResource extends Resource
             ->schema([
                 Fieldset::make('Data Calon Istri')
                     ->schema([
+                        Forms\Components\Select::make('calon_istri_id')
+                            ->label('Pilih Calon Istri (Opsional)')
+                            ->options(function () {
+                                return CalonPasangan::with(['user', 'lingkungan'])
+                                    ->where('jenis_kelamin', 'Wanita')
+                                    ->get()
+                                    ->mapWithKeys(function ($calon) {
+                                        return [$calon->id => $calon->user->name . ' - ' . ($calon->lingkungan->nama_lingkungan ?? '')];
+                                    });
+                            })
+                            ->searchable()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                if ($state) {
+                                    $calonIstri = CalonPasangan::with([
+                                        'user', 
+                                        'lingkungan',
+                                        'ketuaLingkungan.user',
+                                        'keluarga'
+                                    ])->find($state);
+
+                                    if ($calonIstri) {
+                                        // Data pribadi
+                                        $set('nama_istri', $calonIstri->user->name);
+                                        $set('tempat_lahir_istri', $calonIstri->user->tempat_lahir);
+                                        $set('tanggal_lahir_istri', $calonIstri->user->tgl_lahir);
+                                        $set('telepon_istri', $calonIstri->user->telepon);
+                                        $set('agama_istri', $calonIstri->agama);
+                                        $set('pekerjaan_istri', $calonIstri->pekerjaan);
+                                        $set('pendidikan_terakhir_istri', $calonIstri->pendidikan_terakhir);
+
+                                        // Data lingkungan
+                                        if ($calonIstri->lingkungan) {
+                                            $set('nama_lingkungan_istri', $calonIstri->lingkungan->nama_lingkungan);
+                                            $set('wilayah_istri', $calonIstri->lingkungan->wilayah);
+                                            $set('paroki_istri', $calonIstri->lingkungan->paroki);
+                                            $set('lingkungan_istri_id', $calonIstri->lingkungan_id);
+                                        }
+
+                                        // Data ketua lingkungan
+                                        if ($calonIstri->ketuaLingkungan) {
+                                            $set('nama_ketua_istri', $calonIstri->ketuaLingkungan->user->name);
+                                            $set('ketua_lingkungan_istri_id', $calonIstri->ketua_lingkungan_id);
+                                        }
+
+                                        // Data keluarga
+                                        if ($calonIstri->keluarga) {
+                                            $set('nama_ayah_istri', $calonIstri->keluarga->nama_ayah);
+                                            $set('agama_ayah_istri', $calonIstri->keluarga->agama_ayah);
+                                            $set('pekerjaan_ayah_istri', $calonIstri->keluarga->pekerjaan_ayah);
+                                            $set('alamat_ayah_istri', $calonIstri->keluarga->alamat_ayah);
+                                            $set('nama_ibu_istri', $calonIstri->keluarga->nama_ibu);
+                                            $set('agama_ibu_istri', $calonIstri->keluarga->agama_ibu);
+                                            $set('pekerjaan_ibu_istri', $calonIstri->keluarga->pekerjaan_ibu);
+                                            $set('alamat_ibu_istri', $calonIstri->keluarga->alamat_ibu);
+                                            $set('keluarga_istri_id', $calonIstri->keluarga_id);
+                                        }
+
+                                        // Data detail user
+                                        if ($calonIstri->user->detailUser) {
+                                            $set('alamat_sekarang_istri', $calonIstri->user->detailUser->alamat);
+                                        }
+                                    }
+                                }
+                            }),
                         Forms\Components\TextInput::make('nama_istri')
                             ->required()
                             ->label('Nama lengkap Calon Istri')
@@ -84,10 +155,10 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             ->label('Tempat Baptis Calon Istri'),
                         Forms\Components\DatePicker::make('tanggal_baptis_istri')
                             ->label('Tanggal Baptis Calon Istri'),
-                        SignaturePad::make('tanda_tangan_calon_istri')
+                        SignaturePad::make('ttd_calon_istri')
                             ->label('Tanda Tangan Calon Istri'),
 
-                        Fieldset::make('Data Orang Tua')
+                        Fieldset::make('Data Orang Tua Calon Istri')
                             ->schema([
                                 Forms\Components\TextInput::make('nama_ayah_istri')
                                     ->required()
@@ -134,30 +205,100 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     ->label('Alamat Ibu Calon Istri')
                                     ->columnSpanFull(),
                             ]),   
-                            Fieldset::make('Data Lingkungan')
+                            Fieldset::make('Data Lingkungan Calon Istri')
                                 ->schema([
+                                    Forms\Components\Select::make('lingkungan_istri_id')
+                                        ->label('Lingkungan/Stasi Calon Istri')
+                                        ->options(Lingkungan::pluck('nama_lingkungan', 'id'))
+                                        ->reactive()
+                                        ->afterStateUpdated(function ($state, callable $set) {
+                                            if ($state) {
+                                                $lingkungan = Lingkungan::find($state);
+                                                if ($lingkungan) {
+                                                    $set('nama_lingkungan_istri', $lingkungan->nama_lingkungan);
+                                                    $set('wilayah_istri', $lingkungan->wilayah);
+                                                    $set('paroki_istri', $lingkungan->paroki);
+                                                }
+                                            }
+                                        }),
+                                    Forms\Components\Hidden::make('nama_lingkungan_istri'),
+                                    Forms\Components\Hidden::make('wilayah_istri'),
+                                    Forms\Components\Hidden::make('paroki_istri'),
                                     Forms\Components\TextInput::make('nama_ketua_istri')
                                         ->required()
                                         ->label('Nama Ketua Lingkungan Calon Istri')
                                         ->maxLength(255),
-                                    Forms\Components\TextInput::make('nama_lingkungan_istri')
-                                        ->required()
-                                        ->label('Nama Lingkungan / Stasi Calon Istri')
-                                        ->maxLength(255),
-                                    Forms\Components\TextInput::make('wilayah_istri')
-                                        ->required()
-                                        ->label('Wilayah Calon Istri')
-                                        ->maxLength(255),
-                                    Forms\Components\TextInput::make('paroki_istri')
-                                        ->required()
-                                        ->label('Paroki Calon Istri')
-                                        ->maxLength(255),
-                                    SignaturePad::make('tanda_tangan_ketua_istri')
+                                    SignaturePad::make('ttd_ketua_istri')
                                         ->label('Tanda Tangan Ketua Lingkungan Calon Istri'),
                                 ])                          
                     ]),
                     Fieldset::make('Data Calon Suami')
                         ->schema([
+                            Forms\Components\Select::make('calon_suami_id')
+                                ->label('Pilih Calon Suami (Opsional)')
+                                ->options(function () {
+                                    return CalonPasangan::with(['user', 'lingkungan'])
+                                        ->where('jenis_kelamin', 'Pria')
+                                        ->get()
+                                        ->mapWithKeys(function ($calon) {
+                                            return [$calon->id => $calon->user->name . ' - ' . ($calon->lingkungan->nama_lingkungan ?? '')];
+                                        });
+                                })
+                                ->searchable()
+                                ->reactive()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    if ($state) {
+                                        $calonSuami = CalonPasangan::with([
+                                            'user', 
+                                            'lingkungan',
+                                            'ketuaLingkungan.user',
+                                            'keluarga'
+                                        ])->find($state);
+
+                                        if ($calonSuami) {
+                                            // Data pribadi
+                                            $set('nama_suami', $calonSuami->user->name);
+                                            $set('tempat_lahir_suami', $calonSuami->user->tempat_lahir);
+                                            $set('tanggal_lahir_suami', $calonSuami->user->tgl_lahir);
+                                            $set('telepon_suami', $calonSuami->user->telepon);
+                                            $set('agama_suami', $calonSuami->agama);
+                                            $set('pekerjaan_suami', $calonSuami->pekerjaan);
+                                            $set('pendidikan_terakhir_suami', $calonSuami->pendidikan_terakhir);
+
+                                            // Data lingkungan
+                                            if ($calonSuami->lingkungan) {
+                                                $set('nama_lingkungan_suami', $calonSuami->lingkungan->nama_lingkungan);
+                                                $set('wilayah_suami', $calonSuami->lingkungan->wilayah);
+                                                $set('paroki_suami', $calonSuami->lingkungan->paroki);
+                                                $set('lingkungan_suami_id', $calonSuami->lingkungan_id);
+                                            }
+
+                                            // Data ketua lingkungan
+                                            if ($calonSuami->ketuaLingkungan) {
+                                                $set('nama_ketua_suami', $calonSuami->ketuaLingkungan->user->name);
+                                                $set('ketua_lingkungan_suami_id', $calonSuami->ketua_lingkungan_id);
+                                            }
+
+                                            // Data keluarga
+                                            if ($calonSuami->keluarga) {
+                                                $set('nama_ayah_suami', $calonSuami->keluarga->nama_ayah);
+                                                $set('agama_ayah_suami', $calonSuami->keluarga->agama_ayah);
+                                                $set('pekerjaan_ayah_suami', $calonSuami->keluarga->pekerjaan_ayah);
+                                                $set('alamat_ayah_suami', $calonSuami->keluarga->alamat_ayah);
+                                                $set('nama_ibu_suami', $calonSuami->keluarga->nama_ibu);
+                                                $set('agama_ibu_suami', $calonSuami->keluarga->agama_ibu);
+                                                $set('pekerjaan_ibu_suami', $calonSuami->keluarga->pekerjaan_ibu);
+                                                $set('alamat_ibu_suami', $calonSuami->keluarga->alamat_ibu);
+                                                $set('keluarga_suami_id', $calonSuami->keluarga_id);
+                                            }
+
+                                            // Data detail user
+                                            if ($calonSuami->user->detailUser) {
+                                                $set('alamat_sekarang_suami', $calonSuami->user->detailUser->alamat);
+                                            }
+                                        }
+                                    }
+                                }),
                             Forms\Components\TextInput::make('nama_suami')
                                 ->required()
                                 ->label('Nama Calon Suami')
@@ -211,9 +352,9 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                 ->label('Tempat Baptis Calon Suami'),
                             Forms\Components\DatePicker::make('tanggal_baptis_suami')
                                 ->label('Tanggal Baptis Calon Suami'),
-                            SignaturePad::make('tanda_tangan_calon_suami')
+                            SignaturePad::make('ttd_calon_suami')
                                 ->label('Tanda Tangan Calon Suami'),
-                            Fieldset::make('Data Orang Tua')
+                            Fieldset::make('Data Orang Tua Calon Suami')
                                 ->schema([
                                     Forms\Components\TextInput::make('nama_ayah_suami')
                                         ->required()
@@ -260,49 +401,53 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                         ->label('Alamat Ibu Calon Suami')
                                         ->columnSpanFull(),
                                 ]),
-                                Fieldset::make('Data Lingkungan')
+                                Fieldset::make('Data Lingkungan Calon Suami')
                                     ->schema([
+                                        Forms\Components\Select::make('lingkungan_suami_id')
+                                            ->label('Lingkungan/Stasi Calon Suami')
+                                            ->options(Lingkungan::pluck('nama_lingkungan', 'id'))
+                                            ->reactive()
+                                            ->afterStateUpdated(function ($state, callable $set) {
+                                                if ($state) {
+                                                    $lingkungan = Lingkungan::find($state);
+                                                    if ($lingkungan) {
+                                                        $set('nama_lingkungan_suami', $lingkungan->nama_lingkungan);
+                                                        $set('wilayah_suami', $lingkungan->wilayah);
+                                                        $set('paroki_suami', $lingkungan->paroki);
+                                                    }
+                                                }
+                                            }),
+                                        Forms\Components\Hidden::make('nama_lingkungan_suami'),
+                                        Forms\Components\Hidden::make('wilayah_suami'),
+                                        Forms\Components\Hidden::make('paroki_suami'),
                                         Forms\Components\TextInput::make('nama_ketua_suami')
                                             ->required()
                                             ->label('Nama Ketua Lingkungan Calon Suami')
                                             ->maxLength(255),
-                                        Forms\Components\TextInput::make('nama_lingkungan_suami')
-                                            ->required()
-                                            ->label('Nama Lingkungan / Stasi Calon Suami')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('wilayah_suami')
-                                            ->required()
-                                            ->label('Wilayah Calon Suami')
-                                            ->maxLength(255),
-                                        Forms\Components\TextInput::make('paroki_suami')
-                                            ->required()
-                                            ->label('Paroki Calon Suami')
-                                            ->maxLength(255),
-                                        SignaturePad::make('tanda_tangan_ketua_suami')
+                                        SignaturePad::make('ttd_ketua_suami')
                                             ->label('Tanda Tangan Ketua Lingkungan Calon Suami'),
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
-                                Fieldset::make('Label')
-                                    ->schema([
-                                        Forms\Components\DatePicker::make('tanggal_daftar')
-                                            ->required()
-                                            ->label('Tanggal Daftar')
-                                            ->default(now())
-                                            ->readOnly(),
-                                    ]),
                                 Forms\Components\TextInput::make('lokasi_gereja')
                                     ->required()
                                     ->label('Lokasi Gereja')
                                     ->maxLength(255),
-                                Forms\Components\DatePicker::make('tanggal_pernikahan')
+                                Forms\Components\DatePicker::make('tgl_pernikahan')
                                     ->required()
                                     ->label('Tanggal Pernikahan'),
                                 Forms\Components\TimePicker::make('waktu_pernikahan')
                                     ->required()
                                     ->label('Waktu Pernikahan'),
-                                ]),
+                                Forms\Components\DatePicker::make('tgl_surat')
+                                    ->required()
+                                    ->label('Tanggal Surat')
+                                    ->default(now()),
+                                Forms\Components\Hidden::make('nomor_surat'),
+                                Forms\Components\Hidden::make('nama_pastor'),
+                                Forms\Components\Hidden::make('ttd_pastor'),
+                            ]),
             ]);
     }
 
@@ -311,112 +456,144 @@ class PendaftaranKanonikPerkawinanResource extends Resource
         return $table
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
-                // Tampilkan semua data jika user adalah super_admin
+                
                 if ($user->hasRole('super_admin')) {
                     return $query;
                 }
-                // Jika user memiliki role paroki, tampilkan semua data
+                
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
-                                ->whereNotNull('tanda_tangan_ketua');
+                                ->whereNotNull('ttd_ketua_suami')
+                                ->whereNotNull('ttd_ketua_istri');
                 }
-                // Jika user adalah ketua_lingkungan
-                if ($user->hasRole('ketua_lingkungan') && $user->lingkungan && $user->lingkungan->nama_lingkungan) {
-                    return $query->where('nama_lingkungan', $user->lingkungan->nama_lingkungan);
+                
+                if ($user->hasRole('ketua_lingkungan')) {
+                    $ketuaLingkungan = KetuaLingkungan::where('user_id', $user->id)
+                        ->where('aktif', true)
+                        ->first();
+                    
+                    if ($ketuaLingkungan) {
+                        return $query->where(function($query) use ($ketuaLingkungan) {
+                            $query->where('lingkungan_suami_id', $ketuaLingkungan->lingkungan_id)
+                                  ->orWhere('lingkungan_istri_id', $ketuaLingkungan->lingkungan_id);
+                        });
+                    }
                 }
-                // Jika user tidak memiliki role yang sesuai atau nama_lingkungan null, tampilkan semua data (tidak menerapkan filter apapun)
+                
                 return $query;
             })
             ->columns([
+                Tables\Columns\TextColumn::make('nomor_surat')
+                    ->label('Nomor Surat')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nama_istri')
                     ->label('Nama Calon Istri')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_lahir_istri')
-                    ->label('Tempat Lahir')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_lahir_istri')
-                    ->label('Tanggal Lahir')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('telepon_istri')
-                    ->label('No. Telp')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('paroki_istri')
-                    ->label('Paroki Calon Istri')
+                    ->label('Paroki Istri')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nama_suami')
                     ->label('Nama Calon Suami')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tempat_lahir_suami')
-                    ->label('Tempat Lahir')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_lahir_suami')
-                    ->label('Tanggal Lahir')
-                    ->date()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('telepon_suami')
-                    ->label('No. Telp')
-                    ->searchable(),
                 Tables\Columns\TextColumn::make('paroki_suami')
-                    ->label('Paroki Calon Suami')
+                    ->label('Paroki Suami')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('lokasi_gereja')
-                    ->label('Lokasi Pemberkatan')
+                    ->label('Lokasi Gereja')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('tanggal_pernikahan')
-                    ->label('Tanggal Pernikahan')
+                Tables\Columns\TextColumn::make('tgl_pernikahan')
+                    ->label('Tanggal Nikah')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('waktu_pernikahan')
-                    ->label('Waktu Pernikahan'),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->label('Waktu Nikah'),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'menunggu' => 'warning',
+                        'menunggu_paroki' => 'info',
+                        'selesai' => 'success',
+                        default => 'gray',
+                    }),
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label(fn($record) => $record->nomor_surat === null ? 'Accept' : 'Done')
-                    ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
+                    ->label(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'Accept',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'Accept',
+                        default => 'Done'
+                    })
+                    ->color(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'warning',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'warning',
+                        default => 'success'
+                    })
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
-                    ->disabled(fn($record) => $record->nomor_surat !== null)
+                    ->disabled(fn($record) => match(true) {
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') => $record->nomor_surat !== null,
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') => $record->nomor_surat === null || $record->ttd_pastor !== null,
+                        default => true
+                    })
+                    ->visible(fn() => !User::where('id', Auth::user()->id)->first()->hasRole('super_admin'))
                     ->action(function (PendaftaranKanonikPerkawinan $record) {
-                        // Generate nomor surat
-                        $tahun = Carbon::now()->format('Y');
-                        $bulan = Carbon::now()->format('m');
-                        $count = PendaftaranKanonikPerkawinan::whereYear('created_at', $tahun)
-                            ->whereMonth('created_at', $bulan)
-                            ->count() + 1;
+                        $user = User::where('id', Auth::user()->id)->first();
                         
-                        $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
-                        
-                        // Dapatkan tanda tangan ketua lingkungan yang login (jika ada)
-                        $user = Auth::user();
-                        $tanda_tangan = $user->tanda_tangan ?? '';
-                        
-                        // Update record
-                        $record->update([
-                            'nomor_surat' => $nomor_surat,
-                            'pelayan_sakramen' => 'Minyak Suci',
-                            'sakramen_yang_diberikan' => 'Perminyakan',
-                            'tanda_tangan_ketua' => $tanda_tangan,
-                            'user_id' => Auth::id(), 
-                        ]);
-                        
-                        Notification::make()
-                            ->title('Surat Pendaftaran Kanonik & Perkawinan diterima')
-                            ->success()
-                            ->send();
+                        if ($user->hasRole('ketua_lingkungan')) {
+                            // Generate nomor surat
+                            $tahun = Carbon::now()->format('Y');
+                            $bulan = Carbon::now()->format('m');
+                            $count = PendaftaranKanonikPerkawinan::whereYear('created_at', $tahun)
+                                ->whereMonth('created_at', $bulan)
+                                ->count() + 1;
+                            
+                            $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
+                            
+                            // Update record
+                            $record->update([
+                                'nomor_surat' => $nomor_surat,
+                                'ttd_ketua_suami' => $user->tanda_tangan,
+                                'ttd_ketua_istri' => $user->tanda_tangan,
+                            ]);
+                            
+                            // Update surat terkait
+                            if ($record->surat) {
+                                $record->surat->update([
+                                    'nomor_surat' => $nomor_surat,
+                                    'status' => 'menunggu_paroki',
+                                ]);
+                            }
+                            
+                            Notification::make()
+                                ->title('Surat Pendaftaran Kanonik & Perkawinan diterima')
+                                ->success()
+                                ->send();
+                        } 
+                        elseif ($user->hasRole('paroki')) {
+                            $record->update([
+                                'ttd_pastor' => $user->tanda_tangan,
+                                'nama_pastor' => $user->name,
+                            ]);
+                            
+                            // Update surat terkait
+                            if ($record->surat) {
+                                $record->surat->update([
+                                    'status' => 'selesai',
+                                ]);
+                            }
+                            
+                            Notification::make()
+                                ->title('Surat Pendaftaran Kanonik & Perkawinan disetujui Pastor')
+                                ->success()
+                                ->send();
+                        }
                     }),
-                    Tables\Actions\EditAction::make(),     
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

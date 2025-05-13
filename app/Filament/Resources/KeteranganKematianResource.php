@@ -10,7 +10,6 @@ use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
-use App\Models\Keluarga;
 use Illuminate\Support\Str;
 use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
@@ -34,7 +33,7 @@ class KeteranganKematianResource extends Resource
     {
         return $form
             ->schema([
-                Fieldset::make('Label')
+                Fieldset::make('Data Administrasi')
                     ->schema([
                         Forms\Components\Hidden::make('nomor_surat'),
                         Forms\Components\Select::make('lingkungan_id')
@@ -68,16 +67,14 @@ class KeteranganKematianResource extends Resource
                         Forms\Components\DatePicker::make('tgl_surat')
                             ->required()
                             ->label('Tanggal Surat')
-                            ->default(now()),
-                    ]),
-                Fieldset::make('Data Umat')
-                    ->schema([
+                            ->default(now())
+                            ->readOnly(),
                         Forms\Components\Select::make('user_id')
-                            ->label('Pilih Umat')
+                            ->label('Pilih Umat (Opsional)')
                             ->options(function () {
                                 return User::with('detailUser')->get()
                                     ->mapWithKeys(function ($user) {
-                                        return [$user->id => $user->name . ($user->detailUser ? ' ('.($user->detailUser->nama_baptis ?? '-').')' : '')];
+                                        return [$user->id => $user->name];
                                     });
                             })
                             ->searchable()
@@ -121,9 +118,11 @@ class KeteranganKematianResource extends Resource
                             ->numeric()
                             ->minValue(0),
                         Forms\Components\TextInput::make('tempat_baptis')
+                            ->required()
                             ->label('Tempat Baptis')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('no_baptis')
+                            ->required()
                             ->label('No. Buku Baptis')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('nama_ortu')
@@ -144,11 +143,15 @@ class KeteranganKematianResource extends Resource
                             ->label('Tempat Pemakaman')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('pelayanan_sakramen')
+                            ->required()
                             ->default('Perminyakan')
-                            ->label('Pelayanan Sakramen'),
+                            ->label('Pelayanan Sakramen')
+                            ->readOnly(), 
                         Forms\Components\TextInput::make('sakramen')
+                            ->required()
                             ->default('Minyak Suci')
-                            ->label('Sakramen'),
+                            ->label('Sakramen')
+                            ->readOnly(),
                     ])
             ]);
     }

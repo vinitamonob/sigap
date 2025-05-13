@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
 
+use App\Models\Surat;
 use Filament\Actions;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
@@ -16,32 +17,32 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        $create = static::getModel()::create($data);
-
-        $templatePath = 'templates/surat_pendaftaran_kanonik.docx';
-        $namaSurat = $create->nama_lingkungan .'-'.$create->tanggal_daftar.'-';
-        $outputPath = storage_path('app/public/'.$namaSurat.'surat_pendaftaran_kanonik.docx');
-        $generateSurat = (new SuratKanonikGenerate)->generateFromTemplate(
-            $templatePath,  
-            $outputPath,
-            $create->toArray(),
-            'calon_istri',
-            'ketua_istri',
-            'calon_suami',
-            'ketua_suami',
-            'paroki'
-        );
-        return $create;
+        // Buat record pendaftaran kanonik
+        $record = static::getModel()::create($data);
+        
+        // Buat surat terkait
+        $surat = Surat::create([
+            'user_id' => $data['user_id'],
+            'lingkungan_id' => $data['lingkungan_id'],
+            'jenis_surat' => 'pendaftaran_baptis',
+            'perihal' => 'Pendaftaran Baptis',
+            'tgl_surat' => $data['tgl_surat'],
+            'status' => 'menunggu',
+        ]);
+        
+        $record->update(['surat_id' => $surat->id]);
+        
+        return $record;
     }   
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         // Array tanda tangan yang perlu diproses
         $tandaTanganFields = [
-            'tanda_tangan_ketua_istri',
-            'tanda_tangan_ketua_suami',
-            'tanda_tangan_calon_istri',
-            'tanda_tangan_calon_suami'
+            'ttd_ketua_istri',
+            'ttd_ketua_suami',
+            'ttd_calon_istri',
+            'ttd_calon_suami'
         ];
 
         foreach ($tandaTanganFields as $field) {

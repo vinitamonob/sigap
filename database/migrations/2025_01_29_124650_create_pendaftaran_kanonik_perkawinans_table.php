@@ -26,6 +26,8 @@ return new class extends Migration
             $table->string('nama_pastor')->nullable();
             $table->date('tgl_surat')->nullable();           
             // Tanda tangan
+            $table->string('ttd_calon_suami')->nullable();
+            $table->string('ttd_calon_istri')->nullable();
             $table->string('ttd_pastor')->nullable();
             $table->string('ttd_ketua_suami')->nullable();
             $table->string('ttd_ketua_istri')->nullable();           
@@ -38,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pendaftaran_kanoniks');
+        Schema::dropIfExists('pendaftaran_kanonik_perkawinans');
     }
 };

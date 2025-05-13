@@ -21,6 +21,8 @@ class PendaftaranKanonikPerkawinan extends Model
         'nama_pastor',
         'tgl_surat',
         'ttd_pastor',
+        'ttd_calon_suami',
+        'ttd_calon_istri',
         'ttd_ketua_suami',
         'ttd_ketua_istri',
     ];
