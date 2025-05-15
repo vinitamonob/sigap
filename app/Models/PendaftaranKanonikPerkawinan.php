@@ -35,12 +35,12 @@ class PendaftaranKanonikPerkawinan extends Model
 
     public function calonSuami()
     {
-        return $this->belongsTo(CalonPasangan::class, 'calon_suami_id');
+        return $this->belongsTo(CalonPasangan::class, 'calon_suami_id')->with('user');
     }
 
     public function calonIstri()
     {
-        return $this->belongsTo(CalonPasangan::class, 'calon_istri_id');
+        return $this->belongsTo(CalonPasangan::class, 'calon_istri_id')->with('user');
     }
 
     public function lingkunganSuami()

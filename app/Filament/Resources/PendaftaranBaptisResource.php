@@ -6,11 +6,9 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
-use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
-use App\Models\Keluarga;
 use Illuminate\Support\Str;
 use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
@@ -40,8 +38,9 @@ class PendaftaranBaptisResource extends Resource
                         Forms\Components\Hidden::make('nomor_surat'),
                         Forms\Components\Select::make('lingkungan_id')
                             ->required()
-                            ->label('Lingkungan/Stasi')
+                            ->label('Nama Lingkungan/Stasi')
                             ->options(Lingkungan::pluck('nama_lingkungan', 'id'))
+                            ->searchable()
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {
@@ -62,9 +61,6 @@ class PendaftaranBaptisResource extends Resource
                             }),
                         Forms\Components\Hidden::make('nama_lingkungan'),
                         Forms\Components\Hidden::make('ketua_lingkungan_id'),
-                        Forms\Components\Hidden::make('nama_pastor'),
-                        Forms\Components\Hidden::make('ttd_pastor'),
-                        Forms\Components\Hidden::make('ttd_ketua'),
                         Forms\Components\TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
@@ -251,6 +247,9 @@ class PendaftaranBaptisResource extends Resource
                         SignaturePad::make('ttd_ortu')
                             ->required()
                             ->label('Tanda Tangan Orang Tua (Ayah)'),
+                        Forms\Components\Hidden::make('nama_pastor'),
+                        Forms\Components\Hidden::make('ttd_pastor'),
+                        Forms\Components\Hidden::make('ttd_ketua'),
                     ]),
             ]);
     }

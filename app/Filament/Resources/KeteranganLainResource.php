@@ -6,7 +6,6 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
-use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
@@ -39,9 +38,8 @@ class KeteranganLainResource extends Resource
                         Forms\Components\Select::make('lingkungan_id')
                             ->required()
                             ->label('Nama Lingkungan / Stasi')
-                            ->options(function () {
-                                return Lingkungan::pluck('nama_lingkungan', 'id');
-                            })
+                            ->options(Lingkungan::pluck('nama_lingkungan', 'id'))
+                            ->searchable()
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 if ($state) {

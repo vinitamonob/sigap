@@ -16,15 +16,11 @@ use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 class TabelRiwayatPengajuanSurat extends Page implements HasTable
 {
     use InteractsWithTable;
-
     use HasPageShield;
 
     protected static ?string $navigationGroup = 'Status Pengajuan';
-
     protected static ?string $navigationLabel = 'Riwayat Pengajuan Surat';
-
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
     protected static string $view = 'filament.pages.tabel-riwayat-pengajuan-surat';
 
     public function table(Table $table): Table
@@ -32,33 +28,38 @@ class TabelRiwayatPengajuanSurat extends Page implements HasTable
         return $table
             ->query(Surat::query())
             ->modifyQueryUsing(function (Builder $query) {
-                $user = User::where('id', Auth::user()->id)->first(); // Ambil user yang sedang login
-                // Tampilkan semua data jika user adalah super_admin
+                $user = User::where('id', Auth::user()->id)->first();
                 if ($user->hasRole('super_admin')) {
                     return $query;
                 }
-                // Jika user adalah umat, tampilkan data berdasarkan user_id
                 if ($user->hasRole('umat')) {
                     return $query->where('user_id', $user->id);
                 }
-                // Jika tidak ada role yang sesuai, tampilkan semua data (atau bisa disesuaikan)
                 return $query;
             })
             ->columns([
-                TextColumn::make('kode_nomor_surat')
-                    ->label('Kode Surat')
+                TextColumn::make('nomor_surat')
+                    ->label('Nomor Surat')
                     ->searchable(),
                 TextColumn::make('perihal')
-                    ->label('Nama Surat')
+                    ->label('Perihal Surat')
                     ->searchable(),
-                TextColumn::make('atas_nama')
-                    ->label('Atas Nama')
-                    ->searchable(),
-                TextColumn::make('nama_lingkungan')
+                TextColumn::make('lingkungan.nama_lingkungan')
                     ->label('Lingkungan / Stasi')
                     ->searchable(),
+                TextColumn::make('tgl_surat')
+                    ->label('Tanggal Surat')
+                    ->dateTime('d-m-Y') 
+                    ->sortable(),
                 TextColumn::make('status')
                     ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'menunggu' => 'warning',
+                        'menunggu_paroki' => 'warning',
+                        'diterima' => 'success',
+                        default => 'gray',
+                    })
                     ->searchable(),
                 TextColumn::make('file_surat')
                     ->label('File Surat')

@@ -17,13 +17,15 @@ return new class extends Migration
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete();
             $table->foreignId('keluarga_id')->nullable()->constrained('keluargas')->nullOnDelete();
-            // Data pribadi
-            $table->text('alamat_stlh_menikah')->nullable();
-            $table->string('pekerjaan')->nullable();
-            $table->string('pendidikan_terakhir')->nullable();
+            $table->string('nama_lingkungan')->nullable();
+            $table->string('nama_ketua')->nullable();
+            $table->string('wilayah')->nullable();
+            $table->string('paroki')->nullable();
             $table->string('agama')->nullable();
-            // Status sebagai calon suami/istri
             $table->enum('jenis_kelamin', ['Pria', 'Wanita']);
+            $table->string('pendidikan_terakhir')->nullable();
+            $table->string('pekerjaan')->nullable();
+            $table->text('alamat_stlh_menikah')->nullable();
             $table->timestamps();
         });
     }
@@ -33,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('calon_suamis');
+        Schema::dropIfExists('calon_pasangans');
     }
 };

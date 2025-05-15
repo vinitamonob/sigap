@@ -41,12 +41,12 @@ class CalonPasangan extends Model
         return $this->belongsTo(Keluarga::class);
     }
 
-    public function sebagaiSuami()
+    public function calonSuami()
     {
         return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_suami_id');
     }
 
-    public function sebagaiIstri()
+    public function calonIstri()
     {
         return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_istri_id');
     }

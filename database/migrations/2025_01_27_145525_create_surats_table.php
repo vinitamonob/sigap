@@ -16,19 +16,10 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
-            // Jenis surat dan relasinya
-            $table->enum('jenis_surat', [
-                'keterangan_kematian',
-                'keterangan_lain',
-                'pendaftaran_baptis',
-                'pendaftaran_perkawinan',
-                'lainnya'
-            ]);
-            // Data administrasi surat
+            $table->enum('jenis_surat', ['keterangan_kematian', 'keterangan_lain', 'pendaftaran_baptis', 'pendaftaran_perkawinan']);
             $table->string('nomor_surat')->nullable();
             $table->string('perihal');
             $table->date('tgl_surat')->nullable();
-            // Status dan tracking
             $table->enum('status', ['menunggu', 'selesai'])->default('menunggu');
             $table->string('file_surat')->nullable();
             $table->timestamps();

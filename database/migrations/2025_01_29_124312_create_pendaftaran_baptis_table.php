@@ -18,28 +18,23 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete();
-            $table->foreignId('keluarga_id')->nullable()->constrained('keluargas')->nullOnDelete();           
-            // Data administrasi
+            $table->foreignId('keluarga_id')->nullable()->constrained('keluargas')->nullOnDelete();  
             $table->string('nomor_surat')->nullable();
-            $table->date('tgl_surat')->nullable();            
-            // Data pribadi 
+            $table->date('tgl_surat')->nullable();    
             $table->string('agama_asal')->nullable();
-            $table->string('pendidikan_terakhir')->nullable();            
-            // Data keluarga tambahan
+            $table->string('pendidikan_terakhir')->nullable(); 
             $table->string('nama_keluarga1')->nullable();
             $table->string('hub_keluarga1')->nullable();
             $table->string('nama_keluarga2')->nullable();
-            $table->string('hub_keluarga2')->nullable();            
-            // Proses baptis
+            $table->string('hub_keluarga2')->nullable();  
             $table->date('tgl_belajar')->nullable();
             $table->date('tgl_baptis')->nullable();
             $table->string('wali_baptis')->nullable();
-            $table->text('alasan_masuk')->nullable();           
-            // Pastor dan tanda tangan
+            $table->text('alasan_masuk')->nullable();  
             $table->string('nama_pastor')->nullable();
             $table->string('ttd_pastor')->nullable();
             $table->string('ttd_ketua')->nullable();
-            $table->string('ttd_ortu')->nullable(); // Bisa dari keluarga->ttd_ayah/ibu
+            $table->string('ttd_ortu')->nullable(); 
             $table->timestamps();
         });
     }

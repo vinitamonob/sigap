@@ -16,21 +16,18 @@ return new class extends Migration
             $table->foreignId('calon_suami_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
             $table->foreignId('calon_istri_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
             $table->foreignId('lingkungan_suami_id')->nullable()->constrained('lingkungans')->nullOnDelete();
-            $table->foreignId('lingkungan_istri_id')->nullable()->constrained('lingkungans')->nullOnDelete();            
-            // Data pernikahan
+            $table->foreignId('lingkungan_istri_id')->nullable()->constrained('lingkungans')->nullOnDelete();    
             $table->string('nomor_surat')->nullable();
+            $table->date('tgl_surat')->nullable();    
             $table->string('lokasi_gereja')->nullable();
             $table->date('tgl_pernikahan')->nullable();
-            $table->time('waktu_pernikahan')->nullable();           
-            // Pastor dan administrasi
+            $table->time('waktu_pernikahan')->nullable();  
             $table->string('nama_pastor')->nullable();
-            $table->date('tgl_surat')->nullable();           
-            // Tanda tangan
-            $table->string('ttd_calon_suami')->nullable();
-            $table->string('ttd_calon_istri')->nullable();
             $table->string('ttd_pastor')->nullable();
             $table->string('ttd_ketua_suami')->nullable();
             $table->string('ttd_ketua_istri')->nullable();           
+            $table->string('ttd_calon_suami')->nullable();
+            $table->string('ttd_calon_istri')->nullable();
             $table->timestamps();
         });
     }
