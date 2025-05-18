@@ -21,12 +21,19 @@ class SuratLainGenerate
             // Load template
             $templateProcessor = new TemplateProcessor($templatePath);
             
-            // $templateProcessor->setImageValue('tanda_tangan', [
-            //     'path' => $tandaTangan,
-            //     'width' => 100,
-            //     'height' => 100,
-            //     'ratio' => false,
-            // ]);
+            $templateProcessor->setImageValue('ttd_ketua', [
+                'path' => $tandaTangan1,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
+            
+            $templateProcessor->setImageValue('ttd_pastor', [
+                'path' => $tandaTangan2,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
             
             // Replace variables in template
             foreach ($data as $key => $value) {

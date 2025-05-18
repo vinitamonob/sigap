@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
@@ -371,7 +372,6 @@ class PendaftaranBaptisResource extends Resource
                             if ($record->surat) {
                                 $record->surat->update([
                                     'nomor_surat' => $nomor_surat,
-                                    'status' => 'menunggu_paroki',
                                 ]);
                             }
                             
@@ -381,63 +381,77 @@ class PendaftaranBaptisResource extends Resource
                                 ->send();
                         } 
                         elseif ($user->hasRole('paroki')) {
+                            $lingkungan = $record->lingkungan;
+
                             $record->update([
                                 'ttd_pastor' => $user->tanda_tangan,
                                 'nama_pastor' => $user->name,
                             ]);
-                            
-                            // Generate file surat
-                            $namaLingkungan = $record->lingkungan ? Str::slug($record->lingkungan->nama_lingkungan) : '';
-                            $namaSurat = "surat-pendaftaran-baptis-{$namaLingkungan}-{$record->id}.docx";
-                            $outputPath = storage_path("app/public/surat/{$namaSurat}");
-                            $templatePath = base_path('templates/surat_pendaftaran_baptis.docx');
-                            
-                            $data = [
-                                'nomor_surat' => $record->nomor_surat,
-                                'nama_lengkap' => $record->nama_lengkap,
-                                'nama_baptis' => $record->nama_baptis,
-                                'jenis_kelamin' => $record->jenis_kelamin,
-                                'tempat_lahir' => $record->tempat_lahir,
-                                'tgl_lahir' => $record->tgl_lahir?->format('d-m-Y'),
-                                'alamat' => $record->alamat,
-                                'telepon' => $record->telepon,
-                                'agama_asal' => $record->agama_asal,
-                                'pendidikan_terakhir' => $record->pendidikan_terakhir,
-                                'nama_ayah' => $record->nama_ayah,
-                                'agama_ayah' => $record->agama_ayah,
-                                'nama_ibu' => $record->nama_ibu,
-                                'agama_ibu' => $record->agama_ibu,
-                                'nama_keluarga1' => $record->nama_keluarga1,
-                                'hub_keluarga1' => $record->hub_keluarga1,
-                                'nama_keluarga2' => $record->nama_keluarga2,
-                                'hub_keluarga2' => $record->hub_keluarga2,
-                                'alamat_keluarga' => $record->alamat_keluarga,
-                                'tgl_belajar' => $record->tgl_belajar?->format('d-m-Y'),
-                                'wali_baptis' => $record->wali_baptis,
-                                'alasan_masuk' => $record->alasan_masuk,
-                                'tgl_baptis' => $record->tgl_baptis?->format('d-m-Y'),
-                                'nama_lingkungan' => $record->lingkungan->nama_lingkungan ?? '',
-                                'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
-                                'nama_ketua' => $record->ketuaLingkungan->user->name ?? '',
-                                'nama_pastor' => $user->name,
-                                'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
-                            ];
-                            
-                            $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(
-                                $templatePath,  
-                                $outputPath,
-                                $data,
-                                'ortu',
-                                'ketua',
-                                'paroki'
-                            );
-                            
-                            // Update surat terkait
-                            if ($record->surat) {
-                                $record->surat->update([
-                                    'status' => 'selesai',
-                                    'file_surat' => "surat/{$namaSurat}",
-                                ]);
+
+                            try {
+                                // Generate file surat
+                                $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
+                                $namaLingkunganSlug = Str::slug($namaLingkungan);
+
+                                $templatePath = 'templates/surat_pendaftaran_baptis.docx';
+                                $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y-h-m-s') . '-surat_pendaftaran_baptis.docx';
+                                $outputPath = storage_path('app/public/' . $namaSurat);
+                                
+                                $data = [
+                                    'nomor_surat' => $record->nomor_surat,
+                                    'nama_lengkap' => $record->user->name,
+                                    'nama_baptis' => $record->user->detailUser->nama_baptis,
+                                    'jenis_kelamin' => $record->user->jenis_kelamin,
+                                    'tempat_lahir' => $record->user->tempat_lahir,
+                                    'tgl_lahir' => $record->user->tgl_lahir?->format('d-m-Y'),
+                                    'alamat' => $record->user->detailUser->alamat ?? '',
+                                    'telepon' => $record->user->telepon,
+                                    'agama_asal' => $record->agama_asal,
+                                    'pendidikan_terakhir' => $record->pendidikan_terakhir,
+                                    'nama_ayah' => $record->user->detailUser->keluarga->nama_ayah,
+                                    'agama_ayah' => $record->user->detailUser->keluarga->agama_ayah,
+                                    'nama_ibu' => $record->user->detailUser->keluarga->nama_ibu,
+                                    'agama_ibu' => $record->user->detailUser->keluarga->agama_ibu,
+                                    'nama_keluarga1' => $record->nama_keluarga1 ?? '-',
+                                    'hub_keluarga1' => $record->hub_keluarga1 ?? '-',
+                                    'nama_keluarga2' => $record->nama_keluarga2 ?? '-',
+                                    'hub_keluarga2' => $record->hub_keluarga2 ?? '-',
+                                    'alamat_keluarga' => $record->user->detailUser->keluarga->alamat_ayah,
+                                    'tgl_belajar' => $record->tgl_belajar?->format('d-m-Y'),
+                                    'wali_baptis' => $record->wali_baptis,
+                                    'alasan_masuk' => $record->alasan_masuk,
+                                    'tgl_baptis' => $record->tgl_baptis?->format('d-m-Y'),
+                                    'nama_lingkungan' => $record->lingkungan->nama_lingkungan,
+                                    'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+                                    'nama_ketua' => $record->ketuaLingkungan->user->name,
+                                    'nama_pastor' => $user->name,
+                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                ];
+                                
+                                $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(
+                                    $templatePath,  
+                                    $outputPath,
+                                    $data,
+                                    public_path($record->ttd_ortu),
+                                    public_path($record->ttd_ketua),
+                                    public_path($user->tanda_tangan)
+                                );
+                                
+                                // Update surat yang sudah ada
+                                $surat = Surat::where('id', $record->surat_id)
+                                            ->where('status', 'menunggu')
+                                            ->first();
+                                // dd($surat, $record);
+                                if ($surat) {
+                                    $surat->update([
+                                        'nomor_surat' => $record->nomor_surat,
+                                        'status' => 'selesai',
+                                        'file_surat' => $namaSurat,
+                                    ]);
+                                }
+                            } catch (\Exception $e) {
+                                // dd($e);
+                                logger()->error($e);
                             }
                             
                             Notification::make()

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('pendaftaran_kanonik_perkawinans', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('surat_id')->nullable()->constrained('surats')->nullOnDelete(); 
             $table->foreignId('calon_suami_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
             $table->foreignId('calon_istri_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
             $table->foreignId('lingkungan_suami_id')->nullable()->constrained('lingkungans')->nullOnDelete();

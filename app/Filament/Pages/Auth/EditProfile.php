@@ -27,6 +27,7 @@ class EditProfile extends BaseEditProfile
             ->first();
 
         $isAdminOrParoki = $user->hasRole('super_admin') || $user->hasRole('paroki');
+        $isAdminOrParokiOrKetua = $user->hasRole('super_admin') || $user->hasRole('paroki') || $user->hasRole('ketua_lingkungan');
 
         return $form
             ->schema([
@@ -63,49 +64,61 @@ class EditProfile extends BaseEditProfile
                     ->schema([
                         TextInput::make('detail_user.nama_baptis')
                             ->label('Nama Baptis')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('detail_user.tempat_baptis')
                             ->label('Tempat Baptis')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         DatePicker::make('detail_user.tgl_baptis')
                             ->label('Tanggal Baptis')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('detail_user.no_baptis')
                             ->label('Nomor Baptis')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                     ])
                     ->columns(2)
-                    ->hidden($isAdminOrParoki),
+                    ->hidden($isAdminOrParokiOrKetua),
                 
                 Section::make('Informasi Keluarga')
                     ->schema([
                         TextInput::make('keluarga.nama_ayah')
                             ->label('Nama Ayah')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('keluarga.nama_ibu')
                             ->label('Nama Ibu')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('keluarga.agama_ayah')
                             ->label('Agama Ayah')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('keluarga.agama_ibu')
                             ->label('Agama Ibu')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('keluarga.pekerjaan_ayah')
                             ->label('Pekerjaan Ayah')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         TextInput::make('keluarga.pekerjaan_ibu')
                             ->label('Pekerjaan Ibu')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         Textarea::make('keluarga.alamat_ayah')
                             ->label('Alamat Ayah')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                         Textarea::make('keluarga.alamat_ibu')
                             ->label('Alamat Ibu')
-                            ->required(false),
+                            ->required(false)
+                            ->hidden($isAdminOrParokiOrKetua),
                     ])
                     ->columns(2)
-                    ->hidden($isAdminOrParoki),
+                    ->hidden($isAdminOrParokiOrKetua),
                 
                 Section::make('Keamanan & Tanda Tangan')
                     ->schema([
@@ -118,11 +131,11 @@ class EditProfile extends BaseEditProfile
                         SignaturePad::make('keluarga.ttd_ayah')
                             ->label('Tanda Tangan Ayah')
                             ->required(false)
-                            ->hidden($isAdminOrParoki),
+                            ->hidden($isAdminOrParokiOrKetua),
                         SignaturePad::make('keluarga.ttd_ibu')
                             ->label('Tanda Tangan Ibu')
                             ->required(false)
-                            ->hidden($isAdminOrParoki),
+                            ->hidden($isAdminOrParokiOrKetua),
                     ])
             ]);
     }
@@ -145,8 +158,12 @@ class EditProfile extends BaseEditProfile
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        $signaturePath = public_path('storage/signatures');
+        if (!File::exists($signaturePath)) {
+            File::makeDirectory($signaturePath, 0755, true);
+        }
         $user = User::where('id', Auth::user()->id)->first();
-        $isAdminOrParoki = $user->hasRole('super_admin') || $user->hasRole('paroki');
+        $isAdminOrParokiOrKetua = $user->hasRole('super_admin') || $user->hasRole('paroki') || $user->hasRole('ketua-lingkungan');
 
         // Handle user tanda tangan
         if (isset($data['tanda_tangan'])) {
@@ -154,20 +171,20 @@ class EditProfile extends BaseEditProfile
             $image = str_replace('data:image/png;base64,', '', $image);
             $image = str_replace(' ', '+', $image);
             $imageName = Str::random(10).'.'.'png';
-            File::put(storage_path(). '/' . $imageName, base64_decode($image));
-            $data['tanda_tangan'] = $imageName;
+            File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
+            $data['tanda_tangan'] = 'storage/signatures/' . $imageName;
         }
 
-        // Hanya proses tanda tangan keluarga jika bukan admin/paroki
-        if (!$isAdminOrParoki) {
+        // Hanya proses tanda tangan keluarga jika bukan admin/paroki/ketua
+        if (!$isAdminOrParokiOrKetua && isset($data['keluarga'])) {
             // Handle tanda tangan ayah
             if (isset($data['keluarga']['ttd_ayah'])) {
                 $image = $data['keluarga']['ttd_ayah'];
                 $image = str_replace('data:image/png;base64,', '', $image);
                 $image = str_replace(' ', '+', $image);
                 $imageName = 'ayah_'.Str::random(10).'.'.'png';
-                File::put(storage_path(). '/' . $imageName, base64_decode($image));
-                $data['keluarga']['ttd_ayah'] = $imageName;
+                File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
+                $data['keluarga']['ttd_ayah'] = 'storage/signatures/' . $imageName;
             }
 
             // Handle tanda tangan ibu
@@ -176,8 +193,8 @@ class EditProfile extends BaseEditProfile
                 $image = str_replace('data:image/png;base64,', '', $image);
                 $image = str_replace(' ', '+', $image);
                 $imageName = 'ibu_'.Str::random(10).'.'.'png';
-                File::put(storage_path(). '/' . $imageName, base64_decode($image));
-                $data['keluarga']['ttd_ibu'] = $imageName;
+                File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
+                $data['keluarga']['ttd_ibu'] = 'storage/signatures/' . $imageName;
             }
         }
 
@@ -187,6 +204,7 @@ class EditProfile extends BaseEditProfile
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         $isAdminOrParoki = $record->hasRole('super_admin') || $record->hasRole('paroki');
+        $isAdminOrParokiOrKetua = $record->hasRole('super_admin') || $record->hasRole('paroki') || $record->hasRole('ketua_lingkungan');
 
         // Update user data
         $record->update([
@@ -215,8 +233,8 @@ class EditProfile extends BaseEditProfile
                 $detailUserData
             );
 
-            // Handle keluarga data
-            if (isset($data['keluarga'])) {
+            // Handle keluarga data hanya jika bukan admin/paroki/ketua
+            if (!$isAdminOrParokiOrKetua && isset($data['keluarga'])) {
                 $keluargaData = [
                     'nama_ayah' => $data['keluarga']['nama_ayah'] ?? null,
                     'agama_ayah' => $data['keluarga']['agama_ayah'] ?? null,

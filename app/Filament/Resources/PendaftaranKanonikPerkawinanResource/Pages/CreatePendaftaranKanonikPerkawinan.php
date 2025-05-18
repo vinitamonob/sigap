@@ -19,35 +19,8 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
 {
     protected static string $resource = PendaftaranKanonikPerkawinanResource::class;
 
-    // protected function getFormStatePath(): ?string
-    // {
-    //     return 'temp_pendaftaran_perkawinan_data';
-    // }
-
-    // protected function fillForm(): void
-    // {
-    //     $this->callHook('beforeFill');
-
-    //     if (Session::has('temp_pendaftaran_perkawinan_data')) {
-    //         $data = Session::get('temp_pendaftaran_perkawinan_data');
-    //         $this->form->fill($data);
-    //     } else {
-    //         $this->form->fill();
-    //     }
-
-    //     $this->callHook('afterFill');
-    // }
-
-    // protected function mutateFormDataBeforeCreate(array $data): array
-    // {
-    //     Session::put('temp_pendaftaran_perkawinan_data', $data);
-    //     return $data;
-    // }
-
     protected function handleRecordCreation(array $data): Model
     {
-        // Session::forget('temp_pendaftaran_perkawinan_data');
-
         // Proses tanda tangan
         $tandaTanganFields = [
             'ttd_calon_istri',
@@ -62,8 +35,8 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
                 $image = str_replace('data:image/png;base64,', '', $image);
                 $image = str_replace(' ', '+', $image);
                 $imageName = Str::random(10).'.png';
-                File::put(storage_path(). '/' . $imageName, base64_decode($image));
-                $data[$field] = $imageName;
+                File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
+                $data[$field] = 'storage/signatures/' . $imageName;
             }
         }
 

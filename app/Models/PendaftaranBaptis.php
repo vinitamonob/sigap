@@ -11,6 +11,7 @@ class PendaftaranBaptis extends Model
 
     protected $fillable = [
         'user_id',
+        'surat_id',
         'lingkungan_id',
         'ketua_lingkungan_id',
         'keluarga_id',
@@ -56,5 +57,10 @@ class PendaftaranBaptis extends Model
     public function keluarga()
     {
         return $this->belongsTo(Keluarga::class);
+    }
+    
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
     }
 }

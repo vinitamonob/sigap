@@ -10,6 +10,7 @@ class PendaftaranKanonikPerkawinan extends Model
     use HasFactory;
 
     protected $fillable = [
+        'surat_id',
         'calon_suami_id',
         'calon_istri_id',
         'lingkungan_suami_id',
@@ -51,5 +52,10 @@ class PendaftaranKanonikPerkawinan extends Model
     public function lingkunganIstri()
     {
         return $this->belongsTo(Lingkungan::class, 'lingkungan_istri_id');
+    }
+
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
     }
 }

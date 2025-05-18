@@ -21,13 +21,41 @@ class SuratKanonikGenerate
             // Load template
             $templateProcessor = new TemplateProcessor($templatePath);
             
-            // $templateProcessor->setImageValue('tanda_tangan', [
-            //     'path' => $tandaTangan,
-            //     'width' => 100,
-            //     'height' => 100,
-            //     'ratio' => false,
-            // ]);
+            $templateProcessor->setImageValue('ttd_calon_suami', [
+                'path' => $tandaTangan1,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
             
+            $templateProcessor->setImageValue('ttd_calon_istri', [
+                'path' => $tandaTangan2,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
+            
+            $templateProcessor->setImageValue('ttd_ketua_suami', [
+                'path' => $tandaTangan3,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
+            
+            $templateProcessor->setImageValue('ttd_ketua_istri', [
+                'path' => $tandaTangan4,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
+            
+            $templateProcessor->setImageValue('ttd_pastor', [
+                'path' => $tandaTangan5,
+                'width' => 100,
+                'height' => 70,
+                'ratio' => false,
+            ]);
+
             // Replace variables in template
             foreach ($data as $key => $value) {
                 $templateProcessor->setValue($key, $value);

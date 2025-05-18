@@ -35,6 +35,7 @@ class KeteranganKematianResource extends Resource
             ->schema([
                 Fieldset::make('Data Administrasi')
                     ->schema([
+                        Forms\Components\Hidden::make('surat_id'),
                         Forms\Components\Hidden::make('nomor_surat'),
                         Forms\Components\Select::make('lingkungan_id')
                             ->required()
@@ -241,52 +242,57 @@ class KeteranganKematianResource extends Resource
                                 'ttd_ketua' => $user->tanda_tangan ?? '',
                             ]);
 
-                            // Generate file surat
-                            $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
-                            $namaLingkunganSlug = Str::slug($namaLingkungan);
+                            try {
+                                // Generate file surat
+                                $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
+                                $namaLingkunganSlug = Str::slug($namaLingkungan);
 
-                            $templatePath = base_path('templates/surat_keterangan_lain.docx');
-                            $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y') . '-surat_keterangan_kematian.docx';
-                            $outputPath = storage_path('app/public/' . $namaSurat);
-                            
-                            // Data untuk template
-                            $data = [
-                                'nomor_surat' => $nomor_surat,
-                                'nama_ketua' => $record->ketuaLingkungan->user->name ?? '',
-                                'nama_lingkungan' => $namaLingkungan,
-                                'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
-                                'nama_lengkap' => $record->user->name ?? $record->nama_lengkap,
-                                'usia' => $record->usia,
-                                'nama_ortu' => $record->nama_ortu,
-                                'nama_pasangan' => $record->nama_pasangan,
-                                'tgl_kematian' => $record->tgl_kematian->format('d-m-Y'),
-                                'tgl_pemakaman' => $record->tgl_pemakaman->format('d-m-Y'),
-                                'tempat_pemakaman' => $record->tempat_pemakaman,
-                                'pelayanan_sakramen' => $record->pelayanan_sakramen,
-                                'sakramen' => $record->sakramen,
-                                'tempat_baptis' => $record->tempat_baptis,
-                                'no_baptis' => $record->no_baptis,
-                                'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
-                            ];
+                                $templatePath = 'templates/surat_keterangan_kematian.docx';
+                                $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y-h-m-s') . '-surat_keterangan_kematian.docx';
+                                $outputPath = storage_path('app/public/' . $namaSurat);
+                                
+                                // Data untuk template
+                                $data = [
+                                    'nomor_surat' => $nomor_surat,
+                                    'nama_ketua' => $record->ketuaLingkungan->user->name ?? '',
+                                    'nama_lingkungan' => $namaLingkungan,
+                                    'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+                                    'nama_lengkap' => $record->user->name ?? $record->nama_lengkap,
+                                    'usia' => $record->usia,
+                                    'nama_ortu' => $record->nama_ortu,
+                                    'nama_pasangan' => $record->nama_pasangan,
+                                    'tgl_kematian' => $record->tgl_kematian->format('d-m-Y'),
+                                    'tgl_pemakaman' => $record->tgl_pemakaman->format('d-m-Y'),
+                                    'tempat_pemakaman' => $record->tempat_pemakaman,
+                                    'pelayanan_sakramen' => $record->pelayanan_sakramen,
+                                    'sakramen' => $record->sakramen,
+                                    'tempat_baptis' => $record->tempat_baptis,
+                                    'no_baptis' => $record->no_baptis,
+                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                ];
 
-                            $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(
-                                $templatePath,  
-                                $outputPath,
-                                $data,
-                                'ketua'
-                            );
+                                $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(
+                                    $templatePath,  
+                                    $outputPath,
+                                    $data,
+                                    public_path($user->tanda_tangan)
+                                );
 
-                            // Update surat yang sudah ada
-                            $surat = Surat::where('id', $record->surat_id)
-                                        ->where('status', 'menunggu')
-                                        ->first();
+                                // Update surat yang sudah ada
+                                $surat = Surat::where('id', $record->surat_id)
+                                            ->where('status', 'menunggu')
+                                            ->first();
 
-                            if ($surat) {
-                                $surat->update([
-                                    'nomor_surat' => $record->nomor_surat,
-                                    'status' => 'selesai',
-                                    'file_surat' => $namaSurat,
-                                ]);
+                                if ($surat) {
+                                    $surat->update([
+                                        'nomor_surat' => $record->nomor_surat,
+                                        'status' => 'selesai',
+                                        'file_surat' => $namaSurat,
+                                    ]);
+                                }
+                            } catch (\Exception $e) {
+                                // dd($e);
+                                logger()->error($e);
                             }
                             
                             Notification::make()

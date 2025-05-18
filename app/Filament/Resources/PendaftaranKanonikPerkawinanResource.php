@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
@@ -477,7 +478,6 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             if ($record->surat) {
                                 $record->surat->update([
                                     'nomor_surat' => $nomor_surat,
-                                    'status' => 'menunggu_paroki',
                                 ]);
                             }
                             
@@ -487,92 +487,109 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                 ->send();
                         }
                         elseif ($user->hasRole('paroki')) {
+                            $lingkungan = $record->lingkungan;
+
                             $record->update([
                                 'ttd_pastor' => $user->tanda_tangan,
                                 'nama_pastor' => $user->name,
                             ]);
                             
-                            // Generate file surat
-                            $namaLingkungan = $record->lingkungan ? Str::slug($record->lingkungan->nama_lingkungan) : '';
-                            $namaSurat = "surat-pendaftaran-perkawinan-{$namaLingkungan}-{$record->id}.docx";
-                            $outputPath = storage_path("app/public/surat/{$namaSurat}");
-                            $templatePath = base_path('templates/surat_pendaftaran_perkawinan.docx');
+                            try {
+                                // Generate file surat
+                                $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
+                                $namaLingkunganSlug = Str::slug($namaLingkungan);
+
+                                $templatePath = 'templates/surat_pendaftaran_kanonik_perkawinan.docx';
+                                $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y-h-m-s') . '-surat_pendaftaran_kanonik_perkawinan.docx';
+                                $outputPath = storage_path('app/public/' . $namaSurat);
                             
-                            // Data untuk template surat
-                            $data = [
-                                'nomor_surat' => $record->nomor_surat,
-                                'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
-                                'lokasi_gereja' => $record->lokasi_gereja,
-                                'tgl_pernikahan' => $record->tgl_pernikahan->format('d-m-Y'),
-                                'waktu_pernikahan' => $record->waktu_pernikahan->format('H:i'),
-                                'nama_pastor' => $user->name,
-                                'ketua_istri' => $record->nama_ketua_istri,
-                                'lingkungan_istri' => $record->nama_lingkungan_istri,
-                                'wilayah_istri' => $record->wilayah_istri,
-                                'paroki_istri' => $record->paroki_istri,
-                                'nama_istri' => $record->nama_istri,
-                                'tempat_lahir_istri' => $record->tempat_lahir_istri,
-                                'tgl_lahir_istri' => $record->tgl_lahir_istri->format('d-m-Y'),
-                                'alamat_skrng_istri' => $record->alamat_sekarang_istri,
-                                'alamat_stlh_menikah_istri' => $record->alamat_setelah_menikah_istri,
-                                'telepon_istri' => $record->telepon_istri,
-                                'pekerjaan_istri' => $record->pekerjaan_istri,
-                                'pendidikan_terakhir_istri' => $record->pendidikan_terakhir_istri,
-                                'agama_istri' => $record->agama_istri,
-                                'nama_ayah_istri' => $record->nama_ayah_istri,
-                                'agama_ayah_istri' => $record->agama_ayah_istri,
-                                'pekerjaan_ayah_istri' => $record->pekerjaan_ayah_istri,
-                                'alamat_ayah_istri' => $record->alamat_ayah_istri,
-                                'nama_ibu_istri' => $record->nama_ibu_istri,
-                                'agama_ibu_istri' => $record->agama_ibu_istri,
-                                'pekerjaan_ibu_istri' => $record->pekerjaan_ibu_istri,
-                                'alamat_ibu_istri' => $record->alamat_ibu_istri,
-                                'ketua_suami' => $record->nama_ketua_suami,
-                                'lingkungan_suami' => $record->nama_lingkungan_suami,
-                                'wilayah_suami' => $record->wilayah_suami,
-                                'paroki_suami' => $record->paroki_suami,
-                                'nama_suami' => $record->nama_suami,
-                                'tempat_lahir_suami' => $record->tempat_lahir_suami,
-                                'tgl_lahir_suami' => $record->tgl_lahir_suami->format('d-m-Y'),
-                                'alamat_skrng_suami' => $record->alamat_sekarang_suami,
-                                'alamat_stlh_menikah_suami' => $record->alamat_setelah_menikah_suami,
-                                'telepon_suami' => $record->telepon_suami,
-                                'pekerjaan_suami' => $record->pekerjaan_suami,
-                                'pendidikan_terakhir_suami' => $record->pendidikan_terakhir_suami,
-                                'agama_suami' => $record->agama_suami,
-                                'nama_ayah_suami' => $record->nama_ayah_suami,
-                                'agama_ayah_suami' => $record->agama_ayah_suami,
-                                'pekerjaan_ayah_suami' => $record->pekerjaan_ayah_suami,
-                                'alamat_ayah_suami' => $record->alamat_ayah_suami,
-                                'nama_ibu_suami' => $record->nama_ibu_suami,
-                                'agama_ibu_suami' => $record->agama_ibu_suami,
-                                'pekerjaan_ibu_suami' => $record->pekerjaan_ibu_suami,
-                                'alamat_ibu_suami' => $record->alamat_ibu_suami,
-                                'ttd_calon_istri' => $record->ttd_ketua_istri,
-                                'ttd_ketua_istri' => $record->ttd_ketua_istri,
-                                'ttd_calon_suami' => $record->ttd_ketua_suami,
-                                'ttd_ketua_suami' => $record->ttd_ketua_suami,
-                                'ttd_pastor' => $user->tanda_tangan,
-                            ];
+                                // Data untuk template surat
+                                $data = [
+                                    'nomor_surat' => $record->nomor_surat,
+                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                    'lokasi_gereja' => $record->lokasi_gereja,
+                                    'tgl_pernikahan' => $record->tgl_pernikahan->format('d-m-Y'),
+                                    'waktu_pernikahan' => $record->waktu_pernikahan->format('H:i'),
+                                    'lingkungan_istri' => $record->lingkunganIstri->nama_lingkungan ?? $record->calonIstri->lingkungan->nama_lingkungan ?? '',
+                                    'wilayah_istri' => $record->lingkunganIstri->wilayah ?? $record->calonIstri->lingkungan->wilayah ?? '',
+                                    'paroki_istri' => $record->lingkunganIstri->paroki ?? $record->calonIstri->lingkungan->paroki ?? '',
+                                    'nama_istri' => $record->calonIstri->user->name,
+                                    'tempat_lahir_istri' => $record->calonIstri->user->tempat_lahir,
+                                    'tgl_lahir_istri' => $record->calonIstri->user->tgl_lahir->format('d-m-Y'),
+                                    'tempat_baptis_istri' => $record->calonIstri->user->detailUser->tempat_baptis,
+                                    'tgl_baptis_istri' => $record->calonIstri->user->detailUser->tgl_baptis,
+                                    'alamat_skrng_istri' => $record->calonIstri->user->detailUser->alamat,
+                                    'alamat_stlh_menikah_istri' => $record->calonIstri->alamat_stlh_menikah,
+                                    'telepon_istri' => $record->calonIstri->user->telepon,
+                                    'pekerjaan_istri' => $record->calonIstri->pekerjaan,
+                                    'pendidikan_terakhir_istri' => $record->calonIstri->pendidikan_terakhir,
+                                    'agama_istri' => $record->calonIstri->agama,
+                                    'nama_ayah_istri' => $record->calonIstri->keluarga->nama_ayah,
+                                    'agama_ayah_istri' => $record->calonIstri->keluarga->agama_ayah,
+                                    'pekerjaan_ayah_istri' => $record->calonIstri->keluarga->pekerjaan_ayah,
+                                    'alamat_ayah_istri' => $record->calonIstri->keluarga->alamat_ayah,
+                                    'nama_ibu_istri' => $record->calonIstri->keluarga->nama_ibu,
+                                    'agama_ibu_istri' => $record->calonIstri->keluarga->agama_ibu,
+                                    'pekerjaan_ibu_istri' => $record->calonIstri->keluarga->pekerjaan_ibu,
+                                    'alamat_ibu_istri' => $record->calonIstri->keluarga->alamat_ibu,
+                                    'lingkungan_suami' => $record->lingkunganSuami->nama_lingkungan ?? $record->calonSuami->lingkungan->nama_lingkungan ?? '',
+                                    'wilayah_suami' => $record->lingkunganSuami->wilayah ?? $record->calonSuami->lingkungan->wilayah ?? '',
+                                    'paroki_suami' => $record->lingkunganSuami->paroki ?? $record->calonSuami->lingkungan->paroki ?? '',
+                                    'nama_suami' => $record->calonSuami->user->name,
+                                    'tempat_lahir_suami' => $record->calonSuami->user->tempat_lahir,
+                                    'tgl_lahir_suami' => $record->calonSuami->user->tgl_lahir->format('d-m-Y'),
+                                    'tempat_baptis_suami' => $record->calonSuami->user->detailUser->tempat_baptis,
+                                    'tgl_baptis_suami' => $record->calonSuami->user->detailUser->tgl_baptis,
+                                    'alamat_skrng_suami' => $record->calonSuami->user->detailUser->alamat,
+                                    'alamat_stlh_menikah_suami' => $record->calonSuami->alamat_stlh_menikah,
+                                    'telepon_suami' => $record->calonSuami->user->telepon,
+                                    'pekerjaan_suami' => $record->calonSuami->pekerjaan,
+                                    'pendidikan_terakhir_suami' => $record->calonSuami->pendidikan_terakhir,
+                                    'agama_suami' => $record->calonSuami->agama,
+                                    'nama_ayah_suami' => $record->calonSuami->keluarga->nama_ayah,
+                                    'agama_ayah_suami' => $record->calonSuami->keluarga->agama_ayah,
+                                    'pekerjaan_ayah_suami' => $record->calonSuami->keluarga->pekerjaan_ayah,
+                                    'alamat_ayah_suami' => $record->calonSuami->keluarga->alamat_ayah,
+                                    'nama_ibu_suami' => $record->calonSuami->keluarga->nama_ibu,
+                                    'agama_ibu_suami' => $record->calonSuami->keluarga->agama_ibu,
+                                    'pekerjaan_ibu_suami' => $record->calonSuami->keluarga->pekerjaan_ibu,
+                                    'alamat_ibu_suami' => $record->calonSuami->keluarga->alamat_ibu,
+                                    'nama_ketua_istri' => $record->calonIstri->nama_ketua ?? $record->calonIstri->ketuaLingkungan->user->name ?? '',
+                                    'nama_ketua_suami' => $record->calonSuami->nama_ketua ?? $record->calonSuami->ketuaLingkungan->user->name ?? '',
+                                    'nama_pastor' => $user->name,
+                                    'ttd_calon_istri' => $record->ttd_calon_istri,
+                                    'ttd_ketua_istri' => $record->ttd_ketua_istri,
+                                    'ttd_calon_suami' => $record->ttd_calon_suami,
+                                    'ttd_ketua_suami' => $record->ttd_ketua_suami,
+                                    'ttd_pastor' => $user->tanda_tangan,
+                                ];
+                                
+                                // Generate surat (sesuaikan dengan class generator Anda)
+                                $generateSurat = (new SuratKanonikGenerate)->generateFromTemplate(
+                                    $templatePath,  
+                                    $outputPath,
+                                    $data,
+                                    public_path($record->ttd_calon_suami),
+                                    public_path($record->ttd_calon_istri),
+                                    public_path($record->ttd_ketua_suami),
+                                    public_path($record->ttd_ketua_istri),
+                                    public_path($user->tanda_tangan)
+                                );
                             
-                            // Generate surat (sesuaikan dengan class generator Anda)
-                            $generateSurat = (new SuratKanonikGenerate)->generateFromTemplate(
-                                $templatePath,  
-                                $outputPath,
-                                $data,
-                                'calon_istri',
-                                'ketua_istri',
-                                'calon_suami',
-                                'ketua_suami',
-                                'pastor'
-                            );
-                            
-                            // Update surat terkait
-                            if ($record->surat) {
-                                $record->surat->update([
-                                    'status' => 'selesai',
-                                    'file_surat' => "surat/{$namaSurat}",
-                                ]);
+                                $surat = Surat::where('id', $record->surat_id)
+                                                ->where('status', 'menunggu')
+                                                ->first();
+                                // dd($surat, $record);
+                                if ($surat) {
+                                    $surat->update([
+                                        'nomor_surat' => $record->nomor_surat,
+                                        'status' => 'selesai',
+                                        'file_surat' => $namaSurat,
+                                    ]);
+                                }
+                            } catch (\Exception $e) {
+                                // dd($e);
+                                logger()->error($e);
                             }
                             
                             Notification::make()

@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
+use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
@@ -13,8 +14,8 @@ use Illuminate\Support\Str;
 use App\Models\KeteranganLain;
 use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
-use Illuminate\Support\Facades\Auth;
 use App\Services\SuratLainGenerate;
+use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
@@ -262,7 +263,6 @@ class KeteranganLainResource extends Resource
                             if ($record->surat) {
                                 $record->surat->update([
                                     'nomor_surat' => $nomor_surat,
-                                    'status' => 'menunggu_paroki',
                                 ]);
                             }
                             
@@ -272,49 +272,63 @@ class KeteranganLainResource extends Resource
                                 ->send();
                         } 
                         elseif ($user->hasRole('paroki')) {
+                            $lingkungan = $record->lingkungan;
+
                             $record->update([
                                 'ttd_pastor' => $user->tanda_tangan,
                                 'nama_pastor' => $user->name,
                             ]);
                             
-                            // Generate file surat
-                            $namaLingkungan = $record->lingkungan ? Str::slug($record->lingkungan->nama_lingkungan) : '';
-                            $namaSurat = "surat-keterangan-{$namaLingkungan}-{$record->id}.docx";
-                            $outputPath = storage_path("app/public/surat/{$namaSurat}");
-                            $templatePath = base_path('templates/surat_keterangan_lain.docx');
+                            try {
+                                // Generate file surat
+                                $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
+                                $namaLingkunganSlug = Str::slug($namaLingkungan);
 
-                            // Data untuk template
-                            $data = [
-                                'nomor_surat' => $record->nomor_surat,
-                                'nama_lengkap' => $record->nama_lengkap,
-                                'tempat_lahir' => $record->tempat_lahir,
-                                'tgl_lahir' => $record->tgl_lahir?->format('d-m-Y'),
-                                'pekerjaan' => $record->pekerjaan,
-                                'alamat' => $record->alamat,
-                                'telepon' => $record->telepon,
-                                'status_tinggal' => $record->status_tinggal,
-                                'keperluan' => $record->keperluan,
-                                'nama_lingkungan' => $record->lingkungan->nama_lingkungan ?? '',
-                                'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
-                                'nama_ketua' => $record->nama_ketua,
-                                'nama_pastor' => $user->name,
-                                'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
-                            ];
-                            
-                            $generateSurat = (new SuratLainGenerate)->generateFromTemplate(
-                                $templatePath,  
-                                $outputPath,
-                                $data,
-                                'ketua',
-                                'paroki'
-                            );
-                            
-                            // Update surat terkait
-                            if ($record->surat) {
-                                $record->surat->update([
-                                    'status' => 'selesai',
-                                    'file_surat' => "surat/{$namaSurat}",
-                                ]);
+                                $templatePath = 'templates/surat_keterangan_lain.docx';
+                                $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y-h-m-s') . '-surat_keterangan_lain.docx';
+                                $outputPath = storage_path('app/public/' . $namaSurat);
+
+                                // Data untuk template
+                                $data = [
+                                    'nomor_surat' => $record->nomor_surat,
+                                    'nama_lengkap' => $record->user->name,
+                                    'tempat_lahir' => $record->user->tempat_lahir,
+                                    'tgl_lahir' => $record->user->tgl_lahir?->format('d-m-Y'),
+                                    'pekerjaan' => $record->pekerjaan,
+                                    'alamat' => $record->user->detailUser->alamat ?? '-',
+                                    'telepon' => $record->user->telepon,
+                                    'status_tinggal' => $record->status_tinggal,
+                                    'keperluan' => $record->keperluan,
+                                    'nama_lingkungan' => $record->lingkungan->nama_lingkungan ?? '-',
+                                    'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+                                    'nama_ketua' => $record->ketuaLingkungan->user->name ?? '',
+                                    'nama_pastor' => $user->name,
+                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                ];
+                                
+                                $generateSurat = (new SuratLainGenerate)->generateFromTemplate(
+                                    $templatePath,  
+                                    $outputPath,
+                                    $data,
+                                    public_path($record->ttd_ketua),
+                                    public_path($user->tanda_tangan)
+                                );
+                                
+                                // Update surat yang sudah ada
+                                $surat = Surat::where('id', $record->surat_id)
+                                            ->where('status', 'menunggu')
+                                            ->first();
+                                // dd($surat, $record);
+                                if ($surat) {
+                                    $surat->update([
+                                        'nomor_surat' => $record->nomor_surat,
+                                        'status' => 'selesai',
+                                        'file_surat' => $namaSurat,
+                                    ]);
+                                }
+                            } catch (\Exception $e) {
+                                // dd($e);
+                                logger()->error($e);
                             }
                             
                             Notification::make()

@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('pendaftaran_baptis', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('surat_id')->nullable()->constrained('surats')->nullOnDelete(); 
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete();

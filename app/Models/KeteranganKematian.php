@@ -11,6 +11,7 @@ class KeteranganKematian extends Model
     
     protected $fillable = [
         'user_id',
+        'surat_id',
         'lingkungan_id',
         'ketua_lingkungan_id',
         'nomor_surat',
@@ -48,5 +49,10 @@ class KeteranganKematian extends Model
     public function ketuaLingkungan()
     {
         return $this->belongsTo(KetuaLingkungan::class);
+    }
+    
+    public function surat()
+    {
+        return $this->belongsTo(Surat::class);
     }
 }

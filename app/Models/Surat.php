@@ -33,4 +33,24 @@ class Surat extends Model
     {
         return $this->belongsTo(Lingkungan::class);
     }
+    
+    public function keteranganKematian()
+    {
+        return $this->hasOne(KeteranganKematian::class);
+    }
+    
+    public function keteranganLain()
+    {
+        return $this->hasOne(KeteranganLain::class);
+    }
+    
+    public function pendaftaranBaptis()
+    {
+        return $this->hasOne(PendaftaranBaptis::class);
+    }
+    
+    public function pendaftaranKanonik()
+    {
+        return $this->hasOne(PendaftaranKanonikPerkawinan::class);
+    }
 }

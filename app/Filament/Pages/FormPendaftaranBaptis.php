@@ -30,22 +30,47 @@ use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 class FormPendaftaranBaptis extends Page implements HasForms
 {
     use InteractsWithForms;
-
     use HasPageShield;
     
     protected static ?string $navigationGroup = 'Form Pengajuan';
-
     protected static ?string $navigationLabel = 'Pendaftaran Baptis';
-
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-
     protected static string $view = 'filament.pages.form-pendaftaran-baptis';
 
     public ?array $data = [];
 
     public function mount(): void
     {
-        $this->form->fill();
+        // Ambil data user yang login beserta relasinya
+        $user = Auth::user();
+        $detailUser = $user->detailUser;
+        $keluarga = $detailUser->keluarga ?? null;
+        
+        // Isi form dengan data yang ada
+        $this->form->fill([
+            'user_id' => $user->id,
+            'nama_lengkap' => $user->name,
+            // 'akun_email' => $user->email,
+            'jenis_kelamin' => $user->jenis_kelamin,
+            'tempat_lahir' => $user->tempat_lahir,
+            'tgl_lahir' => $user->tgl_lahir,
+            'telepon' => $user->telepon,
+            'nama_baptis' => $detailUser->nama_baptis ?? null,
+            'alamat' => $detailUser->alamat ?? null,
+            'lingkungan_id' => $detailUser->lingkungan_id ?? null,
+            'paroki' => $detailUser->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+            'nama_lingkungan' => $detailUser->lingkungan->nama_lingkungan ?? null,
+            'tgl_surat' => now(),
+            
+            // Data keluarga jika ada
+            'keluarga_id' => $keluarga->id ?? null,
+            'nama_ayah' => $keluarga->nama_ayah ?? null,
+            'agama_ayah' => $keluarga->agama_ayah ?? null,
+            'nama_ibu' => $keluarga->nama_ibu ?? null,
+            'agama_ibu' => $keluarga->agama_ibu ?? null,
+            'alamat_keluarga' => $keluarga->alamat_ayah ?? $keluarga->alamat_ibu ?? null,
+            'ttd_ortu' => $keluarga->ttd_ayah ?? $keluarga->ttd_ibu ?? null,
+        ]);
     }
 
     public function form(Form $form): Form
@@ -55,8 +80,9 @@ class FormPendaftaranBaptis extends Page implements HasForms
                 Fieldset::make('Data Administrasi')
                     ->schema([
                         Hidden::make('nomor_surat'),
-                        Hidden::make('user_id')
-                            ->default(fn () => Auth::id()),
+                        Hidden::make('user_id'),
+                        Hidden::make('nama_lingkungan'),
+                        Hidden::make('ketua_lingkungan_id'),
                         Select::make('lingkungan_id')
                             ->required()
                             ->label('Nama Lingkungan/Stasi')
@@ -80,8 +106,6 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                     }
                                 }
                             }),
-                        Hidden::make('nama_lingkungan'),
-                        Hidden::make('ketua_lingkungan_id'),
                         TextInput::make('paroki')
                             ->required()
                             ->label('Paroki')
@@ -91,43 +115,6 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->label('Tanggal Surat')
                             ->default(now())
                             ->readOnly(),
-                        Select::make('user_id')
-                            ->label('Pilih Umat (Opsional)')
-                            ->options(function () {
-                                return User::with('detailUser')->get()
-                                    ->mapWithKeys(function ($user) {
-                                        return [$user->id => $user->name];
-                                    });
-                            })
-                            ->searchable()
-                            ->reactive()
-                            ->afterStateUpdated(function ($state, callable $set) {
-                                if ($state) {
-                                    $user = User::with(['detailUser', 'detailUser.keluarga'])->find($state);
-                                    if ($user) {
-                                        $set('nama_lengkap', $user->name);
-                                        $set('akun_email', $user->email);
-                                        $set('jenis_kelamin', $user->jenis_kelamin);
-                                        $set('tempat_lahir', $user->tempat_lahir);
-                                        $set('tgl_lahir', $user->tgl_lahir);
-                                        $set('telepon', $user->telepon);
-                                        
-                                        if ($user->detailUser) {
-                                            $set('nama_baptis', $user->detailUser->nama_baptis);
-                                            $set('alamat', $user->detailUser->alamat);
-                                            
-                                            if ($user->detailUser->keluarga) {
-                                                $set('nama_ayah', $user->detailUser->keluarga->nama_ayah);
-                                                $set('agama_ayah', $user->detailUser->keluarga->agama_ayah);
-                                                $set('nama_ibu', $user->detailUser->keluarga->nama_ibu);
-                                                $set('agama_ibu', $user->detailUser->keluarga->agama_ibu);
-                                                $set('alamat_keluarga', $user->detailUser->keluarga->alamat_ayah);
-                                                $set('ttd_ortu', $user->detailUser->keluarga->ttd_ayah ?? $user->detailUser->keluarga->ttd_ibu);
-                                            }
-                                        }
-                                    }
-                                }
-                            }),
                     ]),
                 Fieldset::make('Data Pendaftar')
                     ->schema([
@@ -135,10 +122,10 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->required()
                             ->label('Nama Lengkap')
                             ->maxLength(255),
-                        TextInput::make('akun_email')
-                            ->required()
-                            ->label('Akun Email')
-                            ->maxLength(255),
+                        // TextInput::make('akun_email')
+                        //     ->required()
+                        //     ->label('Akun Email')
+                        //     ->maxLength(255),
                         TextInput::make('nama_baptis')
                             ->required()
                             ->label('Nama Baptis')
@@ -204,8 +191,10 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         DatePicker::make('tgl_baptis')
                             ->required(),       
                     ]),
+                    
                 Fieldset::make('Data Keluarga')
                     ->schema([
+                        Hidden::make('keluarga_id'),
                         TextInput::make('nama_ayah')
                             ->required()
                             ->label('Nama Ayah')
@@ -288,7 +277,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
 
         $data = $this->form->getState();
         
-        $keteranganLain = PendaftaranBaptis::create($data);
+        $pendaftaranBaptis = PendaftaranBaptis::create($data);
         
         $surat = Surat::create([
             'user_id' => Auth::id(),
@@ -300,7 +289,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
         ]);
         
         if ($surat) {
-            $keteranganLain->update(['surat_id' => $surat->id]);
+            $pendaftaranBaptis->update(['surat_id' => $surat->id]);
         }
 
         Notification::make()
