@@ -68,6 +68,8 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'user_id' => $userIstri->id,
             'lingkungan_id' => $data['lingkungan_istri_id'],
             'keluarga_id' => $keluargaIstri->id,
+            'tempat_baptis' => $data['tempat_baptis_istri'],
+            'tgl_baptis' => $data['tgl_baptis_istri'],
             'alamat' => $data['alamat_sekarang_istri'],
         ]);
 
@@ -118,6 +120,8 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'user_id' => $userSuami->id,
             'lingkungan_id' => $data['lingkungan_suami_id'],
             'keluarga_id' => $keluargaSuami->id,
+            'tempat_baptis' => $data['tempat_baptis_suami'],
+            'tgl_baptis' => $data['tgl_baptis_suami'],
             'alamat' => $data['alamat_sekarang_suami'],
         ]);
 

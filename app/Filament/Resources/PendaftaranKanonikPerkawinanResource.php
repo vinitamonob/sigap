@@ -307,6 +307,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                                     }
                                                     if ($ketuaLingkungan) {
                                                         $set('nama_ketua_suami', $ketuaLingkungan->user->name);
+                                                        $set('ketua_lingkungan_id', $ketuaLingkungan->id);
                                                     }
                                                 }
                                             }),
@@ -328,6 +329,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                             ->maxLength(255),
                                         SignaturePad::make('ttd_ketua_suami')
                                             ->label('Tanda Tangan Ketua Lingkungan Calon Suami'),
+                                        Forms\Components\Hidden::make('ketua_lingkungan_id'),   
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')
