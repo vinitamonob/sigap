@@ -452,14 +452,19 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                 return;
                             }
                             
+                            $lingkungan = $ketuaLingkungan->lingkungan;
+                            
                             // Generate nomor surat
                             $tahun = Carbon::now()->format('Y');
                             $bulan = Carbon::now()->format('m');
-                            $count = PendaftaranKanonikPerkawinan::whereYear('created_at', $tahun)
-                                ->whereMonth('created_at', $bulan)
-                                ->count() + 1;
+                            $kode = $lingkungan->kode ?? 'XX';
                             
-                            $nomor_surat = sprintf('%03d/KK/LG/%s/%s', $count, $bulan, $tahun);
+                            $count = 1;
+                            do {
+                                $nomor_surat = sprintf('%04d/KP/%s/%s/%s', $count, $kode, $bulan, $tahun);
+                                $exists = PendaftaranKanonikPerkawinan::where('nomor_surat', $nomor_surat)->exists();
+                                $count = $exists ? $count + 1 : $count;
+                            } while ($exists);
                             
                             // Update data dengan pengecekan lingkungan
                             $updateData = ['nomor_surat' => $nomor_surat];
