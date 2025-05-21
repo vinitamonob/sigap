@@ -261,14 +261,14 @@ class KeteranganKematianResource extends Resource
                                     'usia' => $record->usia,
                                     'nama_ortu' => $record->nama_ortu,
                                     'nama_pasangan' => $record->nama_pasangan,
-                                    'tgl_kematian' => $record->tgl_kematian->format('d-m-Y'),
-                                    'tgl_pemakaman' => $record->tgl_pemakaman->format('d-m-Y'),
+                                    'tgl_kematian' => $record->tgl_kematian->locale('id')->translatedFormat('d F Y'),
+                                    'tgl_pemakaman' => $record->tgl_pemakaman->locale('id')->translatedFormat('d F Y'),
                                     'tempat_pemakaman' => $record->tempat_pemakaman,
                                     'pelayanan_sakramen' => $record->pelayanan_sakramen,
                                     'sakramen' => $record->sakramen,
                                     'tempat_baptis' => $record->tempat_baptis,
                                     'no_baptis' => $record->no_baptis,
-                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                    'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
                                 ];
 
                                 $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(

@@ -403,7 +403,7 @@ class PendaftaranBaptisResource extends Resource
                                     'nama_baptis' => $record->user->detailUser->nama_baptis,
                                     'jenis_kelamin' => $record->user->jenis_kelamin,
                                     'tempat_lahir' => $record->user->tempat_lahir,
-                                    'tgl_lahir' => $record->user->tgl_lahir?->format('d-m-Y'),
+                                    'tgl_lahir' => $record->user->tgl_lahir->locale('id')->translatedFormat('d F Y'),
                                     'alamat' => $record->user->detailUser->alamat ?? '',
                                     'telepon' => $record->user->telepon,
                                     'agama_asal' => $record->agama_asal,
@@ -417,15 +417,15 @@ class PendaftaranBaptisResource extends Resource
                                     'nama_keluarga2' => $record->nama_keluarga2 ?? '-',
                                     'hub_keluarga2' => $record->hub_keluarga2 ?? '-',
                                     'alamat_keluarga' => $record->user->detailUser->keluarga->alamat_ayah,
-                                    'tgl_belajar' => $record->tgl_belajar?->format('d-m-Y'),
+                                    'tgl_belajar' => $record->tgl_belajar->locale('id')->translatedFormat('d F Y'),
                                     'wali_baptis' => $record->wali_baptis,
                                     'alasan_masuk' => $record->alasan_masuk,
-                                    'tgl_baptis' => $record->tgl_baptis?->format('d-m-Y'),
+                                    'tgl_baptis' => $record->tgl_baptis->locale('id')->translatedFormat('d F Y'),
                                     'nama_lingkungan' => $record->lingkungan->nama_lingkungan,
                                     'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
                                     'nama_ketua' => $record->ketuaLingkungan->user->name,
                                     'nama_pastor' => $user->name,
-                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                    'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
                                 ];
                                 
                                 $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(

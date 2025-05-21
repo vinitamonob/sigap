@@ -293,7 +293,7 @@ class KeteranganLainResource extends Resource
                                     'nomor_surat' => $record->nomor_surat,
                                     'nama_lengkap' => $record->user->name,
                                     'tempat_lahir' => $record->user->tempat_lahir,
-                                    'tgl_lahir' => $record->user->tgl_lahir?->format('d-m-Y'),
+                                    'tgl_lahir' => $record->user->tgl_lahir->locale('id')->translatedFormat('d F Y'),
                                     'pekerjaan' => $record->pekerjaan,
                                     'alamat' => $record->user->detailUser->alamat ?? '-',
                                     'telepon' => $record->user->telepon,
@@ -303,7 +303,7 @@ class KeteranganLainResource extends Resource
                                     'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',
                                     'nama_ketua' => $record->ketuaLingkungan->user->name ?? '',
                                     'nama_pastor' => $user->name,
-                                    'tgl_surat' => $record->tgl_surat->format('d-m-Y'),
+                                    'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
                                 ];
                                 
                                 $generateSurat = (new SuratLainGenerate)->generateFromTemplate(

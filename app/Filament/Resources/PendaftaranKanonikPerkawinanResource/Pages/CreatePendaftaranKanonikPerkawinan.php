@@ -49,6 +49,7 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'tempat_lahir' => $data['tempat_lahir_istri'],
             'tgl_lahir' => $data['tgl_lahir_istri'],
             'telepon' => $data['telepon_istri'],
+            'tanda_tangan' => $data['ttd_calon_istri'],
         ]);
 
         // Buat keluarga baru untuk calon istri
@@ -73,22 +74,30 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'alamat' => $data['alamat_sekarang_istri'],
         ]);
 
-        // Buat calon pasangan untuk istri
-        $calonIstri = CalonPasangan::create([
+        // Untuk calon istri
+        $lingkunganIstri = Lingkungan::find($data['lingkungan_istri_id']);
+        $ketuaLingkunganIstriId = $lingkunganIstri 
+            ? $lingkunganIstri->ketuaLingkungans()->where('aktif', true)->first()?->id 
+            : null;
+
+        $calonPasanganCwe = [
             'user_id' => $userIstri->id,
             'lingkungan_id' => $data['lingkungan_istri_id'],
-            'ketua_lingkungan_id' => $data['ketua_lingkungan_istri_id'] ?? null,
-            'nama_lingkungan' => $data['nama_lingkungan_istri'] ?? Lingkungan::find($data['lingkungan_istri_id'])->nama_lingkungan ?? null,
+            'ketua_lingkungan_id' => $ketuaLingkunganIstriId,
+            'nama_lingkungan' => $data['nama_lingkungan_istri'] ?? ($lingkunganIstri->nama_lingkungan ?? null),
             'nama_ketua' => $data['nama_ketua_istri'],
-            'wilayah' => $data['wilayah_istri'] ?? Lingkungan::find($data['lingkungan_istri_id'])->wilayah ?? null,
-            'paroki' => $data['paroki_istri'] ?? Lingkungan::find($data['lingkungan_istri_id'])->paroki ?? null,
+            'wilayah' => $data['wilayah_istri'] ?? ($lingkunganIstri->wilayah ?? null),
+            'paroki' => $data['paroki_istri'] ?? ($lingkunganIstri->paroki ?? null),
             'keluarga_id' => $keluargaIstri->id,
             'alamat_stlh_menikah' => $data['alamat_setelah_menikah_istri'],
             'pekerjaan' => $data['pekerjaan_istri'],
             'pendidikan_terakhir' => $data['pendidikan_terakhir_istri'],
             'agama' => $data['agama_istri'],
             'jenis_kelamin' => 'Wanita',
-        ]);
+        ];
+
+        // Buat calon pasangan untuk istri
+        $calonIstri = CalonPasangan::create($calonPasanganCwe);
 
         $data['calon_istri_id'] = $calonIstri->id;
 
@@ -101,6 +110,7 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'tempat_lahir' => $data['tempat_lahir_suami'],
             'tgl_lahir' => $data['tgl_lahir_suami'],
             'telepon' => $data['telepon_suami'],
+            'tanda_tangan' => $data['ttd_calon_suami'],
         ]);
 
         // Buat keluarga baru untuk calon suami
@@ -125,22 +135,31 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'alamat' => $data['alamat_sekarang_suami'],
         ]);
 
-        // Buat calon pasangan untuk suami
-        $calonSuami = CalonPasangan::create([
+        // Untuk calon suami
+        $lingkunganSuami = Lingkungan::find($data['lingkungan_suami_id']);
+        $ketuaLingkunganSuamiId = $lingkunganSuami
+            ? $lingkunganSuami->ketuaLingkungans()->where('aktif', true)->first()?->id
+            : null;
+
+        $calonPasanganCwo = [
             'user_id' => $userSuami->id,
             'lingkungan_id' => $data['lingkungan_suami_id'],
-            'ketua_lingkungan_id' => $data['ketua_lingkungan_suami_id'] ?? null,
-            'nama_lingkungan' => $data['nama_lingkungan_suami'] ?? Lingkungan::find($data['lingkungan_suami_id'])->nama_lingkungan ?? null,
+            'ketua_lingkungan_id' => $ketuaLingkunganSuamiId,
+            'nama_lingkungan' => $data['nama_lingkungan_suami'] ?? ($lingkunganSuami->nama_lingkungan ?? null),
             'nama_ketua' => $data['nama_ketua_suami'],
-            'wilayah' => $data['wilayah_suami'] ?? Lingkungan::find($data['lingkungan_suami_id'])->wilayah ?? null,
-            'paroki' => $data['paroki_suami'] ?? Lingkungan::find($data['lingkungan_suami_id'])->paroki ?? null,
+            'wilayah' => $data['wilayah_suami'] ?? ($lingkunganSuami->wilayah ?? null),
+            'paroki' => $data['paroki_suami'] ?? ($lingkunganSuami->paroki ?? null),
             'keluarga_id' => $keluargaSuami->id,
             'alamat_stlh_menikah' => $data['alamat_setelah_menikah_suami'],
             'pekerjaan' => $data['pekerjaan_suami'],
             'pendidikan_terakhir' => $data['pendidikan_terakhir_suami'],
             'agama' => $data['agama_suami'],
             'jenis_kelamin' => 'Pria',
-        ]);
+        ];
+
+        // Buat calon pasangan untuk suami
+        $calonSuami = CalonPasangan::create($calonPasanganCwo);
+        // dd($calonPasanganCwe, $calonPasanganCwo);
 
         $data['calon_suami_id'] = $calonSuami->id;
 
