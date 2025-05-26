@@ -52,6 +52,9 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'tanda_tangan' => $data['ttd_calon_istri'],
         ]);
 
+        // Assign role 'umat' untuk calon istri
+        $userIstri->assignRole('umat');
+
         // Buat keluarga baru untuk calon istri
         $keluargaIstri = Keluarga::create([
             'nama_ayah' => $data['nama_ayah_istri'],
@@ -112,6 +115,9 @@ class CreatePendaftaranKanonikPerkawinan extends CreateRecord
             'telepon' => $data['telepon_suami'],
             'tanda_tangan' => $data['ttd_calon_suami'],
         ]);
+
+        // Assign role 'umat' untuk calon suami
+        $userSuami->assignRole('umat');
 
         // Buat keluarga baru untuk calon suami
         $keluargaSuami = Keluarga::create([

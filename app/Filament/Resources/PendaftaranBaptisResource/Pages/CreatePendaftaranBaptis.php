@@ -146,6 +146,9 @@ class CreatePendaftaranBaptis extends CreateRecord
                 'telepon' => $data['telepon'],
             ]);
 
+            // Assign role 'umat'
+            $user->assignRole('umat');
+
             // Buat keluarga baru
             $keluarga = Keluarga::create([
                 'nama_ayah' => $data['nama_ayah'],

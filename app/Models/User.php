@@ -5,12 +5,13 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Filament\Tables\Columns\Summarizers\Sum;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
-class User extends Authenticatable 
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, HasRoles;
@@ -25,7 +26,6 @@ class User extends Authenticatable
         'email',
         'password',
         'tempat_lahir',
-        'tgl_lahir',
         'jenis_kelamin',
         'telepon',
         'tanda_tangan',
@@ -73,10 +73,5 @@ class User extends Authenticatable
     public function calonPasangan()
     {
         return $this->hasOne(CalonPasangan::class);
-    }
-
-    public function keluarga()
-    {
-        return $this->hasOne(Keluarga::class);
     }
 }

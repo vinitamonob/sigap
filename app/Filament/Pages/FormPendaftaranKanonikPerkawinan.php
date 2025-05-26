@@ -499,51 +499,55 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
         }
 
         $user = Auth::user();
+        $detailUser = DetailUser::where('user_id', $user->id)->first();
         
         if ($user->jenis_kelamin === 'Wanita') {
             // Buat user baru untuk calon suami (karena yang login wanita)
             $userSuami = User::create([
-                'name' => $this->data['nama_suami'],
-                'email' => $this->data['akun_email_suami'],
+                'name' => $data['nama_suami'],
+                'email' => $data['akun_email_suami'],
                 'password' => bcrypt('12345678'),
                 'jenis_kelamin' => 'Pria',
-                'tempat_lahir' => $this->data['tempat_lahir_suami'],
-                'tgl_lahir' => $this->data['tgl_lahir_suami'],
-                'telepon' => $this->data['telepon_suami'],
+                'tempat_lahir' => $data['tempat_lahir_suami'],
+                'tgl_lahir' => $data['tgl_lahir_suami'],
+                'telepon' => $data['telepon_suami'],
             ]);
+
+            // Assign role 'umat' untuk calon suami
+            $userSuami->assignRole('umat');
 
             // Buat keluarga baru untuk calon suami
             $keluargaSuami = Keluarga::create([
-                'nama_ayah' => $this->data['nama_ayah_suami'],
-                'agama_ayah' => $this->data['agama_ayah_suami'],
-                'pekerjaan_ayah' => $this->data['pekerjaan_ayah_suami'],
-                'alamat_ayah' => $this->data['alamat_ayah_suami'],
-                'nama_ibu' => $this->data['nama_ibu_suami'],
-                'agama_ibu' => $this->data['agama_ibu_suami'],
-                'pekerjaan_ibu' => $this->data['pekerjaan_ibu_suami'],
-                'alamat_ibu' => $this->data['alamat_ibu_suami'],
+                'nama_ayah' => $data['nama_ayah_suami'],
+                'agama_ayah' => $data['agama_ayah_suami'],
+                'pekerjaan_ayah' => $data['pekerjaan_ayah_suami'],
+                'alamat_ayah' => $data['alamat_ayah_suami'],
+                'nama_ibu' => $data['nama_ibu_suami'],
+                'agama_ibu' => $data['agama_ibu_suami'],
+                'pekerjaan_ibu' => $data['pekerjaan_ibu_suami'],
+                'alamat_ibu' => $data['alamat_ibu_suami'],
             ]);
 
             // Buat detail user untuk calon suami
             $detailUserSuami = DetailUser::create([
                 'user_id' => $userSuami->id,
-                'lingkungan_id' => $this->data['lingkungan_suami_id'],
+                'lingkungan_id' => $data['lingkungan_suami_id'],
                 'keluarga_id' => $keluargaSuami->id,
-                'alamat' => $this->data['alamat_sekarang_suami'],
-                'tempat_baptis' => $this->data['tempat_baptis_suami'] ?? null,
-                'tgl_baptis' => $this->data['tgl_baptis_suami'] ?? null,
+                'alamat' => $data['alamat_sekarang_suami'],
+                'tempat_baptis' => $data['tempat_baptis_suami'] ?? null,
+                'tgl_baptis' => $data['tgl_baptis_suami'] ?? null,
             ]);
 
             // Untuk calon suami
             $lingkunganSuami = Lingkungan::find($data['lingkungan_suami_id']);
-            $ketuaLingkunganSuamiId = $lingkunganSuami
-                ? $lingkunganSuami->ketuaLingkungans()->where('aktif', true)->first()?->id
+            $ketuaLingkunganSuami = $lingkunganSuami
+                ? $lingkunganSuami->ketuaLingkungans()->where('aktif', true)->first()
                 : null;
 
             $calonPasanganCwo = [
                 'user_id' => $userSuami->id,
                 'lingkungan_id' => $data['lingkungan_suami_id'],
-                'ketua_lingkungan_id' => $ketuaLingkunganSuamiId,
+                'ketua_lingkungan_id' => $ketuaLingkunganSuami ? $ketuaLingkunganSuami->id : null,
                 'nama_lingkungan' => $data['nama_lingkungan_suami'] ?? ($lingkunganSuami->nama_lingkungan ?? null),
                 'nama_ketua' => $data['nama_ketua_suami'],
                 'wilayah' => $data['wilayah_suami'] ?? ($lingkunganSuami->wilayah ?? null),
@@ -561,71 +565,80 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
 
             $data['calon_suami_id'] = $calonSuami->id;
             
-            // Untuk calon istri (yang login), gunakan data yang sudah ada
-            $detailUser = DetailUser::where('user_id', $user->id)->first();
-            
-            // Buat calon pasangan untuk istri
-            $calonIstri = CalonPasangan::create([
+            // Untuk calon istri (yang login)
+            $lingkunganIstri = $detailUser->lingkungan;
+            $ketuaLingkunganIstri = $lingkunganIstri
+                ? $lingkunganIstri->ketuaLingkungans()->where('aktif', true)->first()
+                : null;
+
+            $calonPasanganCwe = [
                 'user_id' => $user->id,
-                'lingkungan_id' => $this->data['lingkungan_istri_id'],
-                'ketua_lingkungan_id' => $this->data['ketua_lingkungan_istri_id'] ?? null,
-                'nama_lingkungan' => $this->data['nama_lingkungan_istri'] ?? Lingkungan::find($this->data['lingkungan_istri_id'])->nama_lingkungan ?? null,
-                'nama_ketua' => $this->data['nama_ketua_istri'],
-                'wilayah' => $this->data['wilayah_istri'] ?? Lingkungan::find($this->data['lingkungan_istri_id'])->wilayah ?? null,
-                'paroki' => $this->data['paroki_istri'] ?? Lingkungan::find($this->data['lingkungan_istri_id'])->paroki ?? null,
+                'lingkungan_id' => $detailUser->lingkungan_id,
+                'ketua_lingkungan_id' => $ketuaLingkunganIstri ? $ketuaLingkunganIstri->id : null,
+                'nama_lingkungan' => $lingkunganIstri->nama_lingkungan ?? null,
+                'nama_ketua' => $ketuaLingkunganIstri ? $ketuaLingkunganIstri->user->name : null,
+                'wilayah' => $lingkunganIstri->wilayah ?? null,
+                'paroki' => $lingkunganIstri->paroki ?? null,
                 'keluarga_id' => $detailUser->keluarga_id,
-                'alamat_stlh_menikah' => $this->data['alamat_setelah_menikah_istri'],
-                'pekerjaan' => $this->data['pekerjaan_istri'],
-                'pendidikan_terakhir' => $this->data['pendidikan_terakhir_istri'],
-                'agama' => $this->data['agama_istri'],
+                'alamat_stlh_menikah' => $data['alamat_setelah_menikah_istri'],
+                'pekerjaan' => $data['pekerjaan_istri'],
+                'pendidikan_terakhir' => $data['pendidikan_terakhir_istri'],
+                'agama' => $data['agama_istri'],
                 'jenis_kelamin' => 'Wanita',
-            ]);
+            ];
+
+            // Buat calon pasangan untuk istri
+            $calonIstri = CalonPasangan::create($calonPasanganCwe);
 
             $data['calon_istri_id'] = $calonIstri->id;
+
         } else {
             // Buat user baru untuk calon istri (karena yang login pria)
             $userIstri = User::create([
-                'name' => $this->data['nama_istri'],
-                'email' => $this->data['akun_email_istri'],
+                'name' => $data['nama_istri'],
+                'email' => $data['akun_email_istri'],
                 'password' => bcrypt('12345678'),
                 'jenis_kelamin' => 'Wanita',
-                'tempat_lahir' => $this->data['tempat_lahir_istri'],
-                'tgl_lahir' => $this->data['tgl_lahir_istri'],
-                'telepon' => $this->data['telepon_istri'],
+                'tempat_lahir' => $data['tempat_lahir_istri'],
+                'tgl_lahir' => $data['tgl_lahir_istri'],
+                'telepon' => $data['telepon_istri'],
             ]);
+
+            // Assign role 'umat' untuk calon istri
+            $userIstri->assignRole('umat');
 
             // Buat keluarga baru untuk calon istri
             $keluargaIstri = Keluarga::create([
-                'nama_ayah' => $this->data['nama_ayah_istri'],
-                'agama_ayah' => $this->data['agama_ayah_istri'],
-                'pekerjaan_ayah' => $this->data['pekerjaan_ayah_istri'],
-                'alamat_ayah' => $this->data['alamat_ayah_istri'],
-                'nama_ibu' => $this->data['nama_ibu_istri'],
-                'agama_ibu' => $this->data['agama_ibu_istri'],
-                'pekerjaan_ibu' => $this->data['pekerjaan_ibu_istri'],
-                'alamat_ibu' => $this->data['alamat_ibu_istri'],
+                'nama_ayah' => $data['nama_ayah_istri'],
+                'agama_ayah' => $data['agama_ayah_istri'],
+                'pekerjaan_ayah' => $data['pekerjaan_ayah_istri'],
+                'alamat_ayah' => $data['alamat_ayah_istri'],
+                'nama_ibu' => $data['nama_ibu_istri'],
+                'agama_ibu' => $data['agama_ibu_istri'],
+                'pekerjaan_ibu' => $data['pekerjaan_ibu_istri'],
+                'alamat_ibu' => $data['alamat_ibu_istri'],
             ]);
 
             // Buat detail user untuk calon istri
             $detailUserIstri = DetailUser::create([
                 'user_id' => $userIstri->id,
-                'lingkungan_id' => $this->data['lingkungan_istri_id'],
+                'lingkungan_id' => $data['lingkungan_istri_id'],
                 'keluarga_id' => $keluargaIstri->id,
-                'alamat' => $this->data['alamat_sekarang_istri'],
-                'tempat_baptis' => $this->data['tempat_baptis_istri'] ?? null,
-                'tgl_baptis' => $this->data['tgl_baptis_istri'] ?? null,
+                'alamat' => $data['alamat_sekarang_istri'],
+                'tempat_baptis' => $data['tempat_baptis_istri'] ?? null,
+                'tgl_baptis' => $data['tgl_baptis_istri'] ?? null,
             ]);
 
             // Untuk calon istri
             $lingkunganIstri = Lingkungan::find($data['lingkungan_istri_id']);
-            $ketuaLingkunganIstriId = $lingkunganIstri 
-                ? $lingkunganIstri->ketuaLingkungans()->where('aktif', true)->first()?->id 
+            $ketuaLingkunganIstri = $lingkunganIstri
+                ? $lingkunganIstri->ketuaLingkungans()->where('aktif', true)->first()
                 : null;
 
             $calonPasanganCwe = [
                 'user_id' => $userIstri->id,
                 'lingkungan_id' => $data['lingkungan_istri_id'],
-                'ketua_lingkungan_id' => $ketuaLingkunganIstriId,
+                'ketua_lingkungan_id' => $ketuaLingkunganIstri ? $ketuaLingkunganIstri->id : null,
                 'nama_lingkungan' => $data['nama_lingkungan_istri'] ?? ($lingkunganIstri->nama_lingkungan ?? null),
                 'nama_ketua' => $data['nama_ketua_istri'],
                 'wilayah' => $data['wilayah_istri'] ?? ($lingkunganIstri->wilayah ?? null),
@@ -643,25 +656,30 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
 
             $data['calon_istri_id'] = $calonIstri->id;
             
-            // Untuk calon suami (yang login), gunakan data yang sudah ada
-            $detailUser = DetailUser::where('user_id', $user->id)->first();
-            
-            // Buat calon pasangan untuk suami
-            $calonSuami = CalonPasangan::create([
+            // Untuk calon suami (yang login)
+            $lingkunganSuami = $detailUser->lingkungan;
+            $ketuaLingkunganSuami = $lingkunganSuami
+                ? $lingkunganSuami->ketuaLingkungans()->where('aktif', true)->first()
+                : null;
+
+            $calonPasanganCwo = [
                 'user_id' => $user->id,
-                'lingkungan_id' => $this->data['lingkungan_suami_id'],
-                'ketua_lingkungan_id' => $this->data['ketua_lingkungan_suami_id'] ?? null,
-                'nama_lingkungan' => $this->data['nama_lingkungan_suami'] ?? Lingkungan::find($this->data['lingkungan_suami_id'])->nama_lingkungan ?? null,
-                'nama_ketua' => $this->data['nama_ketua_suami'],
-                'wilayah' => $this->data['wilayah_suami'] ?? Lingkungan::find($this->data['lingkungan_suami_id'])->wilayah ?? null,
-                'paroki' => $this->data['paroki_suami'] ?? Lingkungan::find($this->data['lingkungan_suami_id'])->paroki ?? null,
+                'lingkungan_id' => $detailUser->lingkungan_id,
+                'ketua_lingkungan_id' => $ketuaLingkunganSuami ? $ketuaLingkunganSuami->id : null,
+                'nama_lingkungan' => $lingkunganSuami->nama_lingkungan ?? null,
+                'nama_ketua' => $ketuaLingkunganSuami ? $ketuaLingkunganSuami->user->name : null,
+                'wilayah' => $lingkunganSuami->wilayah ?? null,
+                'paroki' => $lingkunganSuami->paroki ?? null,
                 'keluarga_id' => $detailUser->keluarga_id,
-                'alamat_stlh_menikah' => $this->data['alamat_setelah_menikah_suami'],
-                'pekerjaan' => $this->data['pekerjaan_suami'],
-                'pendidikan_terakhir' => $this->data['pendidikan_terakhir_suami'],
-                'agama' => $this->data['agama_suami'],
+                'alamat_stlh_menikah' => $data['alamat_setelah_menikah_suami'],
+                'pekerjaan' => $data['pekerjaan_suami'],
+                'pendidikan_terakhir' => $data['pendidikan_terakhir_suami'],
+                'agama' => $data['agama_suami'],
                 'jenis_kelamin' => 'Pria',
-            ]);
+            ];
+
+            // Buat calon pasangan untuk suami
+            $calonSuami = CalonPasangan::create($calonPasanganCwo);
 
             $data['calon_suami_id'] = $calonSuami->id;
         }
@@ -670,7 +688,7 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
         
         $surat = Surat::create([
             'user_id' => Auth::id(),
-            'lingkungan_id' => Auth::user()->detailUser->lingkungan_id ?? null,
+            'lingkungan_id' => $detailUser->lingkungan_id ?? null,
             'jenis_surat' => 'pendaftaran_perkawinan',
             'perihal' => 'Pendaftaran Kanonik Perkawinan',
             'tgl_surat' => $data['tgl_surat'] ?? now(),
@@ -688,4 +706,4 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             
         $this->form->fill();
     }
-}
+} 

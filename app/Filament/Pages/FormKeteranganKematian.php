@@ -166,4 +166,9 @@ class FormKeteranganKematian extends Page implements HasForms
         // Reset form setelah submit
         $this->form->fill();
     }
+
+    protected function getRedirectUrl(): string
+    {
+        return TabelRiwayatPengajuanSurat::getUrl();
+    }
 }

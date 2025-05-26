@@ -2,22 +2,13 @@
 
 namespace App\Filament\Pages\Auth;
 
-use App\Models\Role;
 use Filament\Forms\Form;
 use Filament\Pages\Auth\Register as AuthRegister;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Models\Role;
 
 class Register extends AuthRegister
 {
-    
-    public function form(Form $form): Form
-    {
-        return $form
-        ->schema([
-            $this->getNameFormComponent()
-        ]);
-    }
-
     protected function getForms(): array
     {
         return [
@@ -44,8 +35,6 @@ class Register extends AuthRegister
             ]);
         }
         $user->assignRole('umat');
-
-        // kirim email verifikasi
 
         return $user;
     } 

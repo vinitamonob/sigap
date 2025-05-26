@@ -3,6 +3,8 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\Register;
+use App\Http\Middleware\ValidateProfile;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
@@ -30,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('/')
             // ->path('/admin')
             ->login()
-            ->registration()
+            ->registration(Register::class)
             ->passwordReset()
             ->emailVerification()
             ->profile(EditProfile::class, isSimple:false)
@@ -59,8 +61,10 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            // ->middlewareGroup('complete-profile', [ValidateProfile::class])
             ->authMiddleware([
                 Authenticate::class,
+                ValidateProfile::class,
             ])
             ->plugins([
                 FilamentShieldPlugin::make()

@@ -27,6 +27,9 @@ class CreateKeteranganLain extends CreateRecord
                 'telepon' => $data['telepon'],
             ]);
 
+            // Assign role 'umat'
+            $user->assignRole('umat');
+
             // Buat detail user
             DetailUser::create([
                 'user_id' => $user->id,
