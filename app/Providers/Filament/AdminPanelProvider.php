@@ -61,7 +61,6 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            // ->middlewareGroup('complete-profile', [ValidateProfile::class])
             ->authMiddleware([
                 Authenticate::class,
                 ValidateProfile::class,

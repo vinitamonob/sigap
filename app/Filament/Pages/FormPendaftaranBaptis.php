@@ -41,35 +41,45 @@ class FormPendaftaranBaptis extends Page implements HasForms
 
     public function mount(): void
     {
-        // Ambil data user yang login beserta relasinya
         $user = Auth::user();
-        $detailUser = $user->detailUser;
-        $keluarga = $detailUser->keluarga ?? null;
+        $detailUser = DetailUser::where('user_id', $user->id)->first();
         
+        // Jika detail user belum ada, buat baru
+        if (!$detailUser) {
+            $detailUser = DetailUser::create(['user_id' => $user->id]);
+        }
+        
+        // Jika user belum memiliki keluarga, buat keluarga kosong
+        if (!$detailUser->keluarga) {
+            $keluarga = Keluarga::create([]);
+            $detailUser->update(['keluarga_id' => $keluarga->id]);
+        } else {
+            $keluarga = $detailUser->keluarga;
+        }
+
         // Isi form dengan data yang ada
         $this->form->fill([
             'user_id' => $user->id,
             'nama_lengkap' => $user->name,
-            // 'akun_email' => $user->email,
             'jenis_kelamin' => $user->jenis_kelamin,
             'tempat_lahir' => $user->tempat_lahir,
             'tgl_lahir' => $user->tgl_lahir,
             'telepon' => $user->telepon,
-            'nama_baptis' => $detailUser->nama_baptis ?? null,
-            'alamat' => $detailUser->alamat ?? null,
-            'lingkungan_id' => $detailUser->lingkungan_id ?? null,
+            'nama_baptis' => $detailUser->nama_baptis,
+            'alamat' => $detailUser->alamat,
+            'lingkungan_id' => $detailUser->lingkungan_id,
             'paroki' => $detailUser->lingkungan->paroki ?? 'St. Stephanus Cilacap',
             'nama_lingkungan' => $detailUser->lingkungan->nama_lingkungan ?? null,
             'tgl_surat' => now(),
             
             // Data keluarga jika ada
-            'keluarga_id' => $keluarga->id ?? null,
-            'nama_ayah' => $keluarga->nama_ayah ?? null,
-            'agama_ayah' => $keluarga->agama_ayah ?? null,
-            'nama_ibu' => $keluarga->nama_ibu ?? null,
-            'agama_ibu' => $keluarga->agama_ibu ?? null,
-            'alamat_keluarga' => $keluarga->alamat_ayah ?? $keluarga->alamat_ibu ?? null,
-            'ttd_ortu' => $keluarga->ttd_ayah ?? $keluarga->ttd_ibu ?? null,
+            'keluarga_id' => $keluarga->id,
+            'nama_ayah' => $keluarga->nama_ayah,
+            'agama_ayah' => $keluarga->agama_ayah,
+            'nama_ibu' => $keluarga->nama_ibu,
+            'agama_ibu' => $keluarga->agama_ibu,
+            'alamat_keluarga' => $keluarga->alamat_ayah ?? $keluarga->alamat_ibu,
+            'ttd_ortu' => $keluarga->ttd_ayah ?? $keluarga->ttd_ibu,
         ]);
     }
 
@@ -121,15 +131,17 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
-                            ->maxLength(255),
-                        // TextInput::make('akun_email')
-                        //     ->required()
-                        //     ->label('Akun Email')
-                        //     ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.nama_lengkap', $state);
+                            }),
                         TextInput::make('nama_baptis')
                             ->required()
                             ->label('Nama Baptis')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.nama_baptis', $state);
+                            }),
                         Radio::make('jenis_kelamin')
                             ->required()
                             ->label('Jenis Kelamin')
@@ -138,23 +150,38 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->options([
                                 'Pria' => 'Pria',
                                 'Wanita' => 'Wanita'
-                            ]),
+                            ])
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.jenis_kelamin', $state);
+                            }),
                         TextInput::make('tempat_lahir')
                             ->required()
                             ->label('Tempat Lahir')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.tempat_lahir', $state);
+                            }),
                         DatePicker::make('tgl_lahir')
                             ->required()
-                            ->label('Tanggal Lahir'),
+                            ->label('Tanggal Lahir')
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.tgl_lahir', $state);
+                            }),
                         Textarea::make('alamat')
                             ->required()
                             ->label('Alamat Lengkap')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.alamat', $state);
+                            }),
                         TextInput::make('telepon')
                             ->tel()
                             ->required()
                             ->label('Nomor Telepon')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.telepon', $state);
+                            }),
                         Radio::make('agama_asal')
                             ->required()
                             ->label('Agama Asal')
@@ -198,7 +225,10 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         TextInput::make('nama_ayah')
                             ->required()
                             ->label('Nama Ayah')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.nama_ayah', $state);
+                            }),
                         Select::make('agama_ayah')
                             ->required()
                             ->label('Agama Ayah')
@@ -208,11 +238,17 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                 'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
-                            ]),
+                            ])
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.agama_ayah', $state);
+                            }),
                         TextInput::make('nama_ibu')
                             ->required()
                             ->label('Nama Ibu')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.nama_ibu', $state);
+                            }),
                         Select::make('agama_ibu')
                             ->required()
                             ->label('Agama Ibu')
@@ -222,7 +258,10 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                 'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
-                            ]),
+                            ])
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.agama_ibu', $state);
+                            }),
                         Fieldset::make('Anggota Keluarga yang sudah Katolik')
                             ->schema([
                                 TextInput::make('nama_keluarga1')
@@ -253,7 +292,10 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         Textarea::make('alamat_keluarga')
                             ->required()
                             ->label('Alamat Keluarga')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->afterStateUpdated(function ($state, $set) {
+                                $set('data.alamat_keluarga', $state);
+                            }),
                         SignaturePad::make('ttd_ortu')
                             ->required()
                             ->label('Tanda Tangan Orang Tua (Ayah)'),
@@ -267,20 +309,62 @@ class FormPendaftaranBaptis extends Page implements HasForms
 
     public function create(): void
     {
+        // Simpan tanda tangan orang tua
         $image = $this->data['ttd_ortu'];  
         $image = str_replace('data:image/png;base64,', '', $image);
         $image = str_replace(' ', '+', $image);
         $imageName = Str::random(10).'.'.'png';
         File::put(storage_path(). '/' . $imageName, base64_decode($image));
-
         $this->data['ttd_ortu'] = $imageName;
 
         $data = $this->form->getState();
-        
+        /** @var User $user */
+        $user = Auth::user();
+
+        // Update atau create data user
+        $user->update([
+            'name' => $data['nama_lengkap'],
+            'jenis_kelamin' => $data['jenis_kelamin'],
+            'tempat_lahir' => $data['tempat_lahir'],
+            'tgl_lahir' => $data['tgl_lahir'],
+            'telepon' => $data['telepon'],
+        ]);
+
+        // Update atau create detail user
+        $user->detailUser()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'nama_baptis' => $data['nama_baptis'],
+                'tgl_baptis' => $data['tgl_baptis'],
+                'alamat' => $data['alamat'],
+                'lingkungan_id' => $data['lingkungan_id'],
+            ]
+        );
+
+        // Update atau create data keluarga
+        $keluargaData = [
+            'nama_ayah' => $data['nama_ayah'],
+            'agama_ayah' => $data['agama_ayah'],
+            'nama_ibu' => $data['nama_ibu'],
+            'agama_ibu' => $data['agama_ibu'],
+            'alamat_ayah' => $data['alamat_keluarga'],
+            'alamat_ibu' => $data['alamat_keluarga'],
+            'ttd_ayah' => $data['ttd_ortu'],
+        ];
+
+        if (isset($data['keluarga_id'])) {
+            Keluarga::where('id', $data['keluarga_id'])->update($keluargaData);
+        } else {
+            $keluarga = Keluarga::create($keluargaData);
+            DetailUser::where('user_id', $user->id)->update(['keluarga_id' => $keluarga->id]);
+        }
+
+        // Buat pendaftaran baptis
         $pendaftaranBaptis = PendaftaranBaptis::create($data);
         
+        // Buat surat
         $surat = Surat::create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'lingkungan_id' => $data['lingkungan_id'],
             'jenis_surat' => 'pendaftaran_baptis',
             'perihal' => 'Pendaftaran Baptis',

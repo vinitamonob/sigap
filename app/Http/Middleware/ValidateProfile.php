@@ -10,51 +10,125 @@ use Filament\Notifications\Notification;
 
 class ValidateProfile
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
+    protected array $missingFields = [];
+
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->routeIs('filament.admin.auth.profile')) {
+        // Bypass validasi untuk halaman tertentu
+        if ($this->shouldBypassValidation($request)) {
             return $next($request);
         }
 
-        $user = Auth::user(); 
-        if (
-            $user->tempat_lahir == null ||
-            $user->tgl_lahir == null ||
-            $user->jenis_kelamin == null ||
-            $user->telepon == null ||
-            $user->tanda_tangan == null ||
-            $user->detailUser->alamat == null ||
-            $user->detailUser->lingkungan->nama_lingkungan == null ||
-            $user->detailUser->nama_baptis == null ||
-            $user->detailUser->tempat_baptis == null ||
-            $user->detailUser->tgl_baptis == null ||
-            $user->detailUser->no_baptis == null ||
-            $user->detailUser->keluarga->nama_ayah == null ||
-            $user->detailUser->keluarga->agama_ayah == null ||
-            $user->detailUser->keluarga->pekerjaan_ayah == null ||
-            $user->detailUser->keluarga->alamat_ayah == null ||
-            $user->detailUser->keluarga->nama_ibu == null ||
-            $user->detailUser->keluarga->agama_ibu == null ||
-            $user->detailUser->keluarga->pekerjaan_ibu == null ||
-            $user->detailUser->keluarga->alamat_ibu == null ||
-            $user->detailUser->keluarga->ttd_ayah == null ||
-            $user->detailUser->keluarga->ttd_ibu == null 
-        ) {
-            // Menambahkan notifikasi sebelum redirect
-            Notification::make()
-                ->title('Lengkapi Profil Anda')
-                ->body('Anda harus melengkapi data profil terlebih dahulu untuk mengakses halaman ini.')
-                ->warning()
-                ->persistent()
-                ->send();
+        $user = Auth::user();
 
-            return redirect()->route('filament.admin.auth.profile');
+        // Skip validasi jika email belum diverifikasi
+        if (is_null($user->email_verified_at)) {
+            return $next($request);
         }
+
+        // Jika profile belum lengkap
+        if ($this->profileIncomplete($user)) {
+            return $this->redirectToProfile($user);
+        }
+
         return $next($request);
+    }
+
+    protected function shouldBypassValidation(Request $request): bool
+    {
+        return $request->routeIs([
+            'filament.admin.auth.profile',
+            'filament.admin.auth.login',
+            'filament.admin.auth.register',
+            'filament.admin.auth.password-reset.reset',
+            'filament.admin.auth.password-reset.request',
+            'filament.admin.auth.email-verification.prompt',
+            'filament.admin.auth.email-verification.verify',
+            'verification.notice',
+            'verification.verify',
+            'verification.send',
+            'filament.admin.auth.logout'
+        ]) || $request->is('livewire/*');
+    }
+
+    protected function profileIncomplete($user): bool
+    {
+        $this->missingFields = [];
+
+        $requiredFields = [
+            'tempat_lahir' => $user->tempat_lahir,
+            'tgl_lahir' => $user->tgl_lahir,
+            'jenis_kelamin' => $user->jenis_kelamin,
+            'telepon' => $user->telepon,
+            'tanda_tangan' => $user->tanda_tangan,
+        ];
+
+        foreach ($requiredFields as $field => $value) {
+            if (empty($value)) {
+                $this->missingFields[] = str_replace('_', ' ', $field);
+                return true;
+            }
+        }
+
+        if (!$user->detailUser) {
+            $this->missingFields[] = 'data detail user';
+            return true;
+        }
+
+        $detailRequiredFields = [
+            'alamat' => $user->detailUser->alamat,
+            'lingkungan.nama_lingkungan' => optional($user->detailUser->lingkungan)->nama_lingkungan,
+        ];
+
+        foreach ($detailRequiredFields as $field => $value) {
+            if (empty($value)) {
+                $this->missingFields[] = str_replace('.', ' ', $field);
+                return true;
+            }
+        }
+
+        if (!$user->detailUser->keluarga) {
+            $this->missingFields[] = 'data keluarga';
+            return true;
+        }
+
+        $keluargaFields = [
+            'nama_ayah' => $user->detailUser->keluarga->nama_ayah,
+            'agama_ayah' => $user->detailUser->keluarga->agama_ayah,
+            'pekerjaan_ayah' => $user->detailUser->keluarga->pekerjaan_ayah,
+            'alamat_ayah' => $user->detailUser->keluarga->alamat_ayah,
+            'nama_ibu' => $user->detailUser->keluarga->nama_ibu,
+            'agama_ibu' => $user->detailUser->keluarga->agama_ibu,
+            'pekerjaan_ibu' => $user->detailUser->keluarga->pekerjaan_ibu,
+            'alamat_ibu' => $user->detailUser->keluarga->alamat_ibu,
+        ];
+
+        foreach ($keluargaFields as $field => $value) {
+            if (empty($value)) {
+                $this->missingFields[] = str_replace('_', ' ', $field);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function redirectToProfile($user): Response
+    {
+        $message = 'Anda harus melengkapi data profil terlebih dahulu untuk mengakses halaman ini.';
+        
+        if (!empty($this->missingFields)) {
+            $fields = implode(', ', array_unique($this->missingFields));
+            $message = "Silakan lengkapi data berikut: $fields.";
+        }
+
+        Notification::make()
+            ->title('Lengkapi Profil Anda')
+            ->body($message)
+            ->warning()
+            ->persistent()
+            ->send();
+
+        return redirect()->route('filament.admin.auth.profile');
     }
 }

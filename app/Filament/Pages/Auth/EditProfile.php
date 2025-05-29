@@ -7,25 +7,81 @@ use App\Models\Keluarga;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Illuminate\Support\Str;
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\Textarea;
+use Illuminate\Support\HtmlString;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\DatePicker;
 use Filament\Pages\Auth\EditProfile as BaseEditProfile;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
 class EditProfile extends BaseEditProfile
 {
-    public function form(Form $form): Form
+    protected function getFormModel(): Model
     {
-        $user = User::where('id', Auth::user()->id)
+        return User::where('id', Auth::user()->id)
             ->with(['detailUser.lingkungan', 'detailUser.keluarga'])
             ->first();
+    }
 
+    public function mount(): void
+    {
+        parent::mount();
+        
+        // Fill form with existing data
+        $this->fillForm();
+    }
+    
+    public function fillForm(): void
+    {
+        $user = $this->getFormModel();
+        
+        $data = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'tempat_lahir' => $user->tempat_lahir,
+            'tgl_lahir' => $user->tgl_lahir,
+            'jenis_kelamin' => $user->jenis_kelamin,
+            'telepon' => $user->telepon,
+            'tanda_tangan' => $user->tanda_tangan,
+        ];
+        
+        if ($user->detailUser) {
+            $data['detailUser'] = [
+                'nama_baptis' => $user->detailUser->nama_baptis,
+                'tempat_baptis' => $user->detailUser->tempat_baptis,
+                'tgl_baptis' => $user->detailUser->tgl_baptis,
+                'no_baptis' => $user->detailUser->no_baptis,
+                'alamat' => $user->detailUser->alamat,
+                'lingkungan_id' => $user->detailUser->lingkungan_id,
+            ];
+            
+            if ($user->detailUser->keluarga) {
+                $data['detailUser']['keluarga'] = [
+                    'nama_ayah' => $user->detailUser->keluarga->nama_ayah,
+                    'agama_ayah' => $user->detailUser->keluarga->agama_ayah,
+                    'pekerjaan_ayah' => $user->detailUser->keluarga->pekerjaan_ayah,
+                    'alamat_ayah' => $user->detailUser->keluarga->alamat_ayah,
+                    'ttd_ayah' => $user->detailUser->keluarga->ttd_ayah,
+                    'nama_ibu' => $user->detailUser->keluarga->nama_ibu,
+                    'agama_ibu' => $user->detailUser->keluarga->agama_ibu,
+                    'pekerjaan_ibu' => $user->detailUser->keluarga->pekerjaan_ibu,
+                    'alamat_ibu' => $user->detailUser->keluarga->alamat_ibu,
+                    'ttd_ibu' => $user->detailUser->keluarga->ttd_ibu,
+                ];
+            }
+        }
+        
+        $this->form->fill($data);
+    }
+
+    public function form(Form $form): Form
+    {
+        $user = $this->getFormModel();
         $isAdminOrParoki = $user->hasRole('super_admin') || $user->hasRole('paroki');
         $isAdminOrParokiOrKetua = $user->hasRole('super_admin') || $user->hasRole('paroki') || $user->hasRole('ketua_lingkungan');
 
@@ -35,48 +91,25 @@ class EditProfile extends BaseEditProfile
                     ->schema([
                         $this->getNameFormComponent(),
                         $this->getEmailFormComponent(),
-                        TextInput::make('tempat_lahir')
-                            ->label('Tempat Lahir')
-                            ->required(false)
-                            ->hidden(fn () => $user->hasRole('super_admin')),
-                        DatePicker::make('tgl_lahir')
-                            ->label('Tanggal Lahir')
-                            ->required(false)
-                            ->hidden(fn () => $user->hasRole('super_admin')),
-                        Select::make('jenis_kelamin')
-                            ->label('Jenis Kelamin')
-                            ->options([
-                                'Pria' => 'Pria',
-                                'Wanita' => 'Wanita',
-                            ])
-                            ->required(false)
-                            ->hidden(fn () => $user->hasRole('super_admin')),
+                        $this->getTempatLahirFormComponent(),
+                        $this->getTanggalLahirFormComponent(),
+                        $this->getJenisKelaminFormComponent(),
                         $this->getTeleponFormComponent(),
                         $this->getNamaLingkunganFormComponent()
                             ->hidden($isAdminOrParoki),
-                        Textarea::make('detail_user.alamat')
-                            ->label('Alamat Lengkap')
-                            ->required(false)
+                        $this->getAlamatLengkapFormComponent()
                             ->hidden($isAdminOrParoki),
                     ])->columns(2),
                 
                 Section::make('Informasi Baptis')
                     ->schema([
-                        TextInput::make('detail_user.nama_baptis')
-                            ->label('Nama Baptis')
-                            ->required(false)
+                        $this->getNamaBaptisFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('detail_user.tempat_baptis')
-                            ->label('Tempat Baptis')
-                            ->required(false)
+                        $this->getTempatBaptisFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        DatePicker::make('detail_user.tgl_baptis')
-                            ->label('Tanggal Baptis')
-                            ->required(false)
+                        $this->getTanggalBaptisFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('detail_user.no_baptis')
-                            ->label('Nomor Baptis')
-                            ->required(false)
+                        $this->getNomorBaptisFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
                     ])
                     ->columns(2)
@@ -84,37 +117,21 @@ class EditProfile extends BaseEditProfile
                 
                 Section::make('Informasi Keluarga')
                     ->schema([
-                        TextInput::make('keluarga.nama_ayah')
-                            ->label('Nama Ayah')
-                            ->required(false)
+                        $this->getNamaAyahFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('keluarga.nama_ibu')
-                            ->label('Nama Ibu')
-                            ->required(false)
+                        $this->getNamaIbuFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('keluarga.agama_ayah')
-                            ->label('Agama Ayah')
-                            ->required(false)
+                        $this->getAgamaAyahFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('keluarga.agama_ibu')
-                            ->label('Agama Ibu')
-                            ->required(false)
+                        $this->getAgamaIbuFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('keluarga.pekerjaan_ayah')
-                            ->label('Pekerjaan Ayah')
-                            ->required(false)
+                        $this->getPekerjaanAyahFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        TextInput::make('keluarga.pekerjaan_ibu')
-                            ->label('Pekerjaan Ibu')
-                            ->required(false)
+                        $this->getPekerjaanIbuFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        Textarea::make('keluarga.alamat_ayah')
-                            ->label('Alamat Ayah')
-                            ->required(false)
+                        $this->getAlamatAyahFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        Textarea::make('keluarga.alamat_ibu')
-                            ->label('Alamat Ibu')
-                            ->required(false)
+                        $this->getAlamatIbuFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
                     ])
                     ->columns(2)
@@ -124,36 +141,211 @@ class EditProfile extends BaseEditProfile
                     ->schema([
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),
-                        SignaturePad::make('tanda_tangan')
-                            ->label('Tanda Tangan')
-                            ->required(false)
-                            ->hidden(fn () => $user->hasRole('super_admin')),
-                        SignaturePad::make('keluarga.ttd_ayah')
-                            ->label('Tanda Tangan Ayah')
-                            ->required(false)
+                        $this->getTandaTanganFormComponent(),
+                        $this->getTandaTanganAyahFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
-                        SignaturePad::make('keluarga.ttd_ibu')
-                            ->label('Tanda Tangan Ibu')
-                            ->required(false)
+                        $this->getTandaTanganIbuFormComponent()
                             ->hidden($isAdminOrParokiOrKetua),
                     ])
             ]);
     }
 
-    protected function getTeleponFormComponent()
+    protected function getTeleponFormComponent(): TextInput
     {
         return TextInput::make('telepon')
             ->label('Nomor Telepon/HP')
             ->required(false);
     }
 
-    protected function getNamaLingkunganFormComponent()
+    protected function getNamaLingkunganFormComponent(): Select
     {
-        return Select::make('detail_user.lingkungan_id')
+        return Select::make('detailUser.lingkungan_id')
             ->label('Lingkungan/Stasi')
             ->options(Lingkungan::pluck('nama_lingkungan', 'id')->toArray())
             ->searchable()
             ->required(false);
+    }
+
+    protected function getTempatLahirFormComponent(): TextInput
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        return TextInput::make('tempat_lahir')
+            ->label('Tempat Lahir')
+            ->required(false)
+            ->hidden(fn () => $user->hasRole('super_admin'));
+    }
+
+    protected function getTanggalLahirFormComponent(): DatePicker
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        return DatePicker::make('tgl_lahir')
+            ->label('Tanggal Lahir')
+            ->required(false)
+            ->hidden(fn () => $user->hasRole('super_admin'));
+    }
+
+    protected function getJenisKelaminFormComponent(): Select
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        return Select::make('jenis_kelamin')
+            ->label('Jenis Kelamin')
+            ->options([
+                'Pria' => 'Pria',
+                'Wanita' => 'Wanita',
+            ])
+            ->required(false)
+            ->hidden(fn () => $user->hasRole('super_admin'));
+    }
+
+    protected function getAlamatLengkapFormComponent(): Textarea
+    {
+        return Textarea::make('detailUser.alamat')
+            ->label('Alamat Lengkap')
+            ->required(false);
+    }
+
+    protected function getNamaBaptisFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.nama_baptis')
+            ->label('Nama Baptis')
+            ->required(false);
+    }
+
+    protected function getTempatBaptisFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.tempat_baptis')
+            ->label('Tempat Baptis')
+            ->required(false);
+    }
+
+    protected function getTanggalBaptisFormComponent(): DatePicker
+    {
+        return DatePicker::make('detailUser.tgl_baptis')
+            ->label('Tanggal Baptis')
+            ->required(false);
+    }
+
+    protected function getNomorBaptisFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.no_baptis')
+            ->label('Nomor Baptis')
+            ->required(false);
+    }
+
+    protected function getNamaAyahFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.keluarga.nama_ayah')
+            ->label('Nama Ayah')
+            ->required(false);
+    }
+
+    protected function getNamaIbuFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.keluarga.nama_ibu')
+            ->label('Nama Ibu')
+            ->required(false);
+    }
+
+    protected function getAgamaAyahFormComponent(): Select
+    {
+        return Select::make('detailUser.keluarga.agama_ayah')
+            ->label('Agama Ayah')
+            ->options([
+                'Katolik' => 'Katolik',
+                'Protestan' => 'Protestan',
+                'Islam' => 'Islam',
+                'Hindu' => 'Hindu',
+                'Budha' => 'Budha',
+            ])
+            ->required(false);
+    }
+
+    protected function getAgamaIbuFormComponent(): Select
+    {
+        return Select::make('detailUser.keluarga.agama_ibu')
+            ->label('Agama Ibu')
+            ->options([
+                'Katolik' => 'Katolik',
+                'Protestan' => 'Protestan',
+                'Islam' => 'Islam',
+                'Hindu' => 'Hindu',
+                'Budha' => 'Budha',
+            ])
+            ->required(false);
+    }
+
+    protected function getPekerjaanAyahFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.keluarga.pekerjaan_ayah')
+            ->label('Pekerjaan Ayah')
+            ->required(false);
+    }
+
+    protected function getPekerjaanIbuFormComponent(): TextInput
+    {
+        return TextInput::make('detailUser.keluarga.pekerjaan_ibu')
+            ->label('Pekerjaan Ibu')
+            ->required(false);
+    }
+
+    protected function getAlamatAyahFormComponent(): Textarea
+    {
+        return Textarea::make('detailUser.keluarga.alamat_ayah')
+            ->label('Alamat Ayah')
+            ->required(false);
+    }
+
+    protected function getAlamatIbuFormComponent(): Textarea
+    {
+        return Textarea::make('detailUser.keluarga.alamat_ibu')
+            ->label('Alamat Ibu')
+            ->required(false);
+    }
+
+    protected function getTandaTanganFormComponent(): SignaturePad
+    {
+        $user = User::where('id', Auth::user()->id)->first();
+        return SignaturePad::make('tanda_tangan')
+            ->label('Tanda Tangan')
+            ->required(false)
+            ->hidden(fn () => $user->hasRole('super_admin'))
+            ->helperText(function () use ($user) {
+                if ($user->tanda_tangan) {
+                    return new HtmlString('<span class="text-yellow-600 dark:text-yellow-500">
+                    Tanda tangan sudah tersimpan. Tanda tangan baru akan menggantikan yang lama.</span>');
+                }
+                return null;
+            });
+    }
+
+    protected function getTandaTanganAyahFormComponent(): SignaturePad
+    {
+        $user = $this->getFormModel();
+        return SignaturePad::make('detailUser.keluarga.ttd_ayah')
+            ->label('Tanda Tangan Ayah')
+            ->required(false)
+            ->helperText(function () use ($user) {
+                if ($user->detailUser?->keluarga?->ttd_ayah) {
+                    return new HtmlString('<span class="text-yellow-600 dark:text-yellow-500">
+                    Tanda tangan ayah sudah tersimpan. Tanda tangan baru akan menggantikan yang lama.</span>');
+                }
+                return null;
+            });
+    }
+
+    protected function getTandaTanganIbuFormComponent(): SignaturePad
+    {
+        $user = $this->getFormModel();
+        return SignaturePad::make('detailUser.keluarga.ttd_ibu')
+            ->label('Tanda Tangan Ibu')
+            ->required(false)
+            ->helperText(function () use ($user) {
+                if ($user->detailUser?->keluarga?->ttd_ibu) {
+                    return new HtmlString('<span class="text-yellow-600 dark:text-yellow-500">
+                    Tanda tangan ibu sudah tersimpan. Tanda tangan baru akan menggantikan yang lama.</span>');
+                }
+                return null;
+            });
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
@@ -162,11 +354,12 @@ class EditProfile extends BaseEditProfile
         if (!File::exists($signaturePath)) {
             File::makeDirectory($signaturePath, 0755, true);
         }
+        
         $user = User::where('id', Auth::user()->id)->first();
         $isAdminOrParokiOrKetua = $user->hasRole('super_admin') || $user->hasRole('paroki') || $user->hasRole('ketua-lingkungan');
 
         // Handle user tanda tangan
-        if (isset($data['tanda_tangan'])) {
+        if (isset($data['tanda_tangan']) && strpos($data['tanda_tangan'], 'data:image/png;base64,') !== false) {
             $image = $data['tanda_tangan'];
             $image = str_replace('data:image/png;base64,', '', $image);
             $image = str_replace(' ', '+', $image);
@@ -176,25 +369,27 @@ class EditProfile extends BaseEditProfile
         }
 
         // Hanya proses tanda tangan keluarga jika bukan admin/paroki/ketua
-        if (!$isAdminOrParokiOrKetua && isset($data['keluarga'])) {
+        if (!$isAdminOrParokiOrKetua && isset($data['detailUser']['keluarga'])) {
             // Handle tanda tangan ayah
-            if (isset($data['keluarga']['ttd_ayah'])) {
-                $image = $data['keluarga']['ttd_ayah'];
+            if (isset($data['detailUser']['keluarga']['ttd_ayah']) && 
+                strpos($data['detailUser']['keluarga']['ttd_ayah'], 'data:image/png;base64,') !== false) {
+                $image = $data['detailUser']['keluarga']['ttd_ayah'];
                 $image = str_replace('data:image/png;base64,', '', $image);
                 $image = str_replace(' ', '+', $image);
                 $imageName = 'ayah_'.Str::random(10).'.'.'png';
                 File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
-                $data['keluarga']['ttd_ayah'] = 'storage/signatures/' . $imageName;
+                $data['detailUser']['keluarga']['ttd_ayah'] = 'storage/signatures/' . $imageName;
             }
 
             // Handle tanda tangan ibu
-            if (isset($data['keluarga']['ttd_ibu'])) {
-                $image = $data['keluarga']['ttd_ibu'];
+            if (isset($data['detailUser']['keluarga']['ttd_ibu']) && 
+                strpos($data['detailUser']['keluarga']['ttd_ibu'], 'data:image/png;base64,') !== false) {
+                $image = $data['detailUser']['keluarga']['ttd_ibu'];
                 $image = str_replace('data:image/png;base64,', '', $image);
                 $image = str_replace(' ', '+', $image);
                 $imageName = 'ibu_'.Str::random(10).'.'.'png';
                 File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
-                $data['keluarga']['ttd_ibu'] = 'storage/signatures/' . $imageName;
+                $data['detailUser']['keluarga']['ttd_ibu'] = 'storage/signatures/' . $imageName;
             }
         }
 
@@ -217,45 +412,52 @@ class EditProfile extends BaseEditProfile
             'tanda_tangan' => $data['tanda_tangan'] ?? null,
         ]);
 
+        // Update password jika diisi
+        if (isset($data['password']) && $data['password']) {
+            $record->update([
+                'password' => bcrypt($data['password']),
+            ]);
+        }
+
         // Hanya update detail user jika bukan admin/paroki
-        if (!$isAdminOrParoki) {
+        if (!$isAdminOrParoki && isset($data['detailUser'])) {
             $detailUserData = [
-                'nama_baptis' => $data['detail_user']['nama_baptis'] ?? null,
-                'tempat_baptis' => $data['detail_user']['tempat_baptis'] ?? null,
-                'tgl_baptis' => $data['detail_user']['tgl_baptis'] ?? null,
-                'no_baptis' => $data['detail_user']['no_baptis'] ?? null,
-                'alamat' => $data['detail_user']['alamat'] ?? null,
-                'lingkungan_id' => $data['detail_user']['lingkungan_id'] ?? null,
+                'nama_baptis' => $data['detailUser']['nama_baptis'] ?? null,
+                'tempat_baptis' => $data['detailUser']['tempat_baptis'] ?? null,
+                'tgl_baptis' => $data['detailUser']['tgl_baptis'] ?? null,
+                'no_baptis' => $data['detailUser']['no_baptis'] ?? null,
+                'alamat' => $data['detailUser']['alamat'] ?? null,
+                'lingkungan_id' => $data['detailUser']['lingkungan_id'] ?? null,
             ];
 
-            $record->detailUser()->updateOrCreate(
+            $detailUser = $record->detailUser()->updateOrCreate(
                 ['user_id' => $record->id],
                 $detailUserData
             );
 
             // Handle keluarga data hanya jika bukan admin/paroki/ketua
-            if (!$isAdminOrParokiOrKetua && isset($data['keluarga'])) {
+            if (!$isAdminOrParokiOrKetua && isset($data['detailUser']['keluarga'])) {
                 $keluargaData = [
-                    'nama_ayah' => $data['keluarga']['nama_ayah'] ?? null,
-                    'agama_ayah' => $data['keluarga']['agama_ayah'] ?? null,
-                    'pekerjaan_ayah' => $data['keluarga']['pekerjaan_ayah'] ?? null,
-                    'alamat_ayah' => $data['keluarga']['alamat_ayah'] ?? null,
-                    'nama_ibu' => $data['keluarga']['nama_ibu'] ?? null,
-                    'agama_ibu' => $data['keluarga']['agama_ibu'] ?? null,
-                    'pekerjaan_ibu' => $data['keluarga']['pekerjaan_ibu'] ?? null,
-                    'alamat_ibu' => $data['keluarga']['alamat_ibu'] ?? null,
-                    'ttd_ayah' => $data['keluarga']['ttd_ayah'] ?? null,
-                    'ttd_ibu' => $data['keluarga']['ttd_ibu'] ?? null,
+                    'nama_ayah' => $data['detailUser']['keluarga']['nama_ayah'] ?? null,
+                    'agama_ayah' => $data['detailUser']['keluarga']['agama_ayah'] ?? null,
+                    'pekerjaan_ayah' => $data['detailUser']['keluarga']['pekerjaan_ayah'] ?? null,
+                    'alamat_ayah' => $data['detailUser']['keluarga']['alamat_ayah'] ?? null,
+                    'nama_ibu' => $data['detailUser']['keluarga']['nama_ibu'] ?? null,
+                    'agama_ibu' => $data['detailUser']['keluarga']['agama_ibu'] ?? null,
+                    'pekerjaan_ibu' => $data['detailUser']['keluarga']['pekerjaan_ibu'] ?? null,
+                    'alamat_ibu' => $data['detailUser']['keluarga']['alamat_ibu'] ?? null,
+                    'ttd_ayah' => $data['detailUser']['keluarga']['ttd_ayah'] ?? null,
+                    'ttd_ibu' => $data['detailUser']['keluarga']['ttd_ibu'] ?? null,
                 ];
 
                 // Cek apakah keluarga sudah ada
-                if ($record->detailUser && $record->detailUser->keluarga) {
+                if ($detailUser->keluarga) {
                     // Update keluarga yang sudah ada
-                    $record->detailUser->keluarga()->update($keluargaData);
+                    $detailUser->keluarga()->update($keluargaData);
                 } else {
                     // Buat keluarga baru dan hubungkan ke detail_user
                     $keluarga = Keluarga::create($keluargaData);
-                    $record->detailUser()->update(['keluarga_id' => $keluarga->id]);
+                    $detailUser->update(['keluarga_id' => $keluarga->id]);
                 }
             }
         }

@@ -44,7 +44,19 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
     {
         $user = Auth::user();
         $detailUser = DetailUser::where('user_id', $user->id)->first();
-        $keluarga = $detailUser->keluarga ?? null;
+        
+        // Jika detail user belum ada, buat baru
+        if (!$detailUser) {
+            $detailUser = DetailUser::create(['user_id' => $user->id]);
+        }
+        
+        // Jika user belum memiliki keluarga, buat keluarga kosong
+        if (!$detailUser->keluarga) {
+            $keluarga = Keluarga::create([]);
+            $detailUser->update(['keluarga_id' => $keluarga->id]);
+        } else {
+            $keluarga = $detailUser->keluarga;
+        }
         
         $initialData = [];
         
@@ -53,35 +65,33 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             $initialData = [
                 'nama_istri' => $user->name,
                 'akun_email_istri' => $user->email,
-                'tempat_lahir_istri' => $user->tempat_lahir,
-                'tgl_lahir_istri' => $user->tgl_lahir,
-                'telepon_istri' => $user->telepon,
+                'tempat_lahir_istri' => $user->tempat_lahir ?? '',
+                'tgl_lahir_istri' => $user->tgl_lahir ?? '',
+                'telepon_istri' => $user->telepon ?? '',
                 'alamat_sekarang_istri' => $detailUser->alamat ?? '',
                 'lingkungan_istri_id' => $detailUser->lingkungan_id ?? null,
             ];
             
-            if ($keluarga) {
-                $initialData += [
-                    'nama_ayah_istri' => $keluarga->nama_ayah,
-                    'agama_ayah_istri' => $keluarga->agama_ayah,
-                    'pekerjaan_ayah_istri' => $keluarga->pekerjaan_ayah,
-                    'alamat_ayah_istri' => $keluarga->alamat_ayah,
-                    'nama_ibu_istri' => $keluarga->nama_ibu,
-                    'agama_ibu_istri' => $keluarga->agama_ibu,
-                    'pekerjaan_ibu_istri' => $keluarga->pekerjaan_ibu,
-                    'alamat_ibu_istri' => $keluarga->alamat_ibu,
-                ];
-            }
+            // Data keluarga
+            $initialData += [
+                'nama_ayah_istri' => $keluarga->nama_ayah ?? '',
+                'agama_ayah_istri' => $keluarga->agama_ayah ?? '',
+                'pekerjaan_ayah_istri' => $keluarga->pekerjaan_ayah ?? '',
+                'alamat_ayah_istri' => $keluarga->alamat_ayah ?? '',
+                'nama_ibu_istri' => $keluarga->nama_ibu ?? '',
+                'agama_ibu_istri' => $keluarga->agama_ibu ?? '',
+                'pekerjaan_ibu_istri' => $keluarga->pekerjaan_ibu ?? '',
+                'alamat_ibu_istri' => $keluarga->alamat_ibu ?? '',
+            ];
             
-            if ($detailUser) {
-                $initialData += [
-                    'tempat_baptis_istri' => $detailUser->tempat_baptis,
-                    'tgl_baptis_istri' => $detailUser->tgl_baptis,
-                ];
-            }
+            // Data baptis
+            $initialData += [
+                'tempat_baptis_istri' => $detailUser->tempat_baptis ?? '',
+                'tgl_baptis_istri' => $detailUser->tgl_baptis ?? '',
+            ];
             
-            // Get lingkungan data if exists
-            if ($detailUser && $detailUser->lingkungan) {
+            // Data lingkungan jika ada
+            if ($detailUser->lingkungan) {
                 $lingkungan = $detailUser->lingkungan;
                 $ketuaLingkungan = KetuaLingkungan::with('user')
                     ->where('lingkungan_id', $lingkungan->id)
@@ -89,9 +99,9 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                     ->first();
                 
                 $initialData += [
-                    'nama_lingkungan_istri' => $lingkungan->nama_lingkungan,
-                    'wilayah_istri' => $lingkungan->wilayah,
-                    'paroki_istri' => $lingkungan->paroki,
+                    'nama_lingkungan_istri' => $lingkungan->nama_lingkungan ?? '',
+                    'wilayah_istri' => $lingkungan->wilayah ?? '',
+                    'paroki_istri' => $lingkungan->paroki ?? '',
                     'nama_ketua_istri' => $ketuaLingkungan ? $ketuaLingkungan->user->name : '',
                 ];
             }
@@ -100,35 +110,33 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             $initialData = [
                 'nama_suami' => $user->name,
                 'akun_email_suami' => $user->email,
-                'tempat_lahir_suami' => $user->tempat_lahir,
-                'tgl_lahir_suami' => $user->tgl_lahir,
-                'telepon_suami' => $user->telepon,
+                'tempat_lahir_suami' => $user->tempat_lahir ?? '',
+                'tgl_lahir_suami' => $user->tgl_lahir ?? '',
+                'telepon_suami' => $user->telepon ?? '',
                 'alamat_sekarang_suami' => $detailUser->alamat ?? '',
                 'lingkungan_suami_id' => $detailUser->lingkungan_id ?? null,
             ];
             
-            if ($keluarga) {
-                $initialData += [
-                    'nama_ayah_suami' => $keluarga->nama_ayah,
-                    'agama_ayah_suami' => $keluarga->agama_ayah,
-                    'pekerjaan_ayah_suami' => $keluarga->pekerjaan_ayah,
-                    'alamat_ayah_suami' => $keluarga->alamat_ayah,
-                    'nama_ibu_suami' => $keluarga->nama_ibu,
-                    'agama_ibu_suami' => $keluarga->agama_ibu,
-                    'pekerjaan_ibu_suami' => $keluarga->pekerjaan_ibu,
-                    'alamat_ibu_suami' => $keluarga->alamat_ibu,
-                ];
-            }
+            // Data keluarga
+            $initialData += [
+                'nama_ayah_suami' => $keluarga->nama_ayah ?? '',
+                'agama_ayah_suami' => $keluarga->agama_ayah ?? '',
+                'pekerjaan_ayah_suami' => $keluarga->pekerjaan_ayah ?? '',
+                'alamat_ayah_suami' => $keluarga->alamat_ayah ?? '',
+                'nama_ibu_suami' => $keluarga->nama_ibu ?? '',
+                'agama_ibu_suami' => $keluarga->agama_ibu ?? '',
+                'pekerjaan_ibu_suami' => $keluarga->pekerjaan_ibu ?? '',
+                'alamat_ibu_suami' => $keluarga->alamat_ibu ?? '',
+            ];
             
-            if ($detailUser) {
-                $initialData += [
-                    'tempat_baptis_suami' => $detailUser->tempat_baptis,
-                    'tgl_baptis_suami' => $detailUser->tgl_baptis,
-                ];
-            }
+            // Data baptis
+            $initialData += [
+                'tempat_baptis_suami' => $detailUser->tempat_baptis ?? '',
+                'tgl_baptis_suami' => $detailUser->tgl_baptis ?? '',
+            ];
             
-            // Get lingkungan data if exists
-            if ($detailUser && $detailUser->lingkungan) {
+            // Data lingkungan jika ada
+            if ($detailUser->lingkungan) {
                 $lingkungan = $detailUser->lingkungan;
                 $ketuaLingkungan = KetuaLingkungan::with('user')
                     ->where('lingkungan_id', $lingkungan->id)
@@ -136,9 +144,9 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                     ->first();
                 
                 $initialData += [
-                    'nama_lingkungan_suami' => $lingkungan->nama_lingkungan,
-                    'wilayah_suami' => $lingkungan->wilayah,
-                    'paroki_suami' => $lingkungan->paroki,
+                    'nama_lingkungan_suami' => $lingkungan->nama_lingkungan ?? '',
+                    'wilayah_suami' => $lingkungan->wilayah ?? '',
+                    'paroki_suami' => $lingkungan->paroki ?? '',
                     'nama_ketua_suami' => $ketuaLingkungan ? $ketuaLingkungan->user->name : '',
                 ];
             }
@@ -498,8 +506,38 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             }
         }
 
+        /** @var User $user */
         $user = Auth::user();
         $detailUser = DetailUser::where('user_id', $user->id)->first();
+        
+        // Update data user yang login jika ada perubahan
+        $user->update([
+            'tempat_lahir' => $user->jenis_kelamin === 'Wanita' ? $data['tempat_lahir_istri'] : $data['tempat_lahir_suami'],
+            'tgl_lahir' => $user->jenis_kelamin === 'Wanita' ? $data['tgl_lahir_istri'] : $data['tgl_lahir_suami'],
+            'telepon' => $user->jenis_kelamin === 'Wanita' ? $data['telepon_istri'] : $data['telepon_suami'],
+        ]);
+        
+        // Update detail user yang login
+        $detailUser->update([
+            'alamat' => $user->jenis_kelamin === 'Wanita' ? $data['alamat_sekarang_istri'] : $data['alamat_sekarang_suami'],
+            'tempat_baptis' => $user->jenis_kelamin === 'Wanita' ? $data['tempat_baptis_istri'] : $data['tempat_baptis_suami'],
+            'tgl_baptis' => $user->jenis_kelamin === 'Wanita' ? $data['tgl_baptis_istri'] : $data['tgl_baptis_suami'],
+            'lingkungan_id' => $user->jenis_kelamin === 'Wanita' ? $data['lingkungan_istri_id'] : $data['lingkungan_suami_id'],
+        ]);
+        
+        // Update data keluarga user yang login
+        if ($detailUser->keluarga) {
+            $detailUser->keluarga->update([
+                'nama_ayah' => $user->jenis_kelamin === 'Wanita' ? $data['nama_ayah_istri'] : $data['nama_ayah_suami'],
+                'agama_ayah' => $user->jenis_kelamin === 'Wanita' ? $data['agama_ayah_istri'] : $data['agama_ayah_suami'],
+                'pekerjaan_ayah' => $user->jenis_kelamin === 'Wanita' ? $data['pekerjaan_ayah_istri'] : $data['pekerjaan_ayah_suami'],
+                'alamat_ayah' => $user->jenis_kelamin === 'Wanita' ? $data['alamat_ayah_istri'] : $data['alamat_ayah_suami'],
+                'nama_ibu' => $user->jenis_kelamin === 'Wanita' ? $data['nama_ibu_istri'] : $data['nama_ibu_suami'],
+                'agama_ibu' => $user->jenis_kelamin === 'Wanita' ? $data['agama_ibu_istri'] : $data['agama_ibu_suami'],
+                'pekerjaan_ibu' => $user->jenis_kelamin === 'Wanita' ? $data['pekerjaan_ibu_istri'] : $data['pekerjaan_ibu_suami'],
+                'alamat_ibu' => $user->jenis_kelamin === 'Wanita' ? $data['alamat_ibu_istri'] : $data['alamat_ibu_suami'],
+            ]);
+        }
         
         if ($user->jenis_kelamin === 'Wanita') {
             // Buat user baru untuk calon suami (karena yang login wanita)
@@ -706,4 +744,4 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             
         $this->form->fill();
     }
-} 
+}

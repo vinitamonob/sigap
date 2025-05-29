@@ -5,6 +5,7 @@ namespace App\Filament\Pages;
 use App\Models\User;
 use App\Models\Surat;
 use Filament\Forms\Form;
+use App\Models\DetailUser;
 use Filament\Pages\Page;
 use App\Models\Lingkungan;
 use App\Models\KeteranganLain;
@@ -35,21 +36,24 @@ class FormKeteranganLain extends Page implements HasForms
     
     public function mount(): void
     {
-        // Isi form dengan data user yang login
         $user = Auth::user();
-        $detailUser = $user->detailUser;
+        $detailUser = DetailUser::where('user_id', $user->id)->first();
         
+        // Jika detail user belum ada, buat baru
+        if (!$detailUser) {
+            $detailUser = DetailUser::create(['user_id' => $user->id]);
+        }
+
         $this->form->fill([
             'user_id' => $user->id,
             'nama_lengkap' => $user->name,
-            // 'akun_email' => $user->email,
             'tempat_lahir' => $user->tempat_lahir,
             'tgl_lahir' => $user->tgl_lahir,
             'telepon' => $user->telepon,
-            'alamat' => $detailUser->alamat ?? null,
-            'lingkungan_id' => $detailUser->lingkungan_id ?? null,
-            'paroki' => $detailUser->lingkungan->paroki ?? 'St. Stephanus Cilacap',
-            'nama_lingkungan' => $detailUser->lingkungan->nama_lingkungan ?? null,
+            'alamat' => $user->detailUser->alamat ?? null,
+            'lingkungan_id' => $user->detailUser->lingkungan_id ?? null,
+            'paroki' => $user->detailUser->lingkungan->paroki ?? 'St. Stephanus Cilacap',
+            'nama_lingkungan' => $user->detailUser->lingkungan->nama_lingkungan ?? null,
             'tgl_surat' => now(),
         ]);
     }
@@ -102,18 +106,26 @@ class FormKeteranganLain extends Page implements HasForms
                         TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
-                            ->maxLength(255),
-                        // TextInput::make('akun_email')
-                        //     ->required()
-                        //     ->label('Akun Email')
-                        //     ->maxLength(255),
+                            ->maxLength(255)
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('data.nama_lengkap', $state);
+                            }),
                         TextInput::make('tempat_lahir')
                             ->required()
                             ->label('Tempat Lahir')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('data.tempat_lahir', $state);
+                            }),
                         DatePicker::make('tgl_lahir')
                             ->required()
-                            ->label('Tanggal Lahir'),
+                            ->label('Tanggal Lahir')
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('data.tgl_lahir', $state);
+                            }),
                         TextInput::make('pekerjaan')
                             ->required()
                             ->label('Pekerjaan')
@@ -121,12 +133,20 @@ class FormKeteranganLain extends Page implements HasForms
                         Textarea::make('alamat')
                             ->required()
                             ->label('Alamat')
-                            ->columnSpanFull(),
+                            ->columnSpanFull()
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('data.alamat', $state);
+                            }),
                         TextInput::make('telepon')
                             ->tel()
                             ->required()
                             ->label('No. Telepon/HP')
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->reactive()
+                            ->afterStateUpdated(function ($state, callable $set) {
+                                $set('data.telepon', $state);
+                            }),
                         Select::make('status_tinggal')
                             ->required()
                             ->label('Status Tempat Tinggal')
@@ -150,11 +170,32 @@ class FormKeteranganLain extends Page implements HasForms
     public function create(): void
     {
         $data = $this->form->getState();
+        /** @var User $user */
+        $user = Auth::user();
         
+        // Update data user
+        $user->update([
+            'name' => $data['nama_lengkap'],
+            'tempat_lahir' => $data['tempat_lahir'],
+            'tgl_lahir' => $data['tgl_lahir'],
+            'telepon' => $data['telepon'],
+        ]);
+        
+        // Update atau create detail user
+        $user->detailUser()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'alamat' => $data['alamat'],
+                'lingkungan_id' => $data['lingkungan_id'],
+            ]
+        );
+
+        // Buat keterangan lain
         $keteranganLain = KeteranganLain::create($data);
         
+        // Buat surat
         $surat = Surat::create([
-            'user_id' => Auth::id(),
+            'user_id' => $user->id,
             'lingkungan_id' => $data['lingkungan_id'],
             'jenis_surat' => 'keterangan_lain',
             'perihal' => 'Keterangan Lain',

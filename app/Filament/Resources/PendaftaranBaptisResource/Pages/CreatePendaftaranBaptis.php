@@ -18,33 +18,34 @@ class CreatePendaftaranBaptis extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        // Simpan tanda tangan ortu
+        // Handle signature upload
         if (isset($data['ttd_ortu'])) {
-            $image = $data['ttd_ortu'];
-            $image = str_replace('data:image/png;base64,', '', $image);
-            $image = str_replace(' ', '+', $image);
-            $imageName = Str::random(10).'.png';
-            File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
-            $data['ttd_ortu'] = 'storage/signatures/' . $imageName;
+            $data['ttd_ortu'] = $this->saveSignature($data['ttd_ortu']);
         }
 
-        // Jika user_id dipilih (pilih umat yang sudah ada)
+        // If user is selected from database
         if (!empty($data['user_id'])) {
-            $user = User::with(['detailUser', 'detailUser.keluarga'])->find($data['user_id']);
+            $user = User::find($data['user_id']);
             
             if ($user) {
-                // Update data user jika ada field yang null
+                // Update user data if different from form
                 $userUpdates = [];
-                if (empty($user->jenis_kelamin) && !empty($data['jenis_kelamin'])) {
+                if ($user->name !== $data['nama_lengkap']) {
+                    $userUpdates['name'] = $data['nama_lengkap'];
+                }
+                if ($user->email !== $data['akun_email']) {
+                    $userUpdates['email'] = $data['akun_email'];
+                }
+                if ($user->jenis_kelamin !== $data['jenis_kelamin']) {
                     $userUpdates['jenis_kelamin'] = $data['jenis_kelamin'];
                 }
-                if (empty($user->tempat_lahir) && !empty($data['tempat_lahir'])) {
+                if ($user->tempat_lahir !== $data['tempat_lahir']) {
                     $userUpdates['tempat_lahir'] = $data['tempat_lahir'];
                 }
-                if (empty($user->tgl_lahir) && !empty($data['tgl_lahir'])) {
+                if ($user->tgl_lahir != $data['tgl_lahir']) {
                     $userUpdates['tgl_lahir'] = $data['tgl_lahir'];
                 }
-                if (empty($user->telepon) && !empty($data['telepon'])) {
+                if ($user->telepon !== $data['telepon']) {
                     $userUpdates['telepon'] = $data['telepon'];
                 }
                 
@@ -52,66 +53,40 @@ class CreatePendaftaranBaptis extends CreateRecord
                     $user->update($userUpdates);
                 }
                 
-                // Update detail user jika ada
-                if ($user->detailUser) {
-                    $detailUpdates = [];
-                    if (empty($user->detailUser->nama_baptis) && !empty($data['nama_baptis'])) {
-                        $detailUpdates['nama_baptis'] = $data['nama_baptis'];
+                // Update or create detail user
+                $detailUser = DetailUser::firstOrNew(['user_id' => $user->id]);
+                $detailUser->lingkungan_id = $data['lingkungan_id'];
+                $detailUser->nama_baptis = $data['nama_baptis'];
+                $detailUser->alamat = $data['alamat'];
+                $detailUser->save();
+                
+                // Update or create keluarga
+                if ($detailUser->keluarga) {
+                    $keluargaUpdates = [];
+                    if ($detailUser->keluarga->nama_ayah !== $data['nama_ayah']) {
+                        $keluargaUpdates['nama_ayah'] = $data['nama_ayah'];
                     }
-                    if (empty($user->detailUser->alamat) && !empty($data['alamat'])) {
-                        $detailUpdates['alamat'] = $data['alamat'];
+                    if ($detailUser->keluarga->agama_ayah !== $data['agama_ayah']) {
+                        $keluargaUpdates['agama_ayah'] = $data['agama_ayah'];
                     }
-                    if (empty($user->detailUser->lingkungan_id) && !empty($data['lingkungan_id'])) {
-                        $detailUpdates['lingkungan_id'] = $data['lingkungan_id'];
+                    if ($detailUser->keluarga->nama_ibu !== $data['nama_ibu']) {
+                        $keluargaUpdates['nama_ibu'] = $data['nama_ibu'];
+                    }
+                    if ($detailUser->keluarga->agama_ibu !== $data['agama_ibu']) {
+                        $keluargaUpdates['agama_ibu'] = $data['agama_ibu'];
+                    }
+                    if ($detailUser->keluarga->alamat_ayah !== $data['alamat_keluarga']) {
+                        $keluargaUpdates['alamat_ayah'] = $data['alamat_keluarga'];
+                        $keluargaUpdates['alamat_ibu'] = $data['alamat_keluarga'];
+                    }
+                    if (isset($data['ttd_ortu']) && empty($detailUser->keluarga->ttd_ayah)) {
+                        $keluargaUpdates['ttd_ayah'] = $data['ttd_ortu'];
                     }
                     
-                    if (!empty($detailUpdates)) {
-                        $user->detailUser->update($detailUpdates);
-                    }
-                    
-                    // Update keluarga jika ada
-                    if ($user->detailUser->keluarga) {
-                        $keluargaUpdates = [];
-                        if (empty($user->detailUser->keluarga->nama_ayah) && !empty($data['nama_ayah'])) {
-                            $keluargaUpdates['nama_ayah'] = $data['nama_ayah'];
-                        }
-                        if (empty($user->detailUser->keluarga->agama_ayah) && !empty($data['agama_ayah'])) {
-                            $keluargaUpdates['agama_ayah'] = $data['agama_ayah'];
-                        }
-                        if (empty($user->detailUser->keluarga->nama_ibu) && !empty($data['nama_ibu'])) {
-                            $keluargaUpdates['nama_ibu'] = $data['nama_ibu'];
-                        }
-                        if (empty($user->detailUser->keluarga->agama_ibu) && !empty($data['agama_ibu'])) {
-                            $keluargaUpdates['agama_ibu'] = $data['agama_ibu'];
-                        }
-                        if (empty($user->detailUser->keluarga->alamat_ayah) && !empty($data['alamat_keluarga'])) {
-                            $keluargaUpdates['alamat_ayah'] = $data['alamat_keluarga'];
-                            $keluargaUpdates['alamat_ibu'] = $data['alamat_keluarga'];
-                        }
-                        if (empty($user->detailUser->keluarga->ttd_ayah) && !empty($data['ttd_ortu'])) {
-                            $keluargaUpdates['ttd_ayah'] = $data['ttd_ortu'];
-                        }
-                        
-                        if (!empty($keluargaUpdates)) {
-                            $user->detailUser->keluarga->update($keluargaUpdates);
-                        }
-                    } else {
-                        // Buat keluarga baru jika tidak ada
-                        $keluarga = Keluarga::create([
-                            'nama_ayah' => $data['nama_ayah'],
-                            'agama_ayah' => $data['agama_ayah'],
-                            'nama_ibu' => $data['nama_ibu'],
-                            'agama_ibu' => $data['agama_ibu'],
-                            'alamat_ayah' => $data['alamat_keluarga'],
-                            'alamat_ibu' => $data['alamat_keluarga'],
-                            'ttd_ayah' => $data['ttd_ortu'],
-                        ]);
-                        
-                        $user->detailUser->update(['keluarga_id' => $keluarga->id]);
-                        $data['keluarga_id'] = $keluarga->id;
+                    if (!empty($keluargaUpdates)) {
+                        $detailUser->keluarga->update($keluargaUpdates);
                     }
                 } else {
-                    // Buat detail user baru jika tidak ada
                     $keluarga = Keluarga::create([
                         'nama_ayah' => $data['nama_ayah'],
                         'agama_ayah' => $data['agama_ayah'],
@@ -119,23 +94,17 @@ class CreatePendaftaranBaptis extends CreateRecord
                         'agama_ibu' => $data['agama_ibu'],
                         'alamat_ayah' => $data['alamat_keluarga'],
                         'alamat_ibu' => $data['alamat_keluarga'],
-                        'ttd_ayah' => $data['ttd_ortu'],
+                        'ttd_ayah' => $data['ttd_ortu'] ?? null,
                     ]);
                     
-                    $detailUser = DetailUser::create([
-                        'user_id' => $user->id,
-                        'lingkungan_id' => $data['lingkungan_id'],
-                        'keluarga_id' => $keluarga->id,
-                        'nama_baptis' => $data['nama_baptis'],
-                        'alamat' => $data['alamat'],
-                    ]);
-                    
-                    $data['keluarga_id'] = $keluarga->id;
+                    $detailUser->keluarga_id = $keluarga->id;
+                    $detailUser->save();
                 }
             }
-        } else {
-            // Jika user_id tidak dipilih (input manual)
-            // Buat user baru
+        } 
+        // If user is not selected (manual input)
+        else {
+            // Create new user
             $user = User::create([
                 'name' => $data['nama_lengkap'],
                 'email' => $data['akun_email'],
@@ -149,7 +118,7 @@ class CreatePendaftaranBaptis extends CreateRecord
             // Assign role 'umat'
             $user->assignRole('umat');
 
-            // Buat keluarga baru
+            // Create keluarga
             $keluarga = Keluarga::create([
                 'nama_ayah' => $data['nama_ayah'],
                 'agama_ayah' => $data['agama_ayah'],
@@ -157,11 +126,11 @@ class CreatePendaftaranBaptis extends CreateRecord
                 'agama_ibu' => $data['agama_ibu'],
                 'alamat_ayah' => $data['alamat_keluarga'],
                 'alamat_ibu' => $data['alamat_keluarga'],
-                'ttd_ayah' => $data['ttd_ortu'],
+                'ttd_ayah' => $data['ttd_ortu'] ?? null,
             ]);
 
-            // Buat detail user baru
-            $detailUser = DetailUser::create([
+            // Create detail user
+            DetailUser::create([
                 'user_id' => $user->id,
                 'lingkungan_id' => $data['lingkungan_id'],
                 'keluarga_id' => $keluarga->id,
@@ -170,13 +139,12 @@ class CreatePendaftaranBaptis extends CreateRecord
             ]);
 
             $data['user_id'] = $user->id;
-            $data['keluarga_id'] = $keluarga->id;
         }
 
-        // Buat record pendaftaran baptis
+        // Create the PendaftaranBaptis record
         $record = static::getModel()::create($data);
         
-        // Buat surat terkait
+        // Create related Surat record
         $surat = Surat::create([
             'user_id' => $data['user_id'],
             'lingkungan_id' => $data['lingkungan_id'],
@@ -186,9 +154,19 @@ class CreatePendaftaranBaptis extends CreateRecord
             'status' => 'menunggu',
         ]);
         
+        // Link the surat to pendaftaran baptis record
         $record->update(['surat_id' => $surat->id]);
         
         return $record;
+    }
+
+    protected function saveSignature($signature): string
+    {
+        $image = str_replace('data:image/png;base64,', '', $signature);
+        $image = str_replace(' ', '+', $image);
+        $imageName = Str::random(10).'.png';
+        File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
+        return 'storage/signatures/' . $imageName;
     }
 
     protected function getRedirectUrl(): string
