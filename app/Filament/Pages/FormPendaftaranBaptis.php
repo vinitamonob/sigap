@@ -188,6 +188,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->inline()
                             ->inlineLabel(false)
                             ->options([
+                                'Katolik' => 'Katolik',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
                                 'Budha' => 'Budha',

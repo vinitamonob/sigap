@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pendaftaran_kanonik_perkawinans', function (Blueprint $table) {
+        Schema::create('pendaftaran_perkawinans', function (Blueprint $table) {
             $table->id();
             $table->foreignId('surat_id')->nullable()->constrained('surats')->nullOnDelete(); 
             $table->foreignId('calon_suami_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
@@ -38,6 +38,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pendaftaran_kanonik_perkawinans');
+        Schema::dropIfExists('pendaftaran_perkawinans');
     }
 };

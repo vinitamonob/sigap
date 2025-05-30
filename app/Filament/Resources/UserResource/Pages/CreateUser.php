@@ -12,6 +12,6 @@ class CreateUser extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return UserResource::getUrl('index');
+        return static::getResource()::getUrl('index');
     }
 }

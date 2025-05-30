@@ -16,14 +16,18 @@ class LingkunganSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
+        // Daftar nama lingkungan
         $lingkungans = ['St Petrus', 'St Paulus', 'St Yohanes', 'St Maria', 'St Yosef'];
+
+        // Daftar wilayah
+        $wilayahs = ['Cilacap Tengah', 'Cilacap Utara', 'Cilacap Selatan', 'Jeruk Legi', 'Cilacap Kota'];
 
         foreach ($lingkungans as $nama) {
             DB::table('lingkungans')->insert([
                 'nama_lingkungan' => $nama,
-                'kode' => strtoupper(Str::slug(Str::limit(str_replace('St ', '', $nama), 4, ''), '')),
-                'wilayah' => $faker->city,
-                'paroki' => 'St. Stephanus Cilacap',
+                'kode' => strtoupper(Str::limit(str_replace('St ', '', $nama), 4, '')), // Kode lingkungan
+                'wilayah' => $faker->randomElement($wilayahs), // Wilayah dipilih secara acak
+                'paroki' => 'St. Stephanus Cilacap', // Paroki default
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

@@ -51,6 +51,6 @@ class Surat extends Model
     
     public function pendaftaranKanonik()
     {
-        return $this->hasOne(PendaftaranKanonikPerkawinan::class);
+        return $this->hasOne(PendaftaranPerkawinan::class);
     }
 }

@@ -24,9 +24,7 @@ use App\Filament\Resources\KeteranganKematianResource\Pages;
 class KeteranganKematianResource extends Resource
 {
     protected static ?string $model = KeteranganKematian::class;
-
-    protected static ?string $navigationGroup = 'Surat';
-
+    protected static ?string $navigationGroup = 'Pengajuan Surat';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -210,7 +208,7 @@ class KeteranganKematianResource extends Resource
             ])
             ->actions([
                 Tables\Actions\Action::make('confirm')
-                    ->label(fn($record) => $record->nomor_surat === null ? 'Accept' : 'Done')
+                    ->label(fn($record) => $record->nomor_surat === null ? 'TTD' : 'Selesai')
                     ->color(fn($record) => $record->nomor_surat === null ? 'warning' : 'success')
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
@@ -269,6 +267,7 @@ class KeteranganKematianResource extends Resource
                                     'tempat_baptis' => $record->tempat_baptis,
                                     'no_baptis' => $record->no_baptis,
                                     'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
+                                    'ttd_ketua' => $user->tanda_tangan ?? '',
                                 ];
 
                                 $generateSurat = (new SuratKematianGenerate)->generateFromTemplate(

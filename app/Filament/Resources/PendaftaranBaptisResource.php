@@ -25,11 +25,9 @@ use App\Filament\Resources\PendaftaranBaptisResource\Pages;
 class PendaftaranBaptisResource extends Resource
 {
     protected static ?string $model = PendaftaranBaptis::class;
-
-    protected static ?string $navigationGroup = 'Surat';
-
+    protected static ?string $navigationGroup = 'Pengajuan Surat';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
+    
     public static function form(Form $form): Form
     {
         return $form
@@ -315,9 +313,9 @@ class PendaftaranBaptisResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('confirm')
                     ->label(fn($record) => match(true) {
-                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'Accept',
-                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'Accept',
-                        default => 'Done'
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'TTD',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'TTD',
+                        default => 'Selesai'
                     })
                     ->color(fn($record) => match(true) {
                         User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'warning',
@@ -426,6 +424,9 @@ class PendaftaranBaptisResource extends Resource
                                     'nama_ketua' => $record->ketuaLingkungan->user->name,
                                     'nama_pastor' => $user->name,
                                     'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
+                                    'ttd_ortu' => $record->ttd_ortu ?? '',
+                                    'ttd_ketua' => $record->ttd_ketua ?? '',
+                                    'ttd_pastor' => $user->tanda_tangan ?? '',
                                 ];
                                 
                                 $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(

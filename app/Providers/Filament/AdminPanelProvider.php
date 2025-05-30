@@ -46,7 +46,9 @@ class AdminPanelProvider extends PanelProvider
                 Pages\Dashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
-            ->widgets([
+            ->widgets([      
+                \App\Filament\Widgets\SuratChart::class, 
+                \App\Filament\Widgets\StatsDashboard::class,
                 // Widgets\AccountWidget::class,
                 // Widgets\FilamentInfoWidget::class,
             ])

@@ -14,6 +14,7 @@ use App\Models\CalonPasangan;
 use App\Models\KetuaLingkungan;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
+use App\Models\PendaftaranPerkawinan;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Contracts\HasForms;
@@ -23,20 +24,19 @@ use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TimePicker;
-use App\Models\PendaftaranKanonikPerkawinan;
 use Filament\Forms\Concerns\InteractsWithForms;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
 
-class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
+class FormPendaftaranPerkawinan extends Page implements HasForms
 {    
     use InteractsWithForms;
     use HasPageShield;
     
     protected static ?string $navigationGroup = 'Form Pengajuan';
-    protected static ?string $navigationLabel = 'Pendaftaran Kanonik Perkawinan';
+    protected static ?string $navigationLabel = 'Pendaftaran Perkawinan';
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static string $view = 'filament.pages.form-pendaftaran-kanonik-perkawinan';
+    protected static string $view = 'filament.pages.form-pendaftaran-perkawinan';
 
     public ?array $data = [];
 
@@ -460,10 +460,13 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
-                                TextInput::make('lokasi_gereja')
+                                Select::make('lokasi_gereja')
                                     ->required()
                                     ->label('Lokasi Gereja')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'St. Stephanus Cilacap' => 'Gereja St. Stephanus Cilacap',
+                                        'St. Eugenius De Mazenod Cilacap' => 'Kapel St. Eugenius De Mazenod Cilacap'
+                                    ]),
                                 DatePicker::make('tgl_pernikahan')
                                     ->required()
                                     ->label('Tanggal Pernikahan'),
@@ -722,7 +725,7 @@ class FormPendaftaranKanonikPerkawinan extends Page implements HasForms
             $data['calon_suami_id'] = $calonSuami->id;
         }
         
-        $pendaftaranKanonik = PendaftaranKanonikPerkawinan::create($data);
+        $pendaftaranKanonik = PendaftaranPerkawinan::create($data);
         
         $surat = Surat::create([
             'user_id' => Auth::id(),

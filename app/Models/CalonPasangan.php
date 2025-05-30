@@ -47,11 +47,11 @@ class CalonPasangan extends Model
 
     public function calonSuami()
     {
-        return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_suami_id');
+        return $this->hasMany(PendaftaranPerkawinan::class, 'calon_suami_id');
     }
 
     public function calonIstri()
     {
-        return $this->hasMany(PendaftaranKanonikPerkawinan::class, 'calon_istri_id');
+        return $this->hasMany(PendaftaranPerkawinan::class, 'calon_istri_id');
     }
 }

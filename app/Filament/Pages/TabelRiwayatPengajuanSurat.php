@@ -18,8 +18,8 @@ class TabelRiwayatPengajuanSurat extends Page implements HasTable
     use InteractsWithTable;
     use HasPageShield;
 
-    protected static ?string $navigationGroup = 'Status Pengajuan';
-    protected static ?string $navigationLabel = 'Riwayat Pengajuan Surat';
+    protected static ?string $navigationGroup = 'Riwayat';
+    protected static ?string $navigationLabel = 'Pengajuan Surat';
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static string $view = 'filament.pages.tabel-riwayat-pengajuan-surat';
 

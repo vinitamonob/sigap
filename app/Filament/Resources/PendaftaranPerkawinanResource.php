@@ -10,24 +10,23 @@ use App\Models\Surat;
 use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 use App\Models\KetuaLingkungan;
 use Filament\Resources\Resource;
 use Illuminate\Support\Facades\Auth;
+use App\Models\PendaftaranPerkawinan;
 use App\Services\SuratKanonikGenerate;
 use Filament\Forms\Components\Fieldset;
 use Filament\Notifications\Notification;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\PendaftaranKanonikPerkawinan;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Saade\FilamentAutograph\Forms\Components\SignaturePad;
-use App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
+use App\Filament\Resources\PendaftaranPerkawinanResource\Pages;
+use App\Filament\Resources\PendaftaranPerkawinanResource\RelationManagers;
 
-class PendaftaranKanonikPerkawinanResource extends Resource
+class PendaftaranPerkawinanResource extends Resource
 {
-    protected static ?string $model = PendaftaranKanonikPerkawinan::class;
-
-    protected static ?string $navigationGroup = 'Surat';
-
+    protected static ?string $model = PendaftaranPerkawinan::class;
+    protected static ?string $navigationGroup = 'Pengajuan Surat';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -84,7 +83,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
                                 'Budha' => 'Budha',
-                            ]),
+                        ]),
                         Forms\Components\TextInput::make('tempat_baptis_istri')
                             ->maxLength(255)
                             ->label('Tempat Baptis Calon Istri'),
@@ -140,6 +139,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     ->label('Alamat Ibu Calon Istri')
                                     ->columnSpanFull(),
                             ]),   
+
                             Fieldset::make('Data Lingkungan Calon Istri')
                                 ->schema([
                                     Forms\Components\Select::make('lingkungan_istri_id')
@@ -181,6 +181,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                         ->label('Tanda Tangan Ketua Lingkungan Calon Istri'),
                                 ])                          
                     ]),
+
                     Fieldset::make('Data Calon Suami')
                         ->schema([
                             Forms\Components\TextInput::make('nama_suami')
@@ -239,6 +240,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                 ->label('Tanggal Baptis Calon Suami'),
                             SignaturePad::make('ttd_calon_suami')
                                 ->label('Tanda Tangan Calon Suami'),
+
                             Fieldset::make('Data Orang Tua Calon Suami')
                                 ->schema([
                                     Forms\Components\TextInput::make('nama_ayah_suami')
@@ -286,6 +288,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                         ->label('Alamat Ibu Calon Suami')
                                         ->columnSpanFull(),
                                 ]),
+                                
                                 Fieldset::make('Data Lingkungan Calon Suami')
                                     ->schema([
                                         Forms\Components\Select::make('lingkungan_suami_id')
@@ -334,10 +337,13 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                         ]),
                         Fieldset::make('Data Perkawinan')
                             ->schema([
-                                Forms\Components\TextInput::make('lokasi_gereja')
+                                Forms\Components\Select::make('lokasi_gereja')
                                     ->required()
                                     ->label('Lokasi Gereja')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'St. Stephanus Cilacap' => 'Gereja St. Stephanus Cilacap',
+                                        'St. Eugenius De Mazenod Cilacap' => 'Kapel St. Eugenius De Mazenod Cilacap'
+                                    ]),
                                 Forms\Components\DatePicker::make('tgl_pernikahan')
                                     ->required()
                                     ->label('Tanggal Pernikahan'),
@@ -419,9 +425,9 @@ class PendaftaranKanonikPerkawinanResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('confirm')
                     ->label(fn($record) => match(true) {
-                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'Accept',
-                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'Accept',
-                        default => 'Done'
+                        User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'TTD',
+                        User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'TTD',
+                        default => 'Selesai'
                     })
                     ->color(fn($record) => match(true) {
                         User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && $record->nomor_surat === null => 'warning',
@@ -436,7 +442,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                         default => true
                     })
                     ->visible(fn() => !User::where('id', Auth::user()->id)->first()->hasRole('super_admin'))
-                    ->action(function (PendaftaranKanonikPerkawinan $record) {
+                    ->action(function (PendaftaranPerkawinan $record) {
                         $user = User::where('id', Auth::user()->id)->first();
                         
                         if ($user->hasRole('ketua_lingkungan')) {
@@ -462,7 +468,7 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             $count = 1;
                             do {
                                 $nomor_surat = sprintf('%04d/KP/%s/%s/%s', $count, $kode, $bulan, $tahun);
-                                $exists = PendaftaranKanonikPerkawinan::where('nomor_surat', $nomor_surat)->exists();
+                                $exists = PendaftaranPerkawinan::where('nomor_surat', $nomor_surat)->exists();
                                 $count = $exists ? $count + 1 : $count;
                             } while ($exists);
                             
@@ -503,11 +509,8 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                             
                             try {
                                 // Generate file surat
-                                $namaLingkungan = $lingkungan ? $lingkungan->nama_lingkungan : '';
-                                $namaLingkunganSlug = Str::slug($namaLingkungan);
-
                                 $templatePath = 'templates/surat_pendaftaran_kanonik_perkawinan.docx';
-                                $namaSurat = $namaLingkunganSlug . '-' . now()->format('d-m-Y-h-m-s') . '-surat_pendaftaran_kanonik_perkawinan.docx';
+                                $namaSurat = 'paroki-cilacap' . '-' . now()->format('d-m-Y-h-m-s') . '-surat_pendaftaran_kanonik_perkawinan.docx';
                                 $outputPath = storage_path('app/public/' . $namaSurat);
                             
                                 // Data untuk template surat
@@ -564,11 +567,11 @@ class PendaftaranKanonikPerkawinanResource extends Resource
                                     'nama_ketua_istri' => $record->calonIstri->nama_ketua ?? $record->calonIstri->ketuaLingkungan->user->name ?? '',
                                     'nama_ketua_suami' => $record->calonSuami->nama_ketua ?? $record->calonSuami->ketuaLingkungan->user->name ?? '',
                                     'nama_pastor' => $user->name,
-                                    'ttd_calon_istri' => $record->ttd_calon_istri,
-                                    'ttd_ketua_istri' => $record->ttd_ketua_istri,
-                                    'ttd_calon_suami' => $record->ttd_calon_suami,
-                                    'ttd_ketua_suami' => $record->ttd_ketua_suami,
-                                    'ttd_pastor' => $user->tanda_tangan,
+                                    'ttd_calon_istri' => $record->ttd_calon_istri ?? '',
+                                    'ttd_ketua_istri' => $record->ttd_ketua_istri ?? '',
+                                    'ttd_calon_suami' => $record->ttd_calon_suami ?? '',
+                                    'ttd_ketua_suami' => $record->ttd_ketua_suami ?? '',
+                                    'ttd_pastor' => $user->tanda_tangan ?? '',
                                 ];
                                 
                                 // Generate surat (sesuaikan dengan class generator Anda)
@@ -625,9 +628,9 @@ class PendaftaranKanonikPerkawinanResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPendaftaranKanonikPerkawinans::route('/'),
-            'create' => Pages\CreatePendaftaranKanonikPerkawinan::route('/create'),
-            'edit' => Pages\EditPendaftaranKanonikPerkawinan::route('/{record}/edit'),
+            'index' => Pages\ListPendaftaranPerkawinans::route('/'),
+            'create' => Pages\CreatePendaftaranPerkawinan::route('/create'),
+            'edit' => Pages\EditPendaftaranPerkawinan::route('/{record}/edit'),
         ];
     }
 }

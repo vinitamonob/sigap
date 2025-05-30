@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateLingkungan extends CreateRecord
 {
     protected static string $resource = LingkunganResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return static::getResource()::getUrl('index');
+    }
 }

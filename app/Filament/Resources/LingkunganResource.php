@@ -13,9 +13,7 @@ use Filament\Tables\Table;
 class LingkunganResource extends Resource
 {
     protected static ?string $model = Lingkungan::class;
-
     protected static ?string $navigationGroup = 'Kelola Data';
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

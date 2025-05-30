@@ -12,6 +12,6 @@ class CreateKetuaLingkungan extends CreateRecord
 
     protected function getRedirectUrl(): string
     {
-        return KetuaLingkunganResource::getUrl('index');
+        return static::getResource()::getUrl('index');
     }
 }

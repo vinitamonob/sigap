@@ -18,9 +18,7 @@ use App\Filament\Resources\KetuaLingkunganResource\RelationManagers;
 class KetuaLingkunganResource extends Resource
 {
     protected static ?string $model = KetuaLingkungan::class;
-
     protected static ?string $navigationGroup = 'Kelola Data';
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form

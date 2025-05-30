@@ -1,23 +1,23 @@
 <?php
 
-namespace App\Filament\Resources\PendaftaranKanonikPerkawinanResource\Pages;
+namespace App\Filament\Resources\PendaftaranPerkawinanResource\Pages;
 
 use App\Models\User;
 use App\Models\Surat;
+use Filament\Actions;
 use App\Models\Keluarga;
 use App\Models\DetailUser;
-use App\Models\CalonPasangan;
 use App\Models\Lingkungan;
 use Illuminate\Support\Str;
+use App\Models\CalonPasangan;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
-use App\Filament\Resources\PendaftaranKanonikPerkawinanResource;
+use App\Filament\Resources\PendaftaranPerkawinanResource;
 
-class CreatePendaftaranKanonikPerkawinan extends CreateRecord
+class CreatePendaftaranPerkawinan extends CreateRecord
 {
-    protected static string $resource = PendaftaranKanonikPerkawinanResource::class;
+    protected static string $resource = PendaftaranPerkawinanResource::class;
 
     protected function handleRecordCreation(array $data): Model
     {
