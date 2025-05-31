@@ -152,10 +152,11 @@ class PendaftaranBaptisResource extends Resource
                             ->inline()
                             ->inlineLabel(false)
                             ->options([
+                                'Katolik' => 'Katolik',
+                                'Protestan' => 'Protestan',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
                                 'Budha' => 'Budha',
-                                'Protestan' => 'Protestan',
                             ]),
                         Forms\Components\Select::make('pendidikan_terakhir')
                             ->required()

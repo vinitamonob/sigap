@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ArsipSuratResource\Pages;
 use App\Filament\Resources\ArsipSuratResource\RelationManagers;
+use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class ArsipSuratResource extends Resource
 {
@@ -81,7 +83,14 @@ class ArsipSuratResource extends Resource
                     ->default('selesai'),
                 FileUpload::make('file_surat')
                     ->required()
-                    ->label('File Surat'),
+                    ->label('File Surat')
+                    ->getUploadedFileNameForStorageUsing( // Terima semua jenis file
+                        function (Forms\Get $get, $file): string {
+                            $jenisSurat = $get('jenis_surat');
+                            // Selalu menggunakan ekstensi .docx terlepas dari jenis file aslinya
+                            return Carbon::now()->format('d-m-Y-H-i-s') . '-' . $jenisSurat . '.docx';
+                        }
+                    ),
             ]);
     }
 
@@ -106,7 +115,15 @@ class ArsipSuratResource extends Resource
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('file_surat')
-                    ->searchable(),
+                    ->label('File Surat')
+                    ->formatStateUsing(function ($state) {
+                        if ($state) {
+                            $url = Storage::url($state);
+                            return '<a href="' . $url . '" target="_blank" class="underline text-sm text-primary-600 hover:text-primary-500">Download</a>';
+                        }
+                        return '-';
+                    })
+                    ->html(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

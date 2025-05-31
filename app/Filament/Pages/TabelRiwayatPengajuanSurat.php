@@ -9,6 +9,7 @@ use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Contracts\HasTable;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Tables\Concerns\InteractsWithTable;
 use BezhanSalleh\FilamentShield\Traits\HasPageShield;
@@ -56,14 +57,19 @@ class TabelRiwayatPengajuanSurat extends Page implements HasTable
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'menunggu' => 'warning',
-                        'menunggu_paroki' => 'warning',
-                        'diterima' => 'success',
-                        default => 'gray',
+                        default => 'success',
                     })
                     ->searchable(),
                 TextColumn::make('file_surat')
                     ->label('File Surat')
-                    ->searchable(),
+                    ->formatStateUsing(function ($state) {
+                        if ($state) {
+                            $url = Storage::url($state);
+                            return '<a href="' . $url . '" target="_blank" class="underline text-primary-600 hover:text-primary-500">Download</a>';
+                        }
+                        return '-';
+                    })
+                    ->html(),
             ])
             ->filters([
                 // ...
