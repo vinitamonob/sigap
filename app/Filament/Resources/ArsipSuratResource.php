@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Carbon\Carbon;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
@@ -10,13 +11,13 @@ use Filament\Forms\Form;
 use App\Models\Lingkungan;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Illuminate\Support\Facades\Storage;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\ArsipSuratResource\Pages;
 use App\Filament\Resources\ArsipSuratResource\RelationManagers;
-use Illuminate\Support\Facades\Storage;
-use Carbon\Carbon;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 
 class ArsipSuratResource extends Resource
 {
@@ -82,13 +83,16 @@ class ArsipSuratResource extends Resource
                 Forms\Components\Hidden::make('status')
                     ->default('selesai'),
                 FileUpload::make('file_surat')
-                    ->required()
+                    ->required() 
                     ->label('File Surat')
-                    ->getUploadedFileNameForStorageUsing( // Terima semua jenis file
-                        function (Forms\Get $get, $file): string {
+                    // Tentukan jenis file yang diizinkan
+                    ->acceptedFileTypes(['application/pdf', 'image/jpeg', 'image/png', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'])
+                    // Simpan file dengan ekstensi aslinya
+                    ->getUploadedFileNameForStorageUsing(
+                        function (Forms\Get $get, TemporaryUploadedFile $file): string {
                             $jenisSurat = $get('jenis_surat');
-                            // Selalu menggunakan ekstensi .docx terlepas dari jenis file aslinya
-                            return Carbon::now()->format('d-m-Y-H-i-s') . '-' . $jenisSurat . '.docx';
+                            $extension = $file->getClientOriginalExtension(); // Dapatkan ekstensi asli file
+                            return Carbon::now()->format('d-m-Y-H-i-s') . '-' . $jenisSurat . '.' . $extension;
                         }
                     ),
             ]);

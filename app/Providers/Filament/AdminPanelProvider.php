@@ -31,6 +31,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('/')
             // ->path('/admin')
+            ->brandLogo(asset('images/logo1.png'))
+            ->brandLogoHeight('4rem')
             ->login()
             ->registration(Register::class)
             ->passwordReset()
