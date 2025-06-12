@@ -30,12 +30,28 @@ class TabelRiwayatPengajuanSurat extends Page implements HasTable
             ->query(Surat::query())
             ->modifyQueryUsing(function (Builder $query) {
                 $user = User::where('id', Auth::user()->id)->first();
+                
                 if ($user->hasRole('super_admin')) {
                     return $query;
                 }
+                
                 if ($user->hasRole('umat')) {
                     return $query->where('user_id', $user->id);
                 }
+                
+                if ($user->hasRole('ketua_lingkungan')) {
+                    // Dapatkan lingkungan_id dari ketua lingkungan yang login
+                    $lingkunganId = $user->ketuaLingkungan->lingkungan_id ?? null;
+                    
+                    if ($lingkunganId) {
+                        return $query->whereHas('lingkungan', function($q) use ($lingkunganId) {
+                            $q->where('id', $lingkunganId);
+                        });
+                    }
+                    
+                    return $query->where('user_id', $user->id); // Fallback jika tidak ada lingkungan
+                }
+                
                 return $query;
             })
             ->columns([

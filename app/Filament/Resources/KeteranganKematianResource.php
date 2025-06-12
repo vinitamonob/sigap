@@ -97,7 +97,7 @@ class KeteranganKematianResource extends Resource
                                             
                                             // Data dari keluarga
                                             if ($user->detailUser->keluarga) {
-                                                $set('nama_ortu', $user->detailUser->keluarga->nama_ayah . ' / ' . $user->detailUser->keluarga->nama_ibu);
+                                                $set('nama_ortu', $user->detailUser->keluarga->nama_ayah);
                                             }
                                         }
                                     }

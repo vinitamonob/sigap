@@ -10,6 +10,7 @@ use App\Models\DetailUser;
 use App\Models\Lingkungan;
 use Illuminate\Support\Str;
 use App\Models\CalonPasangan;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\File;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
