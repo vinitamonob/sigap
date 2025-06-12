@@ -10,6 +10,11 @@ class EditArsipSurat extends EditRecord
 {
     protected static string $resource = ArsipSuratResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return ArsipSuratResource::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

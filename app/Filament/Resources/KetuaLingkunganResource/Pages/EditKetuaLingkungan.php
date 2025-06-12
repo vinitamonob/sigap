@@ -10,6 +10,11 @@ class EditKetuaLingkungan extends EditRecord
 {
     protected static string $resource = KetuaLingkunganResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return KetuaLingkunganResource::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

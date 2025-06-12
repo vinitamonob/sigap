@@ -10,6 +10,11 @@ class EditLingkungan extends EditRecord
 {
     protected static string $resource = LingkunganResource::class;
 
+    protected function getRedirectUrl(): string
+    {
+        return LingkunganResource::getUrl('index');
+    }
+
     protected function getHeaderActions(): array
     {
         return [

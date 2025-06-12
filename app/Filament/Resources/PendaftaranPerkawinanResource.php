@@ -32,7 +32,7 @@ class PendaftaranPerkawinanResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
+            ->schema([ 
                 Fieldset::make('Data Calon Istri')
                     ->schema([
                         Forms\Components\TextInput::make('nama_istri')

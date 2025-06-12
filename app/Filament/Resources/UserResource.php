@@ -36,7 +36,8 @@ class UserResource extends Resource
                     ->required()
                     ->default('12345678')
                     ->readOnly()
-                    ->maxLength(255),
+                    ->maxLength(255)
+                    ->hidden(fn (string $operation): bool => $operation === 'edit'),
                 Forms\Components\Select::make('roles')
                     ->label('Role')
                     ->relationship('roles', 'name')
