@@ -373,8 +373,10 @@ class PendaftaranPerkawinanResource extends Resource
                 
                 if ($user->hasRole('paroki')) {
                     return $query->whereNotNull('nomor_surat')
-                                ->whereNotNull('ttd_ketua_suami')
-                                ->whereNotNull('ttd_ketua_istri');
+                                ->where(function ($query) {
+                                    $query->whereNotNull('ttd_ketua_suami')
+                                        ->orWhereNotNull('ttd_ketua_istri');
+                                });
                 }
                 
                 if ($user->hasRole('ketua_lingkungan')) {
