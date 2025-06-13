@@ -178,7 +178,7 @@ class PendaftaranPerkawinanResource extends Resource
                                         ->label('Nama Ketua Lingkungan Calon Istri')
                                         ->maxLength(255),
                                     SignaturePad::make('ttd_ketua_istri')
-                                        ->label('Tanda Tangan Ketua Lingkungan Calon Istri'),
+                                        ->label('Tanda Tangan Ketua Lingkungan Calon Istri (opsional)'),
                                 ])                          
                     ]),
 
@@ -331,7 +331,7 @@ class PendaftaranPerkawinanResource extends Resource
                                             ->label('Nama Ketua Lingkungan Calon Suami')
                                             ->maxLength(255),
                                         SignaturePad::make('ttd_ketua_suami')
-                                            ->label('Tanda Tangan Ketua Lingkungan Calon Suami'),
+                                            ->label('Tanda Tangan Ketua Lingkungan Calon Suami (opsional)'),
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')
