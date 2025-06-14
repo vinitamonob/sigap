@@ -29,6 +29,10 @@ class UserResource extends Resource
                     ->label('Email')
                     ->required()
                     ->maxLength(255),
+                Forms\Components\DateTimePicker::make('email_verified_at')
+                    ->label('Email Verified')
+                    ->required()
+                    ->hidden(fn (string $operation): bool => $operation === 'edit'),
                 Forms\Components\TextInput::make('password')
                     ->password()
                     ->label('Password')
