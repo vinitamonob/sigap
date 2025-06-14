@@ -244,9 +244,7 @@ class PendaftaranBaptisResource extends Resource
                             ->required()
                             ->label('Alamat Keluarga')
                             ->columnSpanFull(),
-                        SignaturePad::make('ttd_ortu')
-                            ->required()
-                            ->label('Tanda Tangan Orang Tua (Ayah)'),
+                        Forms\Components\Hidden::make('ttd_ortu'),
                         Forms\Components\Hidden::make('nama_pastor'),
                         Forms\Components\Hidden::make('ttd_pastor'),
                         Forms\Components\Hidden::make('ttd_ketua'),
@@ -434,9 +432,9 @@ class PendaftaranBaptisResource extends Resource
                                     $templatePath,  
                                     $outputPath,
                                     $data,
-                                    public_path($record->ttd_ortu),
-                                    public_path($record->ttd_ketua),
-                                    public_path($user->tanda_tangan)
+                                    $record->ttd_ortu ? public_path($record->ttd_ortu) : public_path('images/blank.png'),
+                                    $record->ttd_ketua ? public_path($record->ttd_ketua) : public_path('images/blank.png'),
+                                    $record->ttd_pastor ? public_path($user->tanda_tangan) : public_path('images/blank.png')
                                 );
                                 
                                 // Update surat yang sudah ada

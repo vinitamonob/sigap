@@ -216,9 +216,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                             ->maxLength(255),
                         DatePicker::make('tgl_baptis_istri')
                             ->label('Tanggal Baptis Calon Istri'),
-                        SignaturePad::make('ttd_calon_istri')
-                            ->required()
-                            ->label('Tanda Tangan Calon Istri'),
+                        Hidden::make('ttd_calon_istri'),
 
                         Fieldset::make('Data Orang Tua Calon Istri')
                             ->schema([
@@ -304,8 +302,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         ->required()
                                         ->label('Nama Ketua Lingkungan Calon Istri')
                                         ->maxLength(255),
-                                    SignaturePad::make('ttd_ketua_istri')
-                                        ->label('Tanda Tangan Ketua Lingkungan Calon Istri (opsional)'),
+                                    Hidden::make('ttd_ketua_istri'),
                                 ])                          
                     ]),
                     Fieldset::make('Data Calon Suami')
@@ -364,9 +361,8 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 ->label('Tempat Baptis Calon Suami'),
                             DatePicker::make('tgl_baptis_suami')
                                 ->label('Tanggal Baptis Calon Suami'),
-                            SignaturePad::make('ttd_calon_suami')
-                                ->required()
-                                ->label('Tanda Tangan Calon Suami'),
+                            Hidden::make('ttd_calon_suami'),
+
                             Fieldset::make('Data Orang Tua Calon Suami')
                                 ->schema([
                                     TextInput::make('nama_ayah_suami')
@@ -454,8 +450,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                             ->required()
                                             ->label('Nama Ketua Lingkungan Calon Suami')
                                             ->maxLength(255),
-                                        SignaturePad::make('ttd_ketua_suami')
-                                            ->label('Tanda Tangan Ketua Lingkungan Calon Suami (opsional)'),
+                                        Hidden::make('ttd_ketua_suami'),
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')

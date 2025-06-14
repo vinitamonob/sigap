@@ -89,8 +89,7 @@ class PendaftaranPerkawinanResource extends Resource
                             ->label('Tempat Baptis Calon Istri'),
                         Forms\Components\DatePicker::make('tgl_baptis_istri')
                             ->label('Tanggal Baptis Calon Istri'),
-                        SignaturePad::make('ttd_calon_istri')
-                            ->label('Tanda Tangan Calon Istri'),
+                        Forms\Components\Hidden::make('ttd_calon_istri'),
 
                         Fieldset::make('Data Orang Tua Calon Istri')
                             ->schema([
@@ -177,8 +176,7 @@ class PendaftaranPerkawinanResource extends Resource
                                         ->required()
                                         ->label('Nama Ketua Lingkungan Calon Istri')
                                         ->maxLength(255),
-                                    SignaturePad::make('ttd_ketua_istri')
-                                        ->label('Tanda Tangan Ketua Lingkungan Calon Istri (opsional)'),
+                                    Forms\Components\Hidden::make('ttd_ketua_istri'),
                                 ])                          
                     ]),
 
@@ -238,8 +236,7 @@ class PendaftaranPerkawinanResource extends Resource
                                 ->label('Tempat Baptis Calon Suami'),
                             Forms\Components\DatePicker::make('tgl_baptis_suami')
                                 ->label('Tanggal Baptis Calon Suami'),
-                            SignaturePad::make('ttd_calon_suami')
-                                ->label('Tanda Tangan Calon Suami'),
+                            Forms\Components\Hidden::make('ttd_calon_suami'),
 
                             Fieldset::make('Data Orang Tua Calon Suami')
                                 ->schema([
@@ -330,8 +327,7 @@ class PendaftaranPerkawinanResource extends Resource
                                             ->required()
                                             ->label('Nama Ketua Lingkungan Calon Suami')
                                             ->maxLength(255),
-                                        SignaturePad::make('ttd_ketua_suami')
-                                            ->label('Tanda Tangan Ketua Lingkungan Calon Suami (opsional)'),
+                                        Forms\Components\Hidden::make('ttd_ketua_suami'),
                                     ])
                         ]),
                         Fieldset::make('Data Perkawinan')
@@ -400,10 +396,16 @@ class PendaftaranPerkawinanResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('calonSuami.user.name')
                     ->label('Calon Suami')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('calonSuami.lingkungan.nama_lingkungan')
+                    ->label('Lingkungan / Stasi')
                     ->searchable(),   
                 Tables\Columns\TextColumn::make('calonIstri.user.name')
                     ->label('Calon Istri')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('calonIstri.lingkungan.nama_lingkungan')
+                    ->label('Lingkungan / Stasi')
+                    ->searchable(), 
                 Tables\Columns\TextColumn::make('lokasi_gereja')
                     ->label('Lokasi Gereja')
                     ->searchable(),
@@ -426,36 +428,45 @@ class PendaftaranPerkawinanResource extends Resource
             ->actions([
                 Tables\Actions\Action::make('confirm')
                     ->label(fn($record) => match(true) {
+                        // Untuk ketua lingkungan: Tampilkan 'TTD' jika:
+                        // 1. Nomor surat belum ada ATAU
+                        // 2. TTD ketua lingkungan (istri/suami) belum ada
                         User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && 
                             ($record->nomor_surat === null || 
-                            ($record->lingkungan_istri_id === Auth::user()->ketuaLingkungan->lingkungan_id && !$record->ttd_ketua_istri) ||
-                            ($record->lingkungan_suami_id === Auth::user()->ketuaLingkungan->lingkungan_id && !$record->ttd_ketua_suami)) => 'TTD',
+                            ($record->lingkungan_istri_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && !$record->ttd_ketua_istri) ||
+                            ($record->lingkungan_suami_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && !$record->ttd_ketua_suami)) => 'TTD',
+                        
+                        // Untuk paroki: Tampilkan 'TTD' jika TTD pastor belum ada
                         User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'TTD',
+                        
                         default => 'Selesai'
                     })
                     ->color(fn($record) => match(true) {
                         User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') && 
                             ($record->nomor_surat === null || 
-                            ($record->lingkungan_istri_id === Auth::user()->ketuaLingkungan->lingkungan_id && !$record->ttd_ketua_istri) ||
-                            ($record->lingkungan_suami_id === Auth::user()->ketuaLingkungan->lingkungan_id && !$record->ttd_ketua_suami)) => 'warning',
+                            ($record->lingkungan_istri_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && !$record->ttd_ketua_istri) ||
+                            ($record->lingkungan_suami_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && !$record->ttd_ketua_suami)) => 'warning',
+                        
                         User::where('id', Auth::user()->id)->first()->hasRole('paroki') && $record->ttd_pastor === null => 'warning',
+                        
                         default => 'success'
                     })
                     ->icon('heroicon-o-check-circle')
                     ->requiresConfirmation()
                     ->disabled(fn($record) => match(true) {
+                        // Untuk super admin: selalu disabled
+                        User::where('id', Auth::user()->id)->first()->hasRole('super_admin') => true,
+                        
                         // Untuk ketua lingkungan: 
                         // Disable jika:
-                        // 1. Nomor surat sudah ada DAN
-                        // 2. TTD ketua istri sudah ada (jika lingkungan istri) DAN
-                        // 3. TTD ketua suami sudah ada (jika lingkungan suami)
-                        // Atau jika bukan lingkungannya
+                        // 1. Bukan lingkungannya ATAU
+                        // 2. Sudah ada nomor surat DAN sudah ada TTD untuk lingkungan yang bersangkutan
                         User::where('id', Auth::user()->id)->first()->hasRole('ketua_lingkungan') => 
+                            ($record->lingkungan_istri_id !== optional(Auth::user()->ketuaLingkungan)->lingkungan_id && 
+                            $record->lingkungan_suami_id !== optional(Auth::user()->ketuaLingkungan)->lingkungan_id) ||
                             ($record->nomor_surat !== null && 
-                            (($record->lingkungan_istri_id === Auth::user()->ketuaLingkungan->lingkungan_id && $record->ttd_ketua_istri !== null) ||
-                            ($record->lingkungan_suami_id === Auth::user()->ketuaLingkungan->lingkungan_id && $record->ttd_ketua_suami !== null))) ||
-                            ($record->lingkungan_istri_id !== Auth::user()->ketuaLingkungan->lingkungan_id && 
-                            $record->lingkungan_suami_id !== Auth::user()->ketuaLingkungan->lingkungan_id),
+                            (($record->lingkungan_istri_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && $record->ttd_ketua_istri !== null) ||
+                            ($record->lingkungan_suami_id === optional(Auth::user()->ketuaLingkungan)->lingkungan_id && $record->ttd_ketua_suami !== null))),
                         
                         // Untuk paroki: 
                         // Disable jika:
@@ -608,11 +619,11 @@ class PendaftaranPerkawinanResource extends Resource
                                     $templatePath,  
                                     $outputPath,
                                     $data,
-                                    public_path($record->ttd_calon_suami),
-                                    public_path($record->ttd_calon_istri),
-                                    public_path($record->ttd_ketua_suami),
-                                    public_path($record->ttd_ketua_istri),
-                                    public_path($user->tanda_tangan)
+                                    $record->ttd_calon_suami ? public_path($record->ttd_calon_suami) : public_path('images/blank.png'),
+                                    $record->ttd_calon_istri ? public_path($record->ttd_calon_istri) : public_path('images/blank.png'),
+                                    $record->ttd_ketua_suami ? public_path($record->ttd_ketua_suami) : public_path('images/blank.png'),
+                                    $record->ttd_ketua_istri ? public_path($record->ttd_ketua_istri) : public_path('images/blank.png'),
+                                    $record->ttd_pastor ? public_path($user->tanda_tangan) : public_path('images/blank.png')
                                 );
                             
                                 $surat = Surat::where('id', $record->surat_id)
