@@ -297,9 +297,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.alamat_keluarga', $state);
                             }),
-                        SignaturePad::make('ttd_ortu')
-                            ->required()
-                            ->label('Tanda Tangan Orang Tua (Ayah)'),
+                        Hidden::make('ttd_ortu'),
                         Hidden::make('nama_pastor'),
                         Hidden::make('ttd_pastor'),
                         Hidden::make('ttd_ketua'),
