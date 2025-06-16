@@ -82,7 +82,9 @@ class PendaftaranPerkawinanResource extends Resource
                                 'Protestan' => 'Protestan',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                         ]),
                         Forms\Components\TextInput::make('tempat_baptis_istri')
                             ->maxLength(255)
@@ -105,7 +107,9 @@ class PendaftaranPerkawinanResource extends Resource
                                         'Protestan' => 'Protestan',
                                         'Islam' => 'Islam',
                                         'Hindu' => 'Hindu',
-                                        'Budha' => 'Budha',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                        'Kepercayaan' => 'Kepercayaan',
                                     ]),
                                 Forms\Components\TextInput::make('pekerjaan_ayah_istri')
                                     ->required()
@@ -127,7 +131,9 @@ class PendaftaranPerkawinanResource extends Resource
                                         'Protestan' => 'Protestan',
                                         'Islam' => 'Islam',
                                         'Hindu' => 'Hindu',
-                                        'Budha' => 'Budha',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                        'Kepercayaan' => 'Kepercayaan',
                                     ]),
                                 Forms\Components\TextInput::make('pekerjaan_ibu_istri')
                                     ->required()
@@ -229,7 +235,9 @@ class PendaftaranPerkawinanResource extends Resource
                                     'Protestan' => 'Protestan',
                                     'Islam' => 'Islam',
                                     'Hindu' => 'Hindu',
-                                    'Budha' => 'Budha',
+                                    'Buddha' => 'Buddha',
+                                    'Konghucu' => 'Konghucu',
+                                    'Kepercayaan' => 'Kepercayaan',
                                 ]),
                             Forms\Components\TextInput::make('tempat_baptis_suami')
                                 ->maxLength(255)
@@ -247,12 +255,14 @@ class PendaftaranPerkawinanResource extends Resource
                                     Forms\Components\Select::make('agama_ayah_suami')
                                         ->required()
                                         ->label('Agama Ayah Calon Suami')
-                                        ->options([
+                                        ->options([                           
                                             'Katolik' => 'Katolik',
                                             'Protestan' => 'Protestan',
                                             'Islam' => 'Islam',
                                             'Hindu' => 'Hindu',
-                                            'Budha' => 'Budha',
+                                            'Buddha' => 'Buddha',
+                                            'Konghucu' => 'Konghucu',
+                                            'Kepercayaan' => 'Kepercayaan',
                                         ]),
                                     Forms\Components\TextInput::make('pekerjaan_ayah_suami')
                                         ->required()
@@ -274,7 +284,9 @@ class PendaftaranPerkawinanResource extends Resource
                                             'Protestan' => 'Protestan',
                                             'Islam' => 'Islam',
                                             'Hindu' => 'Hindu',
-                                            'Budha' => 'Budha',
+                                            'Buddha' => 'Buddha',
+                                            'Konghucu' => 'Konghucu',
+                                            'Kepercayaan' => 'Kepercayaan',
                                         ]),
                                     Forms\Components\TextInput::make('pekerjaan_ibu_suami')
                                         ->required()

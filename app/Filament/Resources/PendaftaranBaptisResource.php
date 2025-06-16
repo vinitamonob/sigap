@@ -156,7 +156,9 @@ class PendaftaranBaptisResource extends Resource
                                 'Protestan' => 'Protestan',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ]),
                         Forms\Components\Select::make('pendidikan_terakhir')
                             ->required()
@@ -193,11 +195,13 @@ class PendaftaranBaptisResource extends Resource
                             ->required()
                             ->label('Agama Ayah')
                             ->options([
-                                'Islam' => 'Islam',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ]),
                         Forms\Components\TextInput::make('nama_ibu')
                             ->required()
@@ -207,11 +211,13 @@ class PendaftaranBaptisResource extends Resource
                             ->required()
                             ->label('Agama Ibu')
                             ->options([
-                                'Islam' => 'Islam',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ]),
                         Fieldset::make('Anggota Keluarga yang sudah Katolik')
                             ->schema([
