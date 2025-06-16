@@ -118,6 +118,14 @@ class ArsipSuratResource extends Resource
                     ->label('Tanggal Surat')
                     ->date()
                     ->sortable(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'menunggu' => 'warning',
+                        default => 'success',
+                    })
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('file_surat')
                     ->label('File Surat')
                     ->formatStateUsing(function ($state) {
