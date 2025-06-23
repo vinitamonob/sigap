@@ -87,7 +87,7 @@ class PendaftaranBaptisResource extends Resource
                                         $set('akun_email', $user->email);
                                         $set('jenis_kelamin', $user->jenis_kelamin);
                                         $set('tempat_lahir', $user->tempat_lahir);
-                                        $set('tgl_lahir', $user->tgl_lahir);
+                                        $set('tgl_lahir', Carbon::parse($user->tgl_lahir)->format('Y-m-d'));
                                         $set('telepon', $user->telepon);
                                         
                                         if ($user->detailUser) {
@@ -112,7 +112,11 @@ class PendaftaranBaptisResource extends Resource
                         Forms\Components\TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
+                            // ->validationMessages([
+                            //     'regex' => 'Nama hanya boleh mengandung huruf dan spasi',
+                            // ]),
                         Forms\Components\TextInput::make('akun_email')
                             ->required()
                             ->label('Akun Email')
@@ -120,6 +124,7 @@ class PendaftaranBaptisResource extends Resource
                         Forms\Components\TextInput::make('nama_baptis')
                             ->required()
                             ->label('Nama Baptis')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\Radio::make('jenis_kelamin')
                             ->required()
@@ -136,7 +141,8 @@ class PendaftaranBaptisResource extends Resource
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tgl_lahir')
                             ->required()
-                            ->label('Tanggal Lahir'),
+                            ->label('Tanggal Lahir')
+                            ->maxDate(now()),
                         Forms\Components\Textarea::make('alamat')
                             ->required()
                             ->label('Alamat Lengkap')
@@ -173,23 +179,26 @@ class PendaftaranBaptisResource extends Resource
                             ]),
                         Forms\Components\DatePicker::make('tgl_belajar')
                             ->required()
-                            ->label('Tanggal Mulai Pembelajaran'),
+                            ->label('Tanggal Mulai Pembelajaran')
+                            ->minDate(now()),
                         Forms\Components\TextInput::make('wali_baptis')
                             ->required()
                             ->label('Nama Wali Baptis')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\Textarea::make('alasan_masuk')
-                            ->required()
-                            ->label('Alasan Masuk Katolik')
+                            ->label('Alasan Masuk Katolik (Wajib diisi jika baptis dewasa)')
                             ->columnSpanFull(),
                         Forms\Components\DatePicker::make('tgl_baptis')
-                            ->required(),       
+                            ->required()
+                            ->minDate(now()),       
                     ]),
                 Fieldset::make('Data Keluarga')
                     ->schema([
                         Forms\Components\TextInput::make('nama_ayah')
                             ->required()
                             ->label('Nama Ayah')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\Select::make('agama_ayah')
                             ->required()
@@ -206,6 +215,7 @@ class PendaftaranBaptisResource extends Resource
                         Forms\Components\TextInput::make('nama_ibu')
                             ->required()
                             ->label('Nama Ibu')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\Select::make('agama_ibu')
                             ->required()
@@ -222,6 +232,7 @@ class PendaftaranBaptisResource extends Resource
                         Fieldset::make('Anggota Keluarga yang sudah Katolik')
                             ->schema([
                                 Forms\Components\TextInput::make('nama_keluarga1')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 1'),
                                 Forms\Components\Select::make('hub_keluarga1')
@@ -234,6 +245,7 @@ class PendaftaranBaptisResource extends Resource
                                         'Kerabat Lainnya' => 'Kerabat Lainnya',
                                     ]),
                                 Forms\Components\TextInput::make('nama_keluarga2')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 2'),
                                 Forms\Components\Select::make('hub_keluarga2')
@@ -422,7 +434,7 @@ class PendaftaranBaptisResource extends Resource
                                     'alamat_keluarga' => $record->user->detailUser->keluarga->alamat_ayah,
                                     'tgl_belajar' => $record->tgl_belajar->locale('id')->translatedFormat('d F Y'),
                                     'wali_baptis' => $record->wali_baptis,
-                                    'alasan_masuk' => $record->alasan_masuk,
+                                    'alasan_masuk' => $record->alasan_masuk ?? '-',
                                     'tgl_baptis' => $record->tgl_baptis->locale('id')->translatedFormat('d F Y'),
                                     'nama_lingkungan' => $record->lingkungan->nama_lingkungan,
                                     'paroki' => $record->lingkungan->paroki ?? 'St. Stephanus Cilacap',

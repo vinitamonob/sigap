@@ -87,6 +87,7 @@ class FormKeteranganKematian extends Page implements HasForms
                         TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         TextInput::make('usia')
                             ->required()
@@ -104,9 +105,11 @@ class FormKeteranganKematian extends Page implements HasForms
                         TextInput::make('nama_ortu')
                             ->required()
                             ->label('Nama Orang Tua')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         TextInput::make('nama_pasangan')
                             ->label('Nama Pasangan')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         DatePicker::make('tgl_kematian')
                             ->required()

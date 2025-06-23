@@ -131,6 +131,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255)
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.nama_lengkap', $state);
@@ -164,6 +165,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         DatePicker::make('tgl_lahir')
                             ->required()
                             ->label('Tanggal Lahir')
+                            ->maxDate(now())
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.tgl_lahir', $state);
                             }),
@@ -189,10 +191,12 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->inlineLabel(false)
                             ->options([
                                 'Katolik' => 'Katolik',
+                                'Protestan' => 'Protestan',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
-                                'Protestan' => 'Protestan',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ]),
                         Select::make('pendidikan_terakhir')
                             ->required()
@@ -207,17 +211,19 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ]),
                         DatePicker::make('tgl_belajar')
                             ->required()
-                            ->label('Tanggal Mulai Pembelajaran'),
+                            ->label('Tanggal Mulai Pembelajaran')
+                            ->minDate(now()),
                         TextInput::make('wali_baptis')
                             ->required()
                             ->label('Nama Wali Baptis')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Textarea::make('alasan_masuk')
-                            ->required()
-                            ->label('Alasan Masuk Katolik')
+                            ->label('Alasan Masuk Katolik (Wajib diisi jika baptis dewasa)')
                             ->columnSpanFull(),
                         DatePicker::make('tgl_baptis')
-                            ->required(),       
+                            ->required()
+                            ->minDate(now()),       
                     ]),
                     
                 Fieldset::make('Data Keluarga')
@@ -226,6 +232,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         TextInput::make('nama_ayah')
                             ->required()
                             ->label('Nama Ayah')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255)
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.nama_ayah', $state);
@@ -234,11 +241,13 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->required()
                             ->label('Agama Ayah')
                             ->options([
-                                'Islam' => 'Islam',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ])
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.agama_ayah', $state);
@@ -246,6 +255,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         TextInput::make('nama_ibu')
                             ->required()
                             ->label('Nama Ibu')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255)
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.nama_ibu', $state);
@@ -254,11 +264,13 @@ class FormPendaftaranBaptis extends Page implements HasForms
                             ->required()
                             ->label('Agama Ibu')
                             ->options([
-                                'Islam' => 'Islam',
-                                'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
                                 'Katolik' => 'Katolik',
                                 'Protestan' => 'Protestan',
+                                'Islam' => 'Islam',
+                                'Hindu' => 'Hindu',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ])
                             ->afterStateUpdated(function ($state, $set) {
                                 $set('data.agama_ibu', $state);
@@ -266,6 +278,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                         Fieldset::make('Anggota Keluarga yang sudah Katolik')
                             ->schema([
                                 TextInput::make('nama_keluarga1')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 1'),
                                 Select::make('hub_keluarga1')
@@ -278,6 +291,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
                                         'Kerabat Lainnya' => 'Kerabat Lainnya',
                                     ]),
                                 TextInput::make('nama_keluarga2')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255)
                                     ->label('Nama Keluarga 2'),
                                 Select::make('hub_keluarga2')

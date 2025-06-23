@@ -86,7 +86,7 @@ class KeteranganLainResource extends Resource
                                         $set('nama_lengkap', $user->name);
                                         $set('akun_email', $user->email);
                                         $set('tempat_lahir', $user->tempat_lahir);
-                                        $set('tgl_lahir', $user->tgl_lahir);
+                                        $set('tgl_lahir', Carbon::parse($user->tgl_lahir)->format('Y-m-d'));
                                         $set('telepon', $user->telepon);
                                         
                                         if ($user->detailUser) {
@@ -101,6 +101,7 @@ class KeteranganLainResource extends Resource
                         Forms\Components\TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\TextInput::make('akun_email')
                             ->required()
@@ -112,7 +113,8 @@ class KeteranganLainResource extends Resource
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tgl_lahir')
                             ->required()
-                            ->label('Tanggal Lahir'),
+                            ->label('Tanggal Lahir')
+                            ->maxDate(now()),
                         Forms\Components\TextInput::make('pekerjaan')
                             ->required()
                             ->label('Pekerjaan')

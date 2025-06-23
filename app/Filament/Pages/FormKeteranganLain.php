@@ -106,6 +106,7 @@ class FormKeteranganLain extends Page implements HasForms
                         TextInput::make('nama_lengkap')
                             ->required()
                             ->label('Nama Lengkap')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255)
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
@@ -122,6 +123,7 @@ class FormKeteranganLain extends Page implements HasForms
                         DatePicker::make('tgl_lahir')
                             ->required()
                             ->label('Tanggal Lahir')
+                            ->maxDate(now())
                             ->reactive()
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('data.tgl_lahir', $state);

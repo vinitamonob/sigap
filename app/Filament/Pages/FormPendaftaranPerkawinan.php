@@ -166,6 +166,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                         TextInput::make('nama_istri')
                             ->required()
                             ->label('Nama lengkap Calon Istri')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         TextInput::make('akun_email_istri')
                             ->required()
@@ -177,7 +178,8 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                             ->maxLength(255),
                         DatePicker::make('tgl_lahir_istri')
                             ->required()
-                            ->label('Tanggal Lahir Calon Istri'),
+                            ->label('Tanggal Lahir Calon Istri')
+                            ->maxDate(now()),
                         Textarea::make('alamat_sekarang_istri')
                             ->required()
                             ->label('Alamat Calon Istri')
@@ -201,6 +203,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                             ->options([
                                 'Diploma/Sarjana' => 'Diploma/Sarjana',
                                 'SMA' => 'SMA',
+                                'SMP' => 'SMP',
                             ]),
                         Select::make('agama_istri')
                             ->required()
@@ -210,12 +213,15 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 'Protestan' => 'Protestan',
                                 'Islam' => 'Islam',
                                 'Hindu' => 'Hindu',
-                                'Budha' => 'Budha',
+                                'Buddha' => 'Buddha',
+                                'Konghucu' => 'Konghucu',
+                                'Kepercayaan' => 'Kepercayaan',
                             ]),
                         TextInput::make('tempat_baptis_istri')
                             ->maxLength(255),
                         DatePicker::make('tgl_baptis_istri')
-                            ->label('Tanggal Baptis Calon Istri'),
+                            ->label('Tanggal Baptis Calon Istri')
+                            ->maxDate(now()),
                         Hidden::make('ttd_calon_istri'),
 
                         Fieldset::make('Data Orang Tua Calon Istri')
@@ -223,6 +229,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 TextInput::make('nama_ayah_istri')
                                     ->required()
                                     ->label('Nama Ayah Calon Istri')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255),
                                 Select::make('agama_ayah_istri')
                                     ->required()
@@ -232,7 +239,9 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         'Protestan' => 'Protestan',
                                         'Islam' => 'Islam',
                                         'Hindu' => 'Hindu',
-                                        'Budha' => 'Budha',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                        'Kepercayaan' => 'Kepercayaan',
                                     ]),
                                 TextInput::make('pekerjaan_ayah_istri')
                                     ->required()
@@ -245,6 +254,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 TextInput::make('nama_ibu_istri')
                                     ->required()
                                     ->label('Nama Ibu Calon Istri')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255),
                                 Select::make('agama_ibu_istri')
                                     ->required()
@@ -254,7 +264,9 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         'Protestan' => 'Protestan',
                                         'Islam' => 'Islam',
                                         'Hindu' => 'Hindu',
-                                        'Budha' => 'Budha',
+                                        'Buddha' => 'Buddha',
+                                        'Konghucu' => 'Konghucu',
+                                        'Kepercayaan' => 'Kepercayaan',
                                     ]),
                                 TextInput::make('pekerjaan_ibu_istri')
                                     ->required()
@@ -301,6 +313,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                     TextInput::make('nama_ketua_istri')
                                         ->required()
                                         ->label('Nama Ketua Lingkungan Calon Istri')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Hidden::make('ttd_ketua_istri'),
                                 ])                          
@@ -310,6 +323,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                             TextInput::make('nama_suami')
                                 ->required()
                                 ->label('Nama Calon Suami')
+                                ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                 ->maxLength(255),
                             TextInput::make('akun_email_suami')
                                 ->required()
@@ -321,7 +335,8 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 ->maxLength(255),
                             DatePicker::make('tgl_lahir_suami')
                                 ->required()
-                                ->label('Tanggal Lahir Calon Suami'),
+                                ->label('Tanggal Lahir Calon Suami')
+                                ->maxDate(now()),
                             Textarea::make('alamat_sekarang_suami')
                                 ->required()
                                 ->label('Alamat Sekarang Calon Suami')
@@ -345,6 +360,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 ->options([
                                     'Diploma/Sarjana' => 'Diploma/Sarjana',
                                     'SMA' => 'SMA',
+                                    'SMP' => 'SMP',
                                 ]),
                             Select::make('agama_suami')
                                 ->required()
@@ -354,13 +370,16 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                     'Protestan' => 'Protestan',
                                     'Islam' => 'Islam',
                                     'Hindu' => 'Hindu',
-                                    'Budha' => 'Budha',
+                                    'Buddha' => 'Buddha',
+                                    'Konghucu' => 'Konghucu',
+                                    'Kepercayaan' => 'Kepercayaan',
                                 ]),
                             TextInput::make('tempat_baptis_suami')
                                 ->maxLength(255)
                                 ->label('Tempat Baptis Calon Suami'),
                             DatePicker::make('tgl_baptis_suami')
-                                ->label('Tanggal Baptis Calon Suami'),
+                                ->label('Tanggal Baptis Calon Suami')
+                                ->maxDate(now()),
                             Hidden::make('ttd_calon_suami'),
 
                             Fieldset::make('Data Orang Tua Calon Suami')
@@ -368,6 +387,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                     TextInput::make('nama_ayah_suami')
                                         ->required()
                                         ->label('Nama Ayah Calon Suami')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Select::make('agama_ayah_suami')
                                         ->required()
@@ -377,7 +397,9 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                             'Protestan' => 'Protestan',
                                             'Islam' => 'Islam',
                                             'Hindu' => 'Hindu',
-                                            'Budha' => 'Budha',
+                                            'Buddha' => 'Buddha',
+                                            'Konghucu' => 'Konghucu',
+                                            'Kepercayaan' => 'Kepercayaan',
                                         ]),
                                     TextInput::make('pekerjaan_ayah_suami')
                                         ->required()
@@ -390,6 +412,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                     TextInput::make('nama_ibu_suami')
                                         ->required()
                                         ->label('Nama Ibu Calon Suami')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Select::make('agama_ibu_suami')
                                         ->required()
@@ -399,7 +422,9 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                             'Protestan' => 'Protestan',
                                             'Islam' => 'Islam',
                                             'Hindu' => 'Hindu',
-                                            'Budha' => 'Budha',
+                                            'Buddha' => 'Buddha',
+                                            'Konghucu' => 'Konghucu',
+                                            'Kepercayaan' => 'Kepercayaan',
                                         ]),
                                     TextInput::make('pekerjaan_ibu_suami')
                                         ->required()
@@ -449,6 +474,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         TextInput::make('nama_ketua_suami')
                                             ->required()
                                             ->label('Nama Ketua Lingkungan Calon Suami')
+                                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                             ->maxLength(255),
                                         Hidden::make('ttd_ketua_suami'),
                                     ])
@@ -464,7 +490,8 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                     ]),
                                 DatePicker::make('tgl_pernikahan')
                                     ->required()
-                                    ->label('Tanggal Pernikahan'),
+                                    ->label('Tanggal Pernikahan')
+                                    ->minDate(now()),
                                 TimePicker::make('waktu_pernikahan')
                                     ->required()
                                     ->label('Waktu Pernikahan'),

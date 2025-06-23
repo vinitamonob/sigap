@@ -38,6 +38,7 @@ class PendaftaranPerkawinanResource extends Resource
                         Forms\Components\TextInput::make('nama_istri')
                             ->required()
                             ->label('Nama lengkap Calon Istri')
+                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                             ->maxLength(255),
                         Forms\Components\TextInput::make('akun_email_istri')
                             ->required()
@@ -49,7 +50,8 @@ class PendaftaranPerkawinanResource extends Resource
                             ->maxLength(255),
                         Forms\Components\DatePicker::make('tgl_lahir_istri')
                             ->required()
-                            ->label('Tanggal Lahir Calon Istri'),
+                            ->label('Tanggal Lahir Calon Istri')
+                            ->maxDate(now()),
                         Forms\Components\Textarea::make('alamat_sekarang_istri')
                             ->required()
                             ->label('Alamat Calon Istri')
@@ -73,6 +75,7 @@ class PendaftaranPerkawinanResource extends Resource
                             ->options([
                                 'Diploma/Sarjana' => 'Diploma/Sarjana',
                                 'SMA' => 'SMA',
+                                'SMP' => 'SMP',
                             ]),
                         Forms\Components\Select::make('agama_istri')
                             ->required()
@@ -90,7 +93,8 @@ class PendaftaranPerkawinanResource extends Resource
                             ->maxLength(255)
                             ->label('Tempat Baptis Calon Istri'),
                         Forms\Components\DatePicker::make('tgl_baptis_istri')
-                            ->label('Tanggal Baptis Calon Istri'),
+                            ->label('Tanggal Baptis Calon Istri')
+                            ->maxDate(now()),
                         Forms\Components\Hidden::make('ttd_calon_istri'),
 
                         Fieldset::make('Data Orang Tua Calon Istri')
@@ -98,6 +102,7 @@ class PendaftaranPerkawinanResource extends Resource
                                 Forms\Components\TextInput::make('nama_ayah_istri')
                                     ->required()
                                     ->label('Nama Ayah Calon Istri')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255),
                                 Forms\Components\Select::make('agama_ayah_istri')
                                     ->required()
@@ -122,6 +127,7 @@ class PendaftaranPerkawinanResource extends Resource
                                 Forms\Components\TextInput::make('nama_ibu_istri')
                                     ->required()
                                     ->label('Nama Ibu Calon Istri')
+                                    ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                     ->maxLength(255),
                                 Forms\Components\Select::make('agama_ibu_istri')
                                     ->required()
@@ -181,6 +187,7 @@ class PendaftaranPerkawinanResource extends Resource
                                     Forms\Components\TextInput::make('nama_ketua_istri')
                                         ->required()
                                         ->label('Nama Ketua Lingkungan Calon Istri')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Forms\Components\Hidden::make('ttd_ketua_istri'),
                                 ])                          
@@ -191,6 +198,7 @@ class PendaftaranPerkawinanResource extends Resource
                             Forms\Components\TextInput::make('nama_suami')
                                 ->required()
                                 ->label('Nama Calon Suami')
+                                ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                 ->maxLength(255),
                         Forms\Components\TextInput::make('akun_email_suami')
                             ->required()
@@ -202,7 +210,8 @@ class PendaftaranPerkawinanResource extends Resource
                                 ->maxLength(255),
                             Forms\Components\DatePicker::make('tgl_lahir_suami')
                                 ->required()
-                                ->label('Tanggal Lahir Calon Suami'),
+                                ->label('Tanggal Lahir Calon Suami')
+                                ->maxDate(now()),
                             Forms\Components\Textarea::make('alamat_sekarang_suami')
                                 ->required()
                                 ->label('Alamat Sekarang Calon Suami')
@@ -226,6 +235,7 @@ class PendaftaranPerkawinanResource extends Resource
                                 ->options([
                                     'Diploma/Sarjana' => 'Diploma/Sarjana',
                                     'SMA' => 'SMA',
+                                    'SMP' => 'SMP',
                                 ]),
                             Forms\Components\Select::make('agama_suami')
                                 ->required()
@@ -243,7 +253,8 @@ class PendaftaranPerkawinanResource extends Resource
                                 ->maxLength(255)
                                 ->label('Tempat Baptis Calon Suami'),
                             Forms\Components\DatePicker::make('tgl_baptis_suami')
-                                ->label('Tanggal Baptis Calon Suami'),
+                                ->label('Tanggal Baptis Calon Suami')
+                                ->maxDate(now()),
                             Forms\Components\Hidden::make('ttd_calon_suami'),
 
                             Fieldset::make('Data Orang Tua Calon Suami')
@@ -251,6 +262,7 @@ class PendaftaranPerkawinanResource extends Resource
                                     Forms\Components\TextInput::make('nama_ayah_suami')
                                         ->required()
                                         ->label('Nama Ayah Calon Suami')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Forms\Components\Select::make('agama_ayah_suami')
                                         ->required()
@@ -275,6 +287,7 @@ class PendaftaranPerkawinanResource extends Resource
                                     Forms\Components\TextInput::make('nama_ibu_suami')
                                         ->required()
                                         ->label('Nama Ibu Calon Suami')
+                                        ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                         ->maxLength(255),
                                     Forms\Components\Select::make('agama_ibu_suami')
                                         ->required()
@@ -338,6 +351,7 @@ class PendaftaranPerkawinanResource extends Resource
                                         Forms\Components\TextInput::make('nama_ketua_suami')
                                             ->required()
                                             ->label('Nama Ketua Lingkungan Calon Suami')
+                                            ->regex('/^[\pL\s]+$/u') // Hanya menerima huruf dan spasi
                                             ->maxLength(255),
                                         Forms\Components\Hidden::make('ttd_ketua_suami'),
                                     ])
@@ -353,7 +367,8 @@ class PendaftaranPerkawinanResource extends Resource
                                     ]),
                                 Forms\Components\DatePicker::make('tgl_pernikahan')
                                     ->required()
-                                    ->label('Tanggal Pernikahan'),
+                                    ->label('Tanggal Pernikahan')
+                                    ->minDate(now()),
                                 Forms\Components\TimePicker::make('waktu_pernikahan')
                                     ->required()
                                     ->label('Waktu Pernikahan'),
@@ -409,13 +424,13 @@ class PendaftaranPerkawinanResource extends Resource
                 Tables\Columns\TextColumn::make('calonSuami.user.name')
                     ->label('Calon Suami')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('calonSuami.lingkungan.nama_lingkungan')
+                Tables\Columns\TextColumn::make('calonSuami.nama_lingkungan')
                     ->label('Lingkungan / Stasi')
                     ->searchable(),   
                 Tables\Columns\TextColumn::make('calonIstri.user.name')
                     ->label('Calon Istri')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('calonIstri.lingkungan.nama_lingkungan')
+                Tables\Columns\TextColumn::make('calonIstri.nama_lingkungan')
                     ->label('Lingkungan / Stasi')
                     ->searchable(), 
                 Tables\Columns\TextColumn::make('lokasi_gereja')
