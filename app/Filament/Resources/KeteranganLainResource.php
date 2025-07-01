@@ -115,10 +115,23 @@ class KeteranganLainResource extends Resource
                             ->required()
                             ->label('Tanggal Lahir')
                             ->maxDate(now()),
-                        Forms\Components\TextInput::make('pekerjaan')
+                        Forms\Components\Select::make('pekerjaan')
                             ->required()
                             ->label('Pekerjaan')
-                            ->maxLength(255),
+                            ->options([
+                                'PNS' => 'PNS',
+                                'TNI/Polri' => 'TNI/Polri',
+                                'Karyawan Swasta' => 'Karyawan Swasta',
+                                'Wiraswasta' => 'Wiraswasta',
+                                'Pedagang' => 'Pedagang',
+                                'Petani/Nelayan' => 'Petani/Nelayan',
+                                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                'Buruh' => 'Buruh/Tukang',
+                                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->searchable(),
                         Forms\Components\Textarea::make('alamat')
                             ->required()
                             ->label('Alamat')
@@ -256,7 +269,7 @@ class KeteranganLainResource extends Resource
                             $record->update([
                                 'nomor_surat' => $nomor_surat,
                                 'ttd_ketua' => $user->tanda_tangan,
-                                'nama_ketua' => $user->name,
+                                'ketua_lingkungan_id' => $user->ketuaLingkungan->id,
                             ]);
                             
                             // Update surat terkait

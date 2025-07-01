@@ -13,6 +13,8 @@ class SuratChart extends ChartWidget
     protected static ?string $heading = 'Statistik Surat (Selesai)';
 
     protected static ?int $sort = 1;
+
+    protected int|string|array $columnSpan = "full";
     
     protected static string $color = 'info';
     

@@ -100,7 +100,7 @@ class PendaftaranBaptisResource extends Resource
                                                 $set('nama_ibu', $user->detailUser->keluarga->nama_ibu);
                                                 $set('agama_ibu', $user->detailUser->keluarga->agama_ibu);
                                                 $set('alamat_keluarga', $user->detailUser->keluarga->alamat_ayah);
-                                                $set('ttd_ortu', $user->detailUser->keluarga->ttd_ayah ?? $user->detailUser->keluarga->ttd_ibu);
+                                                $set('ttd_ortu', $user->detailUser->keluarga->ttd_ayah);
                                             }
                                         }
                                     }
@@ -380,7 +380,7 @@ class PendaftaranBaptisResource extends Resource
                             $record->update([
                                 'nomor_surat' => $nomor_surat,
                                 'ttd_ketua' => $user->tanda_tangan,
-                                'ketua_lingkungan_id' => $ketuaLingkungan->id,
+                                'ketua_lingkungan_id' => $user->ketuaLingkungan->id,
                             ]);
                             
                             // Update surat terkait
@@ -441,11 +441,11 @@ class PendaftaranBaptisResource extends Resource
                                     'nama_ketua' => $record->ketuaLingkungan->user->name,
                                     'nama_pastor' => $user->name,
                                     'tgl_surat' => $record->tgl_surat->locale('id')->translatedFormat('d F Y'),
-                                    'ttd_ortu' => $record->ttd_ortu ?? '',
+                                    'ttd_ortu' => $record->ttd_ayah ?? '',
                                     'ttd_ketua' => $record->ttd_ketua ?? '',
                                     'ttd_pastor' => $user->tanda_tangan ?? '',
                                 ];
-                                
+                                // dd($record->ttd_ortu, $record->ttd_ketua, $user->tanda_tangan);
                                 $generateSurat = (new SuratBaptisGenerate)->generateFromTemplate(
                                     $templatePath,  
                                     $outputPath,

@@ -79,7 +79,7 @@ class FormPendaftaranBaptis extends Page implements HasForms
             'nama_ibu' => $keluarga->nama_ibu,
             'agama_ibu' => $keluarga->agama_ibu,
             'alamat_keluarga' => $keluarga->alamat_ayah ?? $keluarga->alamat_ibu,
-            'ttd_ortu' => $keluarga->ttd_ayah ?? $keluarga->ttd_ibu,
+            'ttd_ortu' => $keluarga->ttd_ayah,
         ]);
     }
 
@@ -322,14 +322,6 @@ class FormPendaftaranBaptis extends Page implements HasForms
 
     public function create(): void
     {
-        // Simpan tanda tangan orang tua
-        $image = $this->data['ttd_ortu'];  
-        $image = str_replace('data:image/png;base64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-        $imageName = Str::random(10).'.'.'png';
-        File::put(storage_path(). '/' . $imageName, base64_decode($image));
-        $this->data['ttd_ortu'] = $imageName;
-
         $data = $this->form->getState();
         /** @var User $user */
         $user = Auth::user();
@@ -362,7 +354,6 @@ class FormPendaftaranBaptis extends Page implements HasForms
             'agama_ibu' => $data['agama_ibu'],
             'alamat_ayah' => $data['alamat_keluarga'],
             'alamat_ibu' => $data['alamat_keluarga'],
-            'ttd_ayah' => $data['ttd_ortu'],
         ];
 
         if (isset($data['keluarga_id'])) {

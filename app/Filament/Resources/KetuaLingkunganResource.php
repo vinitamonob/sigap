@@ -28,12 +28,59 @@ class KetuaLingkunganResource extends Resource
                 Forms\Components\Select::make('lingkungan_id')
                     ->required()
                     ->label('Nama Lingkungan / Stasi')
-                    ->options(Lingkungan::pluck('nama_lingkungan', 'id')->toArray())
+                    ->options(function ($get, $set, $context) {
+                        // Mendapatkan ID lingkungan yang sudah memiliki ketua aktif
+                        $lingkunganWithActiveKetuaIds = KetuaLingkungan::where('aktif', true)
+                            ->pluck('lingkungan_id')
+                            ->toArray();
+                        
+                        // Jika dalam mode edit, termasuk lingkungan yang sedang diedit
+                        if ($context === 'edit') {
+                            $currentRecord = $get('id');
+                            $currentLingkungan = KetuaLingkungan::find($currentRecord)->lingkungan_id ?? null;
+                            
+                            if ($currentLingkungan) {
+                                // Filter out the current lingkungan from the exclusion list
+                                $lingkunganWithActiveKetuaIds = array_filter($lingkunganWithActiveKetuaIds, function ($id) use ($currentLingkungan) {
+                                    return $id != $currentLingkungan;
+                                });
+                            }
+                        }
+                        
+                        // Ambil lingkungan yang belum memiliki ketua aktif
+                        return Lingkungan::whereNotIn('id', $lingkunganWithActiveKetuaIds)
+                            ->pluck('nama_lingkungan', 'id')
+                            ->toArray();
+                    })
                     ->searchable(),
                 Forms\Components\Select::make('user_id')
                     ->required()
                     ->label('Ketua Lingkungan')
-                    ->options(User::role('ketua_lingkungan')->pluck('name', 'id')->toArray())
+                    ->options(function ($get, $set, $context) {
+                        // Mendapatkan ID user yang sudah menjabat sebagai ketua lingkungan aktif
+                        $activeKetuaUserIds = KetuaLingkungan::where('aktif', true)
+                            ->pluck('user_id')
+                            ->toArray();
+                        
+                        // Jika dalam mode edit, termasuk user yang sedang diedit
+                        if ($context === 'edit') {
+                            $currentRecord = $get('id');
+                            $currentUserId = KetuaLingkungan::find($currentRecord)->user_id ?? null;
+                            
+                            if ($currentUserId) {
+                                // Filter out the current user from the exclusion list
+                                $activeKetuaUserIds = array_filter($activeKetuaUserIds, function ($id) use ($currentUserId) {
+                                    return $id != $currentUserId;
+                                });
+                            }
+                        }
+                        
+                        // Ambil user dengan role ketua_lingkungan yang belum menjabat
+                        return User::role('ketua_lingkungan')
+                            ->whereNotIn('id', $activeKetuaUserIds)
+                            ->pluck('name', 'id')
+                            ->toArray();
+                    })
                     ->searchable(),
                 Forms\Components\DatePicker::make('mulai_jabatan')
                     ->label('Mulai Jabatan'),

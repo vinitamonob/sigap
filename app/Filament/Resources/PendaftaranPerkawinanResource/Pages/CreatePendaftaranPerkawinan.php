@@ -22,25 +22,6 @@ class CreatePendaftaranPerkawinan extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        // Proses tanda tangan
-        $tandaTanganFields = [
-            'ttd_calon_istri',
-            'ttd_calon_suami',
-            'ttd_ketua_istri',
-            'ttd_ketua_suami'
-        ];
-
-        foreach ($tandaTanganFields as $field) {
-            if (isset($data[$field]) && !empty($data[$field])) {
-                $image = $data[$field];
-                $image = str_replace('data:image/png;base64,', '', $image);
-                $image = str_replace(' ', '+', $image);
-                $imageName = Str::random(10).'.png';
-                File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
-                $data[$field] = 'storage/signatures/' . $imageName;
-            }
-        }
-
         // Buat user baru untuk calon istri
         $userIstri = User::create([
             'name' => $data['nama_istri'],

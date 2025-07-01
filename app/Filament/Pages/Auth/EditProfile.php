@@ -180,6 +180,7 @@ class EditProfile extends BaseEditProfile
         $user = User::where('id', Auth::user()->id)->first();
         return DatePicker::make('tgl_lahir')
             ->label('Tanggal Lahir')
+            ->maxDate(now())
             ->required(false)
             ->hidden(fn () => $user->hasRole('super_admin'));
     }
@@ -222,6 +223,7 @@ class EditProfile extends BaseEditProfile
     {
         return DatePicker::make('detailUser.tgl_baptis')
             ->label('Tanggal Baptis')
+            ->minDate(now())
             ->required(false);
     }
 
@@ -274,18 +276,46 @@ class EditProfile extends BaseEditProfile
             ->required(false);
     }
 
-    protected function getPekerjaanAyahFormComponent(): TextInput
+    protected function getPekerjaanAyahFormComponent(): Select
     {
-        return TextInput::make('detailUser.keluarga.pekerjaan_ayah')
+        return Select::make('detailUser.keluarga.pekerjaan_ayah')
+            ->required(false)
             ->label('Pekerjaan Ayah')
-            ->required(false);
+            ->searchable()
+            ->options([
+                'PNS' => 'PNS',
+                'TNI/Polri' => 'TNI/Polri',
+                'Karyawan Swasta' => 'Karyawan Swasta',
+                'Wiraswasta' => 'Wiraswasta',
+                'Pedagang' => 'Pedagang',
+                'Petani/Nelayan' => 'Petani/Nelayan',
+                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                'Buruh' => 'Buruh/Tukang',
+                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                'Lainnya' => 'Lainnya',
+            ]);
     }
 
-    protected function getPekerjaanIbuFormComponent(): TextInput
+    protected function getPekerjaanIbuFormComponent(): Select
     {
-        return TextInput::make('detailUser.keluarga.pekerjaan_ibu')
-            ->label('Pekerjaan Ibu')
-            ->required(false);
+        return Select::make('detailUser.keluarga.pekerjaan_ibu')
+            ->required(false)
+            ->label('Pekerjaan Ayah')
+            ->searchable()
+            ->options([
+                'PNS' => 'PNS',
+                'TNI/Polri' => 'TNI/Polri',
+                'Karyawan Swasta' => 'Karyawan Swasta',
+                'Wiraswasta' => 'Wiraswasta',
+                'Pedagang' => 'Pedagang',
+                'Petani/Nelayan' => 'Petani/Nelayan',
+                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                'Buruh' => 'Buruh/Tukang',
+                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                'Lainnya' => 'Lainnya',
+            ]);
     }
 
     protected function getAlamatAyahFormComponent(): Textarea

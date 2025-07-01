@@ -15,6 +15,7 @@ class StatsDashboard extends BaseWidget
     
     protected static ?string $cacheKey = 'stats-dashboard-data';
 
+
     protected function getHeading(): string
     {
         $monthName = now()->translatedFormat('F'); // Nama bulan dalam bahasa Indonesia

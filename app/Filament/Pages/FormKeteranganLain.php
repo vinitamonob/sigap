@@ -128,10 +128,23 @@ class FormKeteranganLain extends Page implements HasForms
                             ->afterStateUpdated(function ($state, callable $set) {
                                 $set('data.tgl_lahir', $state);
                             }),
-                        TextInput::make('pekerjaan')
+                        Select::make('pekerjaan')
                             ->required()
                             ->label('Pekerjaan')
-                            ->maxLength(255),
+                            ->options([
+                                'PNS' => 'PNS',
+                                'TNI/Polri' => 'TNI/Polri',
+                                'Karyawan Swasta' => 'Karyawan Swasta',
+                                'Wiraswasta' => 'Wiraswasta',
+                                'Pedagang' => 'Pedagang',
+                                'Petani/Nelayan' => 'Petani/Nelayan',
+                                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                'Buruh' => 'Buruh/Tukang',
+                                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->searchable(),
                         Textarea::make('alamat')
                             ->required()
                             ->label('Alamat')

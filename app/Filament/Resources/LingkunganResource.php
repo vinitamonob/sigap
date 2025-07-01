@@ -27,9 +27,15 @@ class LingkunganResource extends Resource
                 Forms\Components\TextInput::make('kode')
                     ->label('Kode Lingkungan')
                     ->maxLength(255),
-                Forms\Components\TextInput::make('wilayah')
+                Forms\Components\Select::make('wilayah')
                     ->label('Wilayah')
-                    ->maxLength(255),
+                    ->options([
+                        'Cilacap Kota' => 'Cilcap Kota',
+                        'Jeruk Legi' => 'Jeruk Legi',
+                        'Kesugihan' => 'Kesugihan',
+                        'Kawunganten' => 'Kawunganten',
+                        'Ujungalang' => 'Ujungalang',
+                    ]),
                 Forms\Components\TextInput::make('paroki')
                     ->label('Paroki')
                     ->default('St. Stephanus Cilacap')

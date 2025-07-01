@@ -193,10 +193,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                             ->required()
                             ->label('Telepon Calon Istri')
                             ->maxLength(255),
-                        TextInput::make('pekerjaan_istri')
+                        Select::make('pekerjaan_istri')
                             ->required()
                             ->label('Pekerjaan Calon Istri')
-                            ->maxLength(255),
+                            ->options([
+                                'PNS' => 'PNS',
+                                'TNI/Polri' => 'TNI/Polri',
+                                'Karyawan Swasta' => 'Karyawan Swasta',
+                                'Wiraswasta' => 'Wiraswasta',
+                                'Pedagang' => 'Pedagang',
+                                'Petani/Nelayan' => 'Petani/Nelayan',
+                                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                'Buruh' => 'Buruh/Tukang',
+                                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->searchable(),
                         Select::make('pendidikan_terakhir_istri')
                             ->required()
                             ->label('Pendidikan Terakhir Calon Istri')
@@ -218,6 +231,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 'Kepercayaan' => 'Kepercayaan',
                             ]),
                         TextInput::make('tempat_baptis_istri')
+                            ->label('Tempat Baptis Calon Istri')
                             ->maxLength(255),
                         DatePicker::make('tgl_baptis_istri')
                             ->label('Tanggal Baptis Calon Istri')
@@ -243,10 +257,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         'Konghucu' => 'Konghucu',
                                         'Kepercayaan' => 'Kepercayaan',
                                     ]),
-                                TextInput::make('pekerjaan_ayah_istri')
+                                Select::make('pekerjaan_ayah_istri')
                                     ->required()
                                     ->label('Pekerjaan Ayah Calon Istri')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'PNS' => 'PNS',
+                                        'TNI/Polri' => 'TNI/Polri',
+                                        'Karyawan Swasta' => 'Karyawan Swasta',
+                                        'Wiraswasta' => 'Wiraswasta',
+                                        'Pedagang' => 'Pedagang',
+                                        'Petani/Nelayan' => 'Petani/Nelayan',
+                                        'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                        'Buruh' => 'Buruh/Tukang',
+                                        'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                        'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                        'Lainnya' => 'Lainnya',
+                                    ])
+                                    ->searchable(),
                                 Textarea::make('alamat_ayah_istri')
                                     ->required()
                                     ->label('Alamat Ayah Calon Istri')
@@ -268,10 +295,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                         'Konghucu' => 'Konghucu',
                                         'Kepercayaan' => 'Kepercayaan',
                                     ]),
-                                TextInput::make('pekerjaan_ibu_istri')
+                                Select::make('pekerjaan_ibu_istri')
                                     ->required()
                                     ->label('Pekerjaan Ibu Calon Istri')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'PNS' => 'PNS',
+                                        'TNI/Polri' => 'TNI/Polri',
+                                        'Karyawan Swasta' => 'Karyawan Swasta',
+                                        'Wiraswasta' => 'Wiraswasta',
+                                        'Pedagang' => 'Pedagang',
+                                        'Petani/Nelayan' => 'Petani/Nelayan',
+                                        'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                        'Buruh' => 'Buruh/Tukang',
+                                        'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                        'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                        'Lainnya' => 'Lainnya',
+                                    ])
+                                    ->searchable(),
                                 Textarea::make('alamat_ibu_istri')
                                     ->required()
                                     ->label('Alamat Ibu Calon Istri')
@@ -350,10 +390,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                 ->required()
                                 ->label('Telepon Calon Suami')
                                 ->maxLength(255),
-                            TextInput::make('pekerjaan_suami')
+                            Select::make('pekerjaan_suami')
                                 ->required()
                                 ->label('Pekerjaan Calon Suami')
-                                ->maxLength(255),
+                                ->options([
+                                    'PNS' => 'PNS',
+                                    'TNI/Polri' => 'TNI/Polri',
+                                    'Karyawan Swasta' => 'Karyawan Swasta',
+                                    'Wiraswasta' => 'Wiraswasta',
+                                    'Pedagang' => 'Pedagang',
+                                    'Petani/Nelayan' => 'Petani/Nelayan',
+                                    'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                    'Buruh' => 'Buruh/Tukang',
+                                    'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                    'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                    'Lainnya' => 'Lainnya',
+                                ])
+                                ->searchable(),
                             Select::make('pendidikan_terakhir_suami')
                                 ->required()
                                 ->label('Pendidikan Terakhir Calon Suami')
@@ -401,10 +454,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                             'Konghucu' => 'Konghucu',
                                             'Kepercayaan' => 'Kepercayaan',
                                         ]),
-                                    TextInput::make('pekerjaan_ayah_suami')
+                                    Select::make('pekerjaan_ayah_suami')
                                         ->required()
                                         ->label('Pekerjaan Ayah Calon Suami')
-                                        ->maxLength(255),
+                                        ->options([
+                                            'PNS' => 'PNS',
+                                            'TNI/Polri' => 'TNI/Polri',
+                                            'Karyawan Swasta' => 'Karyawan Swasta',
+                                            'Wiraswasta' => 'Wiraswasta',
+                                            'Pedagang' => 'Pedagang',
+                                            'Petani/Nelayan' => 'Petani/Nelayan',
+                                            'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                            'Buruh' => 'Buruh/Tukang',
+                                            'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                            'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                            'Lainnya' => 'Lainnya',
+                                        ])
+                                        ->searchable(),
                                     Textarea::make('alamat_ayah_suami')
                                         ->required()
                                         ->label('Alamat Ayah Calon Suami')
@@ -426,10 +492,23 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                                             'Konghucu' => 'Konghucu',
                                             'Kepercayaan' => 'Kepercayaan',
                                         ]),
-                                    TextInput::make('pekerjaan_ibu_suami')
+                                    Select::make('pekerjaan_ibu_suami')
                                         ->required()
                                         ->label('Pekerjaan Ibu Calon Suami')
-                                        ->maxLength(255),
+                                        ->options([
+                                            'PNS' => 'PNS',
+                                            'TNI/Polri' => 'TNI/Polri',
+                                            'Karyawan Swasta' => 'Karyawan Swasta',
+                                            'Wiraswasta' => 'Wiraswasta',
+                                            'Pedagang' => 'Pedagang',
+                                            'Petani/Nelayan' => 'Petani/Nelayan',
+                                            'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                            'Buruh' => 'Buruh/Tukang',
+                                            'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                            'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                            'Lainnya' => 'Lainnya',
+                                        ])
+                                        ->searchable(),
                                     Textarea::make('alamat_ibu_suami')
                                         ->required()
                                         ->label('Alamat Ibu Calon Suami')
@@ -512,25 +591,6 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
     {
         $data = $this->form->getState();
         
-        // Proses tanda tangan
-        $tandaTanganFields = [
-            'ttd_calon_istri',
-            'ttd_calon_suami',
-            'ttd_ketua_istri',
-            'ttd_ketua_suami'
-        ];
-
-        foreach ($tandaTanganFields as $field) {
-            if (isset($data[$field]) && !empty($data[$field])) {
-                $image = $data[$field];
-                $image = str_replace('data:image/png;base64,', '', $image);
-                $image = str_replace(' ', '+', $image);
-                $imageName = Str::random(10).'.png';
-                File::put(storage_path(). '/' . $imageName, base64_decode($image));
-                $data[$field] = $imageName;
-            }
-        }
-
         /** @var User $user */
         $user = Auth::user();
         $detailUser = DetailUser::where('user_id', $user->id)->first();

@@ -18,11 +18,6 @@ class CreatePendaftaranBaptis extends CreateRecord
 
     protected function handleRecordCreation(array $data): Model
     {
-        // Handle signature upload
-        if (isset($data['ttd_ortu'])) {
-            $data['ttd_ortu'] = $this->saveSignature($data['ttd_ortu']);
-        }
-
         // If user is selected from database
         if (!empty($data['user_id'])) {
             $user = User::find($data['user_id']);
@@ -158,15 +153,6 @@ class CreatePendaftaranBaptis extends CreateRecord
         $record->update(['surat_id' => $surat->id]);
         
         return $record;
-    }
-
-    protected function saveSignature($signature): string
-    {
-        $image = str_replace('data:image/png;base64,', '', $signature);
-        $image = str_replace(' ', '+', $image);
-        $imageName = Str::random(10).'.png';
-        File::put(public_path('storage/signatures/' . $imageName), base64_decode($image));
-        return 'storage/signatures/' . $imageName;
     }
 
     protected function getRedirectUrl(): string

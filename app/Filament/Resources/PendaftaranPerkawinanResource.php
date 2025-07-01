@@ -65,10 +65,23 @@ class PendaftaranPerkawinanResource extends Resource
                             ->required()
                             ->label('Telepon Calon Istri')
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('pekerjaan_istri')
+                        Forms\Components\Select::make('pekerjaan_istri')
                             ->required()
                             ->label('Pekerjaan Calon Istri')
-                            ->maxLength(255),
+                            ->options([
+                                'PNS' => 'PNS',
+                                'TNI/Polri' => 'TNI/Polri',
+                                'Karyawan Swasta' => 'Karyawan Swasta',
+                                'Wiraswasta' => 'Wiraswasta',
+                                'Pedagang' => 'Pedagang',
+                                'Petani/Nelayan' => 'Petani/Nelayan',
+                                'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                'Buruh' => 'Buruh/Tukang',
+                                'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                'Lainnya' => 'Lainnya',
+                            ])
+                            ->searchable(),
                         Forms\Components\Select::make('pendidikan_terakhir_istri')
                             ->required()
                             ->label('Pendidikan Terakhir Calon Istri')
@@ -116,10 +129,23 @@ class PendaftaranPerkawinanResource extends Resource
                                         'Konghucu' => 'Konghucu',
                                         'Kepercayaan' => 'Kepercayaan',
                                     ]),
-                                Forms\Components\TextInput::make('pekerjaan_ayah_istri')
+                                Forms\Components\Select::make('pekerjaan_ayah_istri')
                                     ->required()
                                     ->label('Pekerjaan Ayah Calon Istri')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'PNS' => 'PNS',
+                                        'TNI/Polri' => 'TNI/Polri',
+                                        'Karyawan Swasta' => 'Karyawan Swasta',
+                                        'Wiraswasta' => 'Wiraswasta',
+                                        'Pedagang' => 'Pedagang',
+                                        'Petani/Nelayan' => 'Petani/Nelayan',
+                                        'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                        'Buruh' => 'Buruh/Tukang',
+                                        'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                        'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                        'Lainnya' => 'Lainnya',
+                                    ])
+                                    ->searchable(),
                                 Forms\Components\Textarea::make('alamat_ayah_istri')
                                     ->required()
                                     ->label('Alamat Ayah Calon Istri')
@@ -141,10 +167,23 @@ class PendaftaranPerkawinanResource extends Resource
                                         'Konghucu' => 'Konghucu',
                                         'Kepercayaan' => 'Kepercayaan',
                                     ]),
-                                Forms\Components\TextInput::make('pekerjaan_ibu_istri')
+                                Forms\Components\Select::make('pekerjaan_ibu_istri')
                                     ->required()
                                     ->label('Pekerjaan Ibu Calon Istri')
-                                    ->maxLength(255),
+                                    ->options([
+                                        'PNS' => 'PNS',
+                                        'TNI/Polri' => 'TNI/Polri',
+                                        'Karyawan Swasta' => 'Karyawan Swasta',
+                                        'Wiraswasta' => 'Wiraswasta',
+                                        'Pedagang' => 'Pedagang',
+                                        'Petani/Nelayan' => 'Petani/Nelayan',
+                                        'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                        'Buruh' => 'Buruh/Tukang',
+                                        'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                        'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                        'Lainnya' => 'Lainnya',
+                                    ])
+                                    ->searchable(),
                                 Forms\Components\Textarea::make('alamat_ibu_istri')
                                     ->required()
                                     ->label('Alamat Ibu Calon Istri')
@@ -225,10 +264,23 @@ class PendaftaranPerkawinanResource extends Resource
                                 ->required()
                                 ->label('Telepon Calon Suami')
                                 ->maxLength(255),
-                            Forms\Components\TextInput::make('pekerjaan_suami')
+                            Forms\Components\Select::make('pekerjaan_suami')
                                 ->required()
                                 ->label('Pekerjaan Calon Suami')
-                                ->maxLength(255),
+                                ->options([
+                                    'PNS' => 'PNS',
+                                    'TNI/Polri' => 'TNI/Polri',
+                                    'Karyawan Swasta' => 'Karyawan Swasta',
+                                    'Wiraswasta' => 'Wiraswasta',
+                                    'Pedagang' => 'Pedagang',
+                                    'Petani/Nelayan' => 'Petani/Nelayan',
+                                    'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                    'Buruh' => 'Buruh/Tukang',
+                                    'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                    'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                    'Lainnya' => 'Lainnya',
+                                ])
+                                ->searchable(),
                             Forms\Components\Select::make('pendidikan_terakhir_suami')
                                 ->required()
                                 ->label('Pendidikan Terakhir Calon Suami')
@@ -276,10 +328,23 @@ class PendaftaranPerkawinanResource extends Resource
                                             'Konghucu' => 'Konghucu',
                                             'Kepercayaan' => 'Kepercayaan',
                                         ]),
-                                    Forms\Components\TextInput::make('pekerjaan_ayah_suami')
+                                    Forms\Components\Select::make('pekerjaan_ayah_suami')
                                         ->required()
                                         ->label('Pekerjaan Ayah Calon Suami')
-                                        ->maxLength(255),
+                                        ->options([
+                                            'PNS' => 'PNS',
+                                            'TNI/Polri' => 'TNI/Polri',
+                                            'Karyawan Swasta' => 'Karyawan Swasta',
+                                            'Wiraswasta' => 'Wiraswasta',
+                                            'Pedagang' => 'Pedagang',
+                                            'Petani/Nelayan' => 'Petani/Nelayan',
+                                            'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                            'Buruh' => 'Buruh/Tukang',
+                                            'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                            'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                            'Lainnya' => 'Lainnya',
+                                        ])
+                                        ->searchable(),
                                     Forms\Components\Textarea::make('alamat_ayah_suami')
                                         ->required()
                                         ->label('Alamat Ayah Calon Suami')
@@ -301,10 +366,23 @@ class PendaftaranPerkawinanResource extends Resource
                                             'Konghucu' => 'Konghucu',
                                             'Kepercayaan' => 'Kepercayaan',
                                         ]),
-                                    Forms\Components\TextInput::make('pekerjaan_ibu_suami')
+                                    Forms\Components\Select::make('pekerjaan_ibu_suami')
                                         ->required()
                                         ->label('Pekerjaan Ibu Calon Suami')
-                                        ->maxLength(255),
+                                        ->options([
+                                            'PNS' => 'PNS',
+                                            'TNI/Polri' => 'TNI/Polri',
+                                            'Karyawan Swasta' => 'Karyawan Swasta',
+                                            'Wiraswasta' => 'Wiraswasta',
+                                            'Pedagang' => 'Pedagang',
+                                            'Petani/Nelayan' => 'Petani/Nelayan',
+                                            'Profesional (Dokter, Guru, dll)' => 'Profesional (Dokter, Guru, dll)',
+                                            'Buruh' => 'Buruh/Tukang',
+                                            'Ibu Rumah Tangga' => 'Ibu Rumah Tangga',
+                                            'Pelajar/Mahasiswa' => 'Pelajar/Mahasiswa',
+                                            'Lainnya' => 'Lainnya',
+                                        ])
+                                        ->searchable(),
                                     Forms\Components\Textarea::make('alamat_ibu_suami')
                                         ->required()
                                         ->label('Alamat Ibu Calon Suami')
