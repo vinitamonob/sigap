@@ -220,7 +220,21 @@ class KeteranganKematianResource extends Resource
                     ->action(function (KeteranganKematian $record) {
                         $user = User::where('id', Auth::user()->id)->first();
                         
-                        if ($user->hasRole('ketua_lingkungan')) {  
+                        if ($user->hasRole('ketua_lingkungan')) { 
+                            $ketuaLingkungan = KetuaLingkungan::where('user_id', $user->id)
+                                ->where('aktif', true)
+                                ->first();
+                            
+                            if (!$ketuaLingkungan) {
+                                Notification::make()
+                                    ->title('Error: Anda bukan ketua lingkungan aktif')
+                                    ->danger()
+                                    ->send();
+                                return;
+                            }
+                            
+                            $lingkungan = $ketuaLingkungan->lingkungan;
+
                             // Generate nomor surat
                             $tahun = Carbon::now()->format('Y');
                             $bulan = Carbon::now()->format('m');
@@ -241,6 +255,7 @@ class KeteranganKematianResource extends Resource
                             $record->update([
                                 'nomor_surat' => $nomor_surat,
                                 'ttd_ketua' => $user->tanda_tangan ?? '',
+                                'ketua_lingkungan_id' => $user->ketuaLingkungan->id,
                             ]);
 
                             try {

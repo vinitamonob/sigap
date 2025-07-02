@@ -223,7 +223,7 @@ class EditProfile extends BaseEditProfile
     {
         return DatePicker::make('detailUser.tgl_baptis')
             ->label('Tanggal Baptis')
-            ->minDate(now())
+            ->maxDate(now())
             ->required(false);
     }
 

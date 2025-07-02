@@ -68,6 +68,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                 'tempat_lahir_istri' => $user->tempat_lahir ?? '',
                 'tgl_lahir_istri' => $user->tgl_lahir ?? '',
                 'telepon_istri' => $user->telepon ?? '',
+                'ttd_calon_istri' => $user->tanda_tangan ?? '',
                 'alamat_sekarang_istri' => $detailUser->alamat ?? '',
                 'lingkungan_istri_id' => $detailUser->lingkungan_id ?? null,
             ];
@@ -113,6 +114,7 @@ class FormPendaftaranPerkawinan extends Page implements HasForms
                 'tempat_lahir_suami' => $user->tempat_lahir ?? '',
                 'tgl_lahir_suami' => $user->tgl_lahir ?? '',
                 'telepon_suami' => $user->telepon ?? '',
+                'ttd_calon_suami' => $user->tanda_tangan ?? '',
                 'alamat_sekarang_suami' => $detailUser->alamat ?? '',
                 'lingkungan_suami_id' => $detailUser->lingkungan_id ?? null,
             ];

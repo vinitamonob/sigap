@@ -30,7 +30,7 @@ class LingkunganResource extends Resource
                 Forms\Components\Select::make('wilayah')
                     ->label('Wilayah')
                     ->options([
-                        'Cilacap Kota' => 'Cilcap Kota',
+                        'Cilacap Kota' => 'Cilacap Kota',
                         'Jeruk Legi' => 'Jeruk Legi',
                         'Kesugihan' => 'Kesugihan',
                         'Kawunganten' => 'Kawunganten',
