@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('keluarga_id')->nullable()->constrained('keluargas')->nullOnDelete();
-            $table->string('nama_baptis')->nullable();
-            $table->string('tempat_baptis')->nullable();
+            $table->string('nama_baptis', 50)->nullable();
+            $table->string('tempat_baptis', 50)->nullable();
             $table->date('tgl_baptis')->nullable();
             $table->string('no_baptis')->nullable();
             $table->text('alamat')->nullable();

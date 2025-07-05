@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->enum('jenis_surat', ['keterangan_kematian', 'keterangan_lain', 'pendaftaran_baptis', 'pendaftaran_perkawinan']);
-            $table->string('nomor_surat')->nullable();
+            $table->string('nomor_surat', 20)->nullable();
             $table->string('perihal');
             $table->date('tgl_surat')->nullable();
             $table->enum('status', ['menunggu', 'selesai'])->default('menunggu');

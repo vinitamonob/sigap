@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::create('keluargas', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_ayah')->nullable();
-            $table->string('agama_ayah')->nullable();
-            $table->string('pekerjaan_ayah')->nullable();
+            $table->string('nama_ayah', 100)->nullable();
+            $table->string('agama_ayah', 20)->nullable();
+            $table->string('pekerjaan_ayah', 50)->nullable();
             $table->text('alamat_ayah')->nullable();
-            $table->string('nama_ibu')->nullable();
-            $table->string('agama_ibu')->nullable();
-            $table->string('pekerjaan_ibu')->nullable();
+            $table->string('nama_ibu', 100)->nullable();
+            $table->string('agama_ibu', 20)->nullable();
+            $table->string('pekerjaan_ibu', 50)->nullable();
             $table->text('alamat_ibu')->nullable();
             $table->string('ttd_ayah')->nullable();
             $table->string('ttd_ibu')->nullable();

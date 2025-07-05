@@ -19,9 +19,9 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete(); 
             $table->foreignId('lingkungan_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('ketua_lingkungan_id')->nullable()->constrained('ketua_lingkungans')->nullOnDelete(); 
-            $table->string('nomor_surat')->nullable();
+            $table->string('nomor_surat', 20)->nullable();
             $table->date('tgl_surat')->nullable();
-            $table->string('pekerjaan')->nullable();      
+            $table->string('pekerjaan', 50)->nullable();      
             $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak'])->nullable();
             $table->text('keperluan')->nullable();
             $table->string('nama_pastor')->nullable();

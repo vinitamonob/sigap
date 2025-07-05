@@ -18,12 +18,12 @@ return new class extends Migration
             $table->foreignId('calon_istri_id')->nullable()->constrained('calon_pasangans')->nullOnDelete();
             $table->foreignId('lingkungan_suami_id')->nullable()->constrained('lingkungans')->nullOnDelete();
             $table->foreignId('lingkungan_istri_id')->nullable()->constrained('lingkungans')->nullOnDelete();    
-            $table->string('nomor_surat')->nullable();
+            $table->string('nomor_surat', 20)->nullable();
             $table->date('tgl_surat')->nullable();    
-            $table->string('lokasi_gereja')->nullable();
+            $table->string('lokasi_gereja', 100)->nullable();
             $table->date('tgl_pernikahan')->nullable();
             $table->time('waktu_pernikahan')->nullable();  
-            $table->string('nama_pastor')->nullable();
+            $table->string('nama_pastor', 100)->nullable();
             $table->string('ttd_pastor')->nullable();
             $table->string('ttd_ketua_suami')->nullable();
             $table->string('ttd_ketua_istri')->nullable();           

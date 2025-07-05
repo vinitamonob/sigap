@@ -14,10 +14,10 @@ return new class extends Migration
     {
         Schema::create('lingkungans', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_lingkungan');
-            $table->string('kode')->nullable();
-            $table->string('wilayah')->nullable();
-            $table->string('paroki')->nullable();
+            $table->string('nama_lingkungan', 50);
+            $table->string('kode', 10)->nullable();
+            $table->string('wilayah', 50)->nullable();
+            $table->string('paroki', 100)->nullable();
             $table->timestamps();
         });
     }
