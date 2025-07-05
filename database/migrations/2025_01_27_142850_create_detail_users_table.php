@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nama_baptis', 50)->nullable();
             $table->string('tempat_baptis', 50)->nullable();
             $table->date('tgl_baptis')->nullable();
-            $table->string('no_baptis')->nullable();
+            $table->string('no_baptis', 20)->nullable();
             $table->text('alamat')->nullable();
             $table->timestamps();
         });
