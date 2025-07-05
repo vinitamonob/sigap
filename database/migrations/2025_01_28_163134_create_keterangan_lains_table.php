@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('pekerjaan', 50)->nullable();      
             $table->enum('status_tinggal', ['Sendiri', 'Bersama Keluarga', 'Bersama Saudara', 'Kos/Kontrak'])->nullable();
             $table->text('keperluan')->nullable();
-            $table->string('nama_pastor')->nullable();
+            $table->string('nama_pastor', 100)->nullable();
             $table->string('ttd_pastor')->nullable();            
             $table->string('ttd_ketua')->nullable(); 
             $table->timestamps();
