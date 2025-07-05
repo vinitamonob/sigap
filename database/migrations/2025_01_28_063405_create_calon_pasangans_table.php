@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('agama', 20)->nullable();
             $table->enum('jenis_kelamin', ['Pria', 'Wanita']);
             $table->string('pendidikan_terakhir', 50)->nullable();
-            $table->string('pekerjaan',)->nullable();
+            $table->string('pekerjaan', 50)->nullable();
             $table->text('alamat_stlh_menikah')->nullable();
             $table->timestamps();
         });
